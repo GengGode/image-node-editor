@@ -1,0 +1,12 @@
+add_example_executable(flow-image-app
+    blueprints-example.cpp
+    utilities/builders.h
+    utilities/drawing.h
+    utilities/widgets.h
+    utilities/builders.cpp
+    utilities/drawing.cpp
+    utilities/widgets.cpp
+    nodes/base_nodes.cpp
+    notifiers/Notifier.cpp
+    #textures/image_to_texture.cpp
+)
