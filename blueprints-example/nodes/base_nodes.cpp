@@ -464,6 +464,65 @@ Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const
     return &node;
 }
 
+Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+{
+    m_Nodes.emplace_back(GetNextId(), "Image Add Image");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image right", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "Image left", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        printf("Executing Image Source\n");
+        printf("Inputs: %d\n", (int)node->Inputs.size());
+        printf("Outputs: %d\n", (int)node->Outputs.size());
+        auto image_right_pin = node->Inputs[0];
+        auto link_right = graph->FindPinLink(image_right_pin.ID);
+        if (!link_right)
+            return false;
+        auto start_pin_right = graph->FindPin(link_right->StartPinID);
+        if (!start_pin_right && start_pin_right->Kind != PinKind::Output)
+            return false;
+        cv::Mat image_right;
+        if (!start_pin_right->Node->Outputs[0].GetValue(image_right))
+            return false;
+        printf("Image Input %d %d\n", image_right.cols, image_right.rows);
+
+        auto image_left_pin = node->Inputs[1];
+        auto link_left = graph->FindPinLink(image_left_pin.ID);
+        if (!link_left)
+            return false;
+        auto start_pin_left = graph->FindPin(link_left->StartPinID);
+        if (!start_pin_left && start_pin_left->Kind != PinKind::Output)
+            return false;
+        cv::Mat image_left;
+        if (!start_pin_left->Node->Outputs[0].GetValue(image_left))
+            return false;
+        printf("Image Input %d %d\n", image_left.cols, image_left.rows);
+
+        // Display image
+        node->Inputs[0].Value = image_right;
+        node->Inputs[1].Value = image_left;
+
+        if (image_right.cols != image_left.cols || image_right.rows != image_left.rows)
+            return false;
+        if (image_right.channels() != image_left.channels())
+            return false;
+
+        cv::Mat image;
+        cv::add(image_right, image_left, image);
+        node->Outputs[0].Value = image;
+
+        return true;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)>>>> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, {
@@ -486,6 +545,7 @@ std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const
                                   {"RGB to BGR", Spawn_ImageOperator_RgbToBgr},
                                   {"BGR to RGB", Spawn_ImageOperator_BgrToRgb},
                                   {"Gray to RGB", Spawn_ImageOperator_GrayToRGB},
+                                  {"Image Add Image", Spawn_ImageOperator_ImageAddImage},
                               }},
         {NodeType::Simple, {
                                {"Message", SpawnMessageNode},
