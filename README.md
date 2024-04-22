@@ -1,4 +1,11 @@
-features:
+# Preview: 
+A pipeline like image algorithm editor, in order to adjust algorithm parameters in real-time, adjust algorithm content, edit algorithms, and attempt to use it as a pipeline
+
+# Wait Fix:
+- [ ] Chaos!
+
+
+# features:
 
 - [ ] refactor: node and link classes 
 - [ ] refactor: execute changed to mutiple threads
