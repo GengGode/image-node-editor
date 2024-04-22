@@ -172,8 +172,12 @@ struct Example : public Application
                 // 执行当前节点
                 auto node_res = current_node->OnExecute(&m_Graph, current_node);
                 // 执行失败，终止执行链
-                if (!node_res)
+                if (node_res.has_error())
+                {
+                    printf("node->OnExecute failed\n");
+                    printf("    node_res = %s\n", node_res.Error.value().Message.c_str());
                     break;
+                }
                 // 执行成功，继续执行链
                 // 没有输出，即最终节点，终止执行链
                 if (current_node->Outputs.size() == 0)

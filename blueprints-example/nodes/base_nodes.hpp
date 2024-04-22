@@ -138,6 +138,29 @@ struct Pin
 };
 
 struct Graph;
+
+struct ErrorInfo
+{
+    using SourceId = std::variant<ed::NodeId, ed::PinId, ed::LinkId, std::string>;
+    SourceId Source;
+    std::string Message;
+    ErrorInfo(SourceId source, const std::string &message) : Source(source), Message(message) {}
+};
+struct ExecuteResult
+{
+    std::optional<ErrorInfo> Error;
+
+    ExecuteResult(std::optional<ErrorInfo> error = std::nullopt) : Error(error) {}
+
+    explicit operator bool() const { return Error.has_value(); }
+    bool has_error() const { return Error.has_value(); }
+
+    static ExecuteResult Success() { return ExecuteResult(); }
+    static ExecuteResult ErrorNode(ed::NodeId nodeId, const std::string &message) { return ExecuteResult(ErrorInfo(nodeId, message)); }
+    static ExecuteResult ErrorPin(ed::PinId pinId, const std::string &message) { return ExecuteResult(ErrorInfo(pinId, message)); }
+    static ExecuteResult ErrorLink(ed::LinkId linkId, const std::string &message) { return ExecuteResult(ErrorInfo(linkId, message)); }
+    static ExecuteResult ErrorCustom(const std::string &message) { return ExecuteResult(ErrorInfo(std::string(), message)); }
+};
 struct Node
 {
     ed::NodeId ID;
@@ -154,11 +177,9 @@ struct Node
     Node(int id, const char *name, ImColor color = ImColor(255, 255, 255)) : ID(id), Name(name), Color(color), Type(NodeType::Blueprint), Size(0, 0)
     {
     }
-    std::function<bool(Graph *, Node *)> OnExecute = [](Graph *, Node *)
+    std::function<ExecuteResult(Graph *, Node *)> OnExecute = [](Graph *, Node *)
     {
-        printf("Null Impl\n");
-        Notifier::Add(Notif(Notif::Type::NONE, "Null Impl"));
-        return false;
+        return ExecuteResult::ErrorCustom("Null Impl");
     };
 };
 

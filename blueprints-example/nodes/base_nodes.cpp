@@ -2,6 +2,36 @@
 #include "../notifiers/Notifier.hpp"
 #include <filesystem>
 
+ExecuteResult get_image(Graph *graph, Pin input, cv::Mat &image)
+{
+    auto link = graph->FindPinLink(input.ID);
+    if (!link)
+        return ExecuteResult::ErrorPin(input.ID, "Not Find Pin Link");
+    auto start_pin = graph->FindPin(link->StartPinID);
+    if (!start_pin && start_pin->Kind != PinKind::Output)
+        return ExecuteResult::ErrorLink(link->ID, "Not Find Link Start Pin");
+    if (!start_pin->GetValue(image))
+        return ExecuteResult::ErrorLink(link->ID, "Not Get Value");
+    return ExecuteResult::Success();
+}
+template <typename T>
+ExecuteResult get_value(Graph *graph, Pin input, T &value)
+{
+    auto link = graph->FindPinLink(input.ID);
+    if (!link)
+    {
+        if (!input.GetValue(value))
+            return ExecuteResult::ErrorPin(input.ID, std::string("Not Find Pin Link or Not default value type: ") + typeid(T).name());
+        return ExecuteResult::Success();
+    }
+    auto start_pin = graph->FindPin(link->StartPinID);
+    if (!start_pin && start_pin->Kind != PinKind::Output)
+        return ExecuteResult::ErrorLink(link->ID, "Not Find Link Start Pin");
+    if (!start_pin->GetValue(value))
+        return ExecuteResult::ErrorLink(link->ID, "Not Get Value");
+    return ExecuteResult::Success();
+}
+
 Node *SpawnInputActionNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
 {
     m_Nodes.emplace_back(GetNextId(), "InputAction Fire", ImColor(255, 128, 128));
@@ -75,10 +105,11 @@ Node *SpawnMessageNode(const std::function<int()> &GetNextId, const std::functio
     node.OnExecute = [](Graph *graph, Node *node)
     {
         std::string message;
-        if (!node->Outputs[0].GetValue(message))
-            message = "Error: Message pin not connected";
+        auto result = get_value(graph, node->Outputs[0], message);
+        if (result.has_error())
+            return result;
         printf("Message: %s\n", message.c_str());
-        return true;
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -166,41 +197,35 @@ Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::functi
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        printf("Executing Image Source\n");
-        printf("Inputs: %d\n", (int)node->Inputs.size());
-        printf("Outputs: %d\n", (int)node->Outputs.size());
-        auto path_pin = node->Inputs[0];
-        // 先找到输入端点对应的连线
-        auto link = graph->FindPinLink(path_pin.ID);
-        if (!link)
-            return false;
-        // 再找到连线的起始端点，即上一个节点的输出端点
-        auto start_pin = graph->FindPin(link->StartPinID);
-        // 如果起始端点不存在或者不是输出端点，则返回
-        if (!start_pin && start_pin->Kind != PinKind::Output)
-            return false;
-        // 从上一个节点的输出端点获取数据
         std::string path;
-        if (!start_pin->GetValue(path))
-            return false;
-        printf("Image Path: %s\n", path.c_str());
+        auto result = get_value(graph, node->Inputs[0], path);
+        if (result.has_error())
+            return result;
 
         std::filesystem::path p(path);
         if (!std::filesystem::exists(p))
-            return false;
+            return ExecuteResult::ErrorNode(node->ID, "File not found");
 
         std::string ext = p.extension().string();
         if (ext != ".png" && ext != ".jpg" && ext != ".jpeg")
-            return false;
+            return ExecuteResult::ErrorNode(node->ID, "Invalid file format");
 
-        // Load image
-        printf("Loading Image\n");
-        cv::Mat image = cv::imread(path, cv::IMREAD_UNCHANGED);
-        if (image.empty())
-            return false;
-        node->Outputs[0].Value = image;
-        printf("Image Loaded %d %d\n", image.cols, image.rows);
-        return true;
+        try
+        {
+            cv::Mat image = cv::imread(path, cv::IMREAD_UNCHANGED);
+            if (image.empty())
+                return ExecuteResult::ErrorNode(node->ID, "Failed to load image");
+            node->Outputs[0].Value = image;
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -217,22 +242,15 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        printf("Executing Image Viewer\n");
-        auto image_pin = node->Inputs[0];
-        auto link = graph->FindPinLink(image_pin.ID);
-        if (!link)
-            return false;
-        auto start_pin = graph->FindPin(link->StartPinID);
-        if (!start_pin && start_pin->Kind != PinKind::Output)
-            return false;
         cv::Mat image;
-        if (!start_pin->Node->Outputs[0].GetValue(image))
-            return false;
-        printf("Image Input %d %d\n", image.cols, image.rows);
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "Empty image");
 
-        // Display image
         node->Inputs[0].Value = image;
-        return true;
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -250,34 +268,34 @@ Node *Spawn_ImageOperator_Gray(const std::function<int()> &GetNextId, const std:
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        printf("Executing Image Source\n");
-        printf("Inputs: %d\n", (int)node->Inputs.size());
-        printf("Outputs: %d\n", (int)node->Outputs.size());
-        auto image_pin = node->Inputs[0];
-        auto link = graph->FindPinLink(image_pin.ID);
-        if (!link)
-            return false;
-        auto start_pin = graph->FindPin(link->StartPinID);
-        if (!start_pin && start_pin->Kind != PinKind::Output)
-            return false;
         cv::Mat image;
-        if (!start_pin->Node->Outputs[0].GetValue(image))
-            return false;
-        printf("Image Input %d %d\n", image.cols, image.rows);
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
 
-        // Display image
         node->Inputs[0].Value = image;
 
-        cv::Mat gray;
-        if (image.channels() == 1)
-            gray = image;
-        else if (image.channels() == 3)
-            cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-        else if (image.channels() == 4)
-            cv::cvtColor(image, gray, cv::COLOR_BGRA2GRAY);
-        node->Outputs[0].Value = gray;
+        try
+        {
+            cv::Mat gray;
+            if (image.channels() == 1)
+                gray = image;
+            else if (image.channels() == 3)
+                cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+            else if (image.channels() == 4)
+                cv::cvtColor(image, gray, cv::COLOR_BGRA2GRAY);
+            node->Outputs[0].Value = gray;
+        }
+        catch (const cv::Exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
 
-        return true;
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -298,40 +316,44 @@ Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        printf("Executing Image Source\n");
-        printf("Inputs: %d\n", (int)node->Inputs.size());
-        printf("Outputs: %d\n", (int)node->Outputs.size());
-        auto image_pin = node->Inputs[0];
-        auto link = graph->FindPinLink(image_pin.ID);
-        if (!link)
-            return false;
-        auto start_pin = graph->FindPin(link->StartPinID);
-        if (!start_pin && start_pin->Kind != PinKind::Output)
-            return false;
         cv::Mat image;
-        if (!start_pin->Node->Outputs[0].GetValue(image))
-            return false;
-        printf("Image Input %d %d\n", image.cols, image.rows);
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
 
-        // Display image
-        // node->Inputs[0].Value = image;
         float threshold_1 = 50;
+        result = get_value(graph, node->Inputs[1], threshold_1);
+        if (result.has_error())
+            return result;
+
         float threshold_2 = 150;
+        result = get_value(graph, node->Inputs[2], threshold_2);
+        if (result.has_error())
+            return result;
+
         int size = 3;
-        if (!node->Inputs[1].GetValue(threshold_1))
-            threshold_1 = 50;
-        if (!node->Inputs[2].GetValue(threshold_2))
-            threshold_2 = 150;
-        if (!node->Inputs[3].GetValue(size))
-            size = 3;
+        result = get_value(graph, node->Inputs[3], size);
+        if (result.has_error())
+            return result;
 
         if (size % 2 == 0)
-            size += 1;
-        cv::Mat canny;
-        cv::Canny(image, canny, threshold_1, threshold_2, size);
-        node->Outputs[0].Value = canny;
+            return ExecuteResult::ErrorNode(node->ID, "Size must be odd");
+        try
+        {
+            cv::Mat canny;
+            cv::Canny(image, canny, threshold_1, threshold_2, size);
+            node->Outputs[0].Value = canny;
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
 
-        return true;
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -349,32 +371,33 @@ Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const 
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        printf("Executing Image Source\n");
-        printf("Inputs: %d\n", (int)node->Inputs.size());
-        printf("Outputs: %d\n", (int)node->Outputs.size());
-        auto image_pin = node->Inputs[0];
-        auto link = graph->FindPinLink(image_pin.ID);
-        if (!link)
-            return false;
-        auto start_pin = graph->FindPin(link->StartPinID);
-        if (!start_pin && start_pin->Kind != PinKind::Output)
-            return false;
         cv::Mat image;
-        if (!start_pin->Node->Outputs[0].GetValue(image))
-            return false;
-        printf("Image Input %d %d\n", image.cols, image.rows);
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
 
         // Display image
         node->Inputs[0].Value = image;
 
-        cv::Mat bgr;
-        if (image.channels() == 3)
-            cv::cvtColor(image, bgr, cv::COLOR_RGB2BGR);
-        else if (image.channels() == 4)
-            cv::cvtColor(image, bgr, cv::COLOR_RGBA2BGRA);
-        node->Outputs[0].Value = bgr;
+        try
+        {
+            cv::Mat bgr;
+            if (image.channels() == 3)
+                cv::cvtColor(image, bgr, cv::COLOR_RGB2BGR);
+            else if (image.channels() == 4)
+                cv::cvtColor(image, bgr, cv::COLOR_RGBA2BGRA);
+            node->Outputs[0].Value = bgr;
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
 
-        return true;
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -391,32 +414,33 @@ Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const 
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        printf("Executing Image Source\n");
-        printf("Inputs: %d\n", (int)node->Inputs.size());
-        printf("Outputs: %d\n", (int)node->Outputs.size());
-        auto image_pin = node->Inputs[0];
-        auto link = graph->FindPinLink(image_pin.ID);
-        if (!link)
-            return false;
-        auto start_pin = graph->FindPin(link->StartPinID);
-        if (!start_pin && start_pin->Kind != PinKind::Output)
-            return false;
         cv::Mat image;
-        if (!start_pin->Node->Outputs[0].GetValue(image))
-            return false;
-        printf("Image Input %d %d\n", image.cols, image.rows);
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
 
         // Display image
         node->Inputs[0].Value = image;
 
-        cv::Mat rgb;
-        if (image.channels() == 3)
-            cv::cvtColor(image, rgb, cv::COLOR_BGR2RGB);
-        else if (image.channels() == 4)
-            cv::cvtColor(image, rgb, cv::COLOR_BGRA2RGBA);
-        node->Outputs[0].Value = rgb;
+        try
+        {
+            cv::Mat rgb;
+            if (image.channels() == 3)
+                cv::cvtColor(image, rgb, cv::COLOR_BGR2RGB);
+            else if (image.channels() == 4)
+                cv::cvtColor(image, rgb, cv::COLOR_BGRA2RGBA);
+            node->Outputs[0].Value = rgb;
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
 
-        return true;
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -433,30 +457,31 @@ Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        printf("Executing Image Source\n");
-        printf("Inputs: %d\n", (int)node->Inputs.size());
-        printf("Outputs: %d\n", (int)node->Outputs.size());
-        auto image_pin = node->Inputs[0];
-        auto link = graph->FindPinLink(image_pin.ID);
-        if (!link)
-            return false;
-        auto start_pin = graph->FindPin(link->StartPinID);
-        if (!start_pin && start_pin->Kind != PinKind::Output)
-            return false;
         cv::Mat image;
-        if (!start_pin->Node->Outputs[0].GetValue(image))
-            return false;
-        printf("Image Input %d %d\n", image.cols, image.rows);
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
 
         // Display image
         node->Inputs[0].Value = image;
 
-        cv::Mat rgb;
-        if (image.channels() == 1)
-            cv::cvtColor(image, rgb, cv::COLOR_GRAY2RGB);
-        node->Outputs[0].Value = rgb;
+        try
+        {
+            cv::Mat rgb;
+            if (image.channels() == 1)
+                cv::cvtColor(image, rgb, cv::COLOR_GRAY2RGB);
+            node->Outputs[0].Value = rgb;
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
 
-        return true;
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -475,47 +500,41 @@ Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, c
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        printf("Executing Image Source\n");
-        printf("Inputs: %d\n", (int)node->Inputs.size());
-        printf("Outputs: %d\n", (int)node->Outputs.size());
-        auto image_right_pin = node->Inputs[0];
-        auto link_right = graph->FindPinLink(image_right_pin.ID);
-        if (!link_right)
-            return false;
-        auto start_pin_right = graph->FindPin(link_right->StartPinID);
-        if (!start_pin_right && start_pin_right->Kind != PinKind::Output)
-            return false;
         cv::Mat image_right;
-        if (!start_pin_right->Node->Outputs[0].GetValue(image_right))
-            return false;
-        printf("Image Input %d %d\n", image_right.cols, image_right.rows);
+        auto result = get_image(graph, node->Inputs[0], image_right);
+        if (result.has_error())
+            return result;
 
-        auto image_left_pin = node->Inputs[1];
-        auto link_left = graph->FindPinLink(image_left_pin.ID);
-        if (!link_left)
-            return false;
-        auto start_pin_left = graph->FindPin(link_left->StartPinID);
-        if (!start_pin_left && start_pin_left->Kind != PinKind::Output)
-            return false;
         cv::Mat image_left;
-        if (!start_pin_left->Node->Outputs[0].GetValue(image_left))
-            return false;
-        printf("Image Input %d %d\n", image_left.cols, image_left.rows);
+        result = get_image(graph, node->Inputs[1], image_left);
+        if (result.has_error())
+            return result;
 
         // Display image
         node->Inputs[0].Value = image_right;
         node->Inputs[1].Value = image_left;
 
         if (image_right.cols != image_left.cols || image_right.rows != image_left.rows)
-            return false;
+            return ExecuteResult::ErrorNode(node->ID, "Images must have the same size");
         if (image_right.channels() != image_left.channels())
-            return false;
+            return ExecuteResult::ErrorNode(node->ID, "Images must have the same number of channels");
 
-        cv::Mat image;
-        cv::add(image_right, image_left, image);
-        node->Outputs[0].Value = image;
+        try
+        {
+            cv::Mat image;
+            cv::add(image_right, image_left, image);
+            node->Outputs[0].Value = image;
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
 
-        return true;
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
@@ -533,69 +552,39 @@ Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), "Height", PinType::Int, 480);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
-    node.OnExecute = [](Graph *graph, Node *node)
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
-        printf("Executing Image Source\n");
-        printf("Inputs: %d\n", (int)node->Inputs.size());
-        printf("Outputs: %d\n", (int)node->Outputs.size());
-        auto image_pin = node->Inputs[0];
-        auto link = graph->FindPinLink(image_pin.ID);
-        if (!link)
-            return false;
-        auto start_pin = graph->FindPin(link->StartPinID);
-        if (!start_pin && start_pin->Kind != PinKind::Output)
-            return false;
         cv::Mat image;
-        if (!start_pin->Node->Outputs[0].GetValue(image))
-            return false;
-        printf("Image Input %d %d\n", image.cols, image.rows);
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
 
-        int width;
-        auto value_width_pin = node->Inputs[1];
-        auto link_width = graph->FindPinLink(value_width_pin.ID);
-        if (!link_width)
-        {
-            if (!node->Inputs[1].GetValue(width))
-                width = 640;
-        }
-        else
-        {
-            auto start_pin_width = graph->FindPin(link_width->StartPinID);
-            if (!start_pin_width && start_pin_width->Kind != PinKind::Output)
-                return false;
-            if (!start_pin_width->Node->Outputs[0].GetValue(width))
-                return false;
-            printf("Width Input %d\n", width);
-        }
+        int width = 640;
+        result = get_value(graph, node->Inputs[1], width);
+        if (result.has_error())
+            return result;
 
-        int height;
-        auto value_height_pin = node->Inputs[2];
-        auto link_height = graph->FindPinLink(value_height_pin.ID);
-        if (!link_height)
-        {
-            if (!node->Inputs[2].GetValue(height))
-                height = 480;
-        }
-        else
-        {
-            auto start_pin_height = graph->FindPin(link_height->StartPinID);
-            if (!start_pin_height && start_pin_height->Kind != PinKind::Output)
-                return false;
-            if (!start_pin_height->Node->Outputs[0].GetValue(height))
-                return false;
-            printf("Height Input %d\n", height);
-        }
+        int height = 480;
+        result = get_value(graph, node->Inputs[2], height);
+        if (result.has_error())
+            return result;
 
         // Display image
         node->Inputs[0].Value = image;
         node->Inputs[1].Value = width;
         node->Inputs[2].Value = height;
 
-        cv::Mat resize;
-        cv::resize(image, resize, cv::Size(width, height));
-        node->Outputs[0].Value = resize;
-
-        return true;
+        try
+        {
+            cv::Mat resize;
+            cv::resize(image, resize, cv::Size(width, height));
+            node->Outputs[0].Value = resize;
+            return ExecuteResult::Success();
+        }
+        catch (const cv::Exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
     };
 
     BuildNode(&node);
