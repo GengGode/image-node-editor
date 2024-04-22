@@ -11,14 +11,14 @@ std::shared_ptr<base_node> create_image_source_node(std::shared_ptr<global_env> 
     node->name = "Image Source";
     node->label = std::to_string(env->node_next_id - 1) + " " + node->name;
     node->group_type = global_env::node_type_group::image_source;
-    node->in_ports.emplace_back(
+    node->in_ports.emplace_back(std::make_shared<in_port>(
         env->gen_next_pin_id(),
         node, "Image Path", "图片路径", global_env::value_type::inout_string,
         in_port::source_type::self_define_or_other_node,
-        std::string("resources/texture.png"));
-    node->out_ports.emplace_back(
+        std::string("resources/texture.png")));
+    node->out_ports.emplace_back(std::make_shared<out_port>(
         env->gen_next_pin_id(),
-        node, "Image", "图片", global_env::value_type::inout_image);
+        node, "Image", "图片", global_env::value_type::inout_image));
     node->event.on_execute = [node](std::shared_ptr<global_env> &env) -> bool
     {
         auto &in_port = node->in_ports[0];
@@ -51,6 +51,7 @@ std::shared_ptr<base_node> create_image_source_node(std::shared_ptr<global_env> 
             return false;
         }
     };
+    return node;
 }
 
 #endif // IMAGE_SOURCE_NODE_HPP

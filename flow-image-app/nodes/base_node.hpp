@@ -32,7 +32,9 @@ struct global_env : std::enable_shared_from_this<global_env>
         inout_float,
         inout_bool,
         inout_string,
-        inout_image
+        inout_image,
+
+        inout_delegate
     };
     inline static const std::map<size_t, value_type> type_map = {
         {typeid(int).hash_code(), value_type::inout_int},
@@ -41,6 +43,24 @@ struct global_env : std::enable_shared_from_this<global_env>
         {typeid(std::string).hash_code(), value_type::inout_string},
         {typeid(cv::Mat).hash_code(), value_type::inout_image},
     };
+    std::string enum_to_string(value_type type)
+    {
+        switch (type)
+        {
+        case value_type::inout_int:
+            return "int";
+        case value_type::inout_float:
+            return "float";
+        case value_type::inout_bool:
+            return "bool";
+        case value_type::inout_string:
+            return "string";
+        case value_type::inout_image:
+            return "image";
+        default:
+            return "unknown";
+        }
+    }
     enum class node_type_group
     {
         image_source,
@@ -51,7 +71,37 @@ struct global_env : std::enable_shared_from_this<global_env>
         io,
         other
     };
-    inline static std::map<node_type_group, std::vector<std::pair<std::string, std::function<std::shared_ptr<base_node>(std::shared_ptr<global_env> &)>>>> node_builder_factories;
+    inline static const std::map<node_type_group, std::string> node_type_group_map = {
+        {node_type_group::image_source, "image_source"},
+        {node_type_group::arithmetic, "arithmetic"},
+        {node_type_group::logic, "logic"},
+        {node_type_group::compare, "compare"},
+        {node_type_group::convert, "convert"},
+        {node_type_group::io, "io"},
+        {node_type_group::other, "other"}};
+    std::string enum_to_string(node_type_group group)
+    {
+        switch (group)
+        {
+        case node_type_group::image_source:
+            return "image_source";
+        case node_type_group::arithmetic:
+            return "arithmetic";
+        case node_type_group::logic:
+            return "logic";
+        case node_type_group::compare:
+            return "compare";
+        case node_type_group::convert:
+            return "convert";
+        case node_type_group::io:
+            return "io";
+        case node_type_group::other:
+            return "other";
+        default:
+            return "unknown";
+        }
+    }
+    static std::map<node_type_group, std::vector<std::pair<std::string, std::function<std::shared_ptr<base_node>(std::shared_ptr<global_env> &)>>>> node_builder_factories;
 
     struct ui
     {
@@ -149,7 +199,15 @@ struct port
     // 端口控制类型 : 用于判断端口的输入输出类型
     const port_type control_type;
 
+    // 构造函数
+    port(ed::PinId id, std::weak_ptr<base_node> node, const std::string &name, const std::string &label, global_env::value_type type, port_type control_type)
+        : uuid(id), as_node_ptr(node), name(name), label(label), type(type), control_type(control_type)
+    {
+    }
+
     global_env::port_ui ui;
+
+    virtual bool has_value() { return false; }
 };
 
 struct in_port : port
@@ -178,7 +236,7 @@ struct in_port : port
 
     /// @brief 返回是否存在可用的值。线程不安全。
     /// @return 如果端口源是自身，则始终为真。如果端口源是其他节点，则返回是否有连接引用。
-    bool has_value()
+    bool has_value() override
     {
         if (default_source == source_type::self_define_or_other_node)
             return true;
@@ -219,7 +277,8 @@ struct in_port : port
     {
         if (has_value())
             return false;
-        if (type_map.at(type) == type_map.at(typeid(T).hash_code()))
+        if (auto it = global_env::type_map.find(typeid(T).hash_code());
+            it != global_env::type_map.end() && it->second == type)
         {
             value = std::get<T>(value_ref());
             return true;
@@ -234,11 +293,12 @@ struct in_port : port
     template <typename T>
     bool set_self(const T &value)
     {
-        if (source != source_type::self_define)
+        if (default_source != source_type::only_other_node_no_self)
             return false;
-        if (type_map.at(type) == type_map.at(typeid(T).hash_code()))
+        if (auto it = global_env::type_map.find(typeid(T).hash_code());
+            it != global_env::type_map.end() && it->second == type)
         {
-            self_value = value;
+            self_value_opt = value;
             return true;
         }
         return false;
@@ -262,7 +322,7 @@ struct out_port : port
         in.link_value_opt = std::ref(value);
     }
 
-    bool has_value()
+    bool has_value() override
     {
         return value.valueless_by_exception();
     }
@@ -276,7 +336,8 @@ struct out_port : port
     {
         if (has_value())
             return false;
-        if (global_env::type_map.at(type) == global_env::type_map.at(typeid(T).hash_code()))
+        if (auto it = global_env::type_map.find(typeid(T).hash_code());
+            it != global_env::type_map.end() && it->second == type)
         {
             value = std::get<T>(this->value);
             return true;
@@ -291,7 +352,8 @@ struct out_port : port
     template <typename T>
     bool set(const T &value)
     {
-        if (global_env::type_map.at(type) == global_env::type_map.at(typeid(T).hash_code()))
+        if (auto it = global_env::type_map.find(typeid(T).hash_code());
+            it != global_env::type_map.end() && it->second == type)
         {
             this->value = value;
             return true;
@@ -299,7 +361,6 @@ struct out_port : port
         return false;
     }
 };
-typedef std::variant<in_port, out_port> ports;
 
 struct link
 {
@@ -418,6 +479,17 @@ struct image_flow_env : global_env
         return nullptr;
     }
 
+    std::shared_ptr<port> find_port(ed::PinId id)
+    {
+        auto in = find_in_port(id);
+        if (in)
+            return in;
+        auto out = find_out_port(id);
+        if (out)
+            return out;
+        return nullptr;
+    }
+
     bool is_pin_linked(ed::PinId id)
     {
         for (auto &link : links)
@@ -426,13 +498,16 @@ struct image_flow_env : global_env
         return false;
     }
 
-    bool connect(std::shared_ptr<base_node> from_node, const int &from_out_port_index, std::shared_ptr<base_node> to_node, const int &to_in_port_index)
+    bool connect(std::shared_ptr<global_env> env, std::shared_ptr<base_node> from_node, const int &from_out_port_index, std::shared_ptr<base_node> to_node, const int &to_in_port_index)
     {
         auto from = from_node->out_ports[from_out_port_index];
         auto to = to_node->in_ports[to_in_port_index];
         if (from && to)
         {
-            auto link_ptr = std::make_shared<link>(gen_next_link_id(), "link", "link", from, to);
+
+            std::string name = "link";
+            std::string label = env->enum_to_string(from->type) + " to " + env->enum_to_string(to->type);
+            auto link_ptr = std::make_shared<link>(env->gen_next_link_id(), name, label, to, from);
             from->which_links.push_back(link_ptr);
             to->which_link_opt = link_ptr;
             links.push_back(link_ptr);

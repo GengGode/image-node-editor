@@ -6,7 +6,7 @@ add_example_executable(flow-image-app
     utilities/builders.cpp
     utilities/drawing.cpp
     utilities/widgets.cpp
-    nodes/base_nodes.cpp
+    nodes/base_node.cpp
     notifiers/Notifier.cpp
     #textures/image_to_texture.cpp
 )
