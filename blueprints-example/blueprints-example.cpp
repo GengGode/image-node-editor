@@ -897,11 +897,10 @@ struct Example : public Application
 
                     builder.Input(input.ID);
 
-                    const ImVec2 size = ImGui::GetContentRegionAvail();
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
                     DrawPinIcon(input, m_Graph.IsPinLinked(input.ID), (int)(alpha * 255));
                     ImGui::Spring(0);
-                    if (!input.Name.empty() && input.HasImage() == false)
+                    if (!input.Name.empty())
                     {
                         ImGui::TextUnformatted(input.Name.c_str());
                         ImGui::Spring(0);
