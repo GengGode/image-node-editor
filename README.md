@@ -10,6 +10,9 @@ now, you can cmake and build it.
 # Wait Fix:
 - [ ] Chaos!
 
+# View
+
+![预览图](doc/image.png)
 
 # features:
 
