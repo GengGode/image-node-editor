@@ -992,16 +992,6 @@ struct Example : public Application
                         }
                         ImGui::Spring(0);
                     }
-                    if (input.Type == PinType::Image)
-                    {
-                        if (input.HasImage())
-                        {
-                            if (input.ImageTexture == nullptr)
-                                input.GenImageTexture(this);
-                            ImGui::Image((void *)(intptr_t)input.ImageTexture, ImVec2(100, 100));
-                            ImGui::Spring(0);
-                        }
-                    }
                     ImGui::PopStyleVar();
                     builder.EndInput();
                 }
