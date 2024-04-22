@@ -908,9 +908,50 @@ struct Example : public Application
                     }
                     if (input.Type == PinType::Bool)
                     {
-                        ImGui::Button("Hello");
+                        bool value = false;
+                        static bool last_value = false;
+                        input.GetValue(value);
+                        last_value = value;
+                        ImGui::Checkbox("##edit", &value);
+                        if (value != last_value)
+                        {
+                            input.SetValue(value);
+                        }
                         ImGui::Spring(0);
                     }
+                    if (input.Type == PinType::Int)
+                    {
+                        int value = 0;
+                        static int last_value = 0;
+                        input.GetValue(value);
+                        last_value = value;
+                        // 限制宽度
+                        ImGui::PushItemWidth(100.0f);
+                        ImGui::DragInt("##edit", &value);
+                        ImGui::PopItemWidth();
+                        if (value != last_value)
+                        {
+                            input.SetValue(value);
+                        }
+                        ImGui::Spring(0);
+                    }
+                    if (input.Type == PinType::Float)
+                    {
+                        float value = 0.0f;
+                        static float last_value = 0.0f;
+                        input.GetValue(value);
+                        last_value = value;
+                        // 限制宽度
+                        ImGui::PushItemWidth(100.0f);
+                        ImGui::DragFloat("##edit", &value, 0.5f);
+                        ImGui::PopItemWidth();
+                        if (value != last_value)
+                        {
+                            input.SetValue(value);
+                        }
+                        ImGui::Spring(0);
+                    }
+
                     if (input.Type == PinType::String)
                     {
                         std::string inputStr;
