@@ -906,6 +906,18 @@ struct Example : public Application
                         ImGui::TextUnformatted(input.Name.c_str());
                         ImGui::Spring(0);
                     }
+                    if (node.Name == "Image Viewer")
+                    {
+                        if (input.HasImage())
+                        {
+                            if (ImGui::Button("show output"))
+                            {
+                                std::string name = "output " + std::to_string((int)(size_t)node.ID);
+                                auto window = ImGui::FindWindowByName(name.c_str());
+                                ImGui::FocusWindow(window);
+                            }
+                        }
+                    }
                     if (input.Type == PinType::Bool)
                     {
                         bool value = false;
@@ -1400,7 +1412,7 @@ struct Example : public Application
         for (auto &node : m_Graph.Nodes)
             if (node.Name == "Image Viewer")
             {
-                std::string name = "output color" + std::to_string((int)(size_t)node.ID);
+                std::string name = "output " + std::to_string((int)(size_t)node.ID);
                 ImGui::Begin(name.c_str());
                 const ImVec2 size = ImGui::GetContentRegionAvail();
                 output_node = &node;
