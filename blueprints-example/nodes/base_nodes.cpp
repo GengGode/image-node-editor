@@ -523,6 +523,85 @@ Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, c
     return &node;
 }
 
+Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+{
+    m_Nodes.emplace_back(GetNextId(), "Image ReSize");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "Width", PinType::Int, 640);
+    node.Inputs.emplace_back(GetNextId(), "Height", PinType::Int, 480);
+    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        printf("Executing Image Source\n");
+        printf("Inputs: %d\n", (int)node->Inputs.size());
+        printf("Outputs: %d\n", (int)node->Outputs.size());
+        auto image_pin = node->Inputs[0];
+        auto link = graph->FindPinLink(image_pin.ID);
+        if (!link)
+            return false;
+        auto start_pin = graph->FindPin(link->StartPinID);
+        if (!start_pin && start_pin->Kind != PinKind::Output)
+            return false;
+        cv::Mat image;
+        if (!start_pin->Node->Outputs[0].GetValue(image))
+            return false;
+        printf("Image Input %d %d\n", image.cols, image.rows);
+
+        int width;
+        auto value_width_pin = node->Inputs[1];
+        auto link_width = graph->FindPinLink(value_width_pin.ID);
+        if (!link_width)
+        {
+            if (!node->Inputs[1].GetValue(width))
+                width = 640;
+        }
+        else
+        {
+            auto start_pin_width = graph->FindPin(link_width->StartPinID);
+            if (!start_pin_width && start_pin_width->Kind != PinKind::Output)
+                return false;
+            if (!start_pin_width->Node->Outputs[0].GetValue(width))
+                return false;
+            printf("Width Input %d\n", width);
+        }
+
+        int height;
+        auto value_height_pin = node->Inputs[2];
+        auto link_height = graph->FindPinLink(value_height_pin.ID);
+        if (!link_height)
+        {
+            if (!node->Inputs[2].GetValue(height))
+                height = 480;
+        }
+        else
+        {
+            auto start_pin_height = graph->FindPin(link_height->StartPinID);
+            if (!start_pin_height && start_pin_height->Kind != PinKind::Output)
+                return false;
+            if (!start_pin_height->Node->Outputs[0].GetValue(height))
+                return false;
+            printf("Height Input %d\n", height);
+        }
+
+        // Display image
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = width;
+        node->Inputs[2].Value = height;
+
+        cv::Mat resize;
+        cv::resize(image, resize, cv::Size(width, height));
+        node->Outputs[0].Value = resize;
+
+        return true;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)>>>> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, {
@@ -546,6 +625,7 @@ std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const
                                   {"BGR to RGB", Spawn_ImageOperator_BgrToRgb},
                                   {"Gray to RGB", Spawn_ImageOperator_GrayToRGB},
                                   {"Image Add Image", Spawn_ImageOperator_ImageAddImage},
+                                  {"Image ReSize", Spawn_ImageOperator_ImageReSize},
                               }},
         {NodeType::Simple, {
                                {"Message", SpawnMessageNode},
