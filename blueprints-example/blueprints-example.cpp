@@ -1407,12 +1407,12 @@ struct Example : public Application
                 output_node = &node;
                 if (output_node != nullptr)
                 {
-                    auto input = output_node->Inputs[0];
-                    if (input.HasImage())
+                    auto input = &output_node->Inputs[0];
+                    if (input->HasImage())
                     {
-                        if (input.ImageTexture == nullptr)
-                            input.GenImageTexture(this);
-                        ImGui::Image((void *)(intptr_t)input.ImageTexture, size);
+                        if (input->ImageTexture == nullptr)
+                            input->GenImageTexture(this);
+                        ImGui::Image((void *)(intptr_t)input->ImageTexture, size);
                     }
                 }
                 ImGui::End();
