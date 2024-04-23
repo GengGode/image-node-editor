@@ -14,6 +14,7 @@
 #include <utility>
 #include <functional>
 #include <memory>
+#include <set>
 
 #include "nodes/base_nodes.hpp"
 
@@ -148,12 +149,30 @@ struct Example : public Application
 
     void ExecuteNodes()
     {
+        auto check_is_begin_node = [&](Node *node) -> bool
+        {
+            // 没有输入，即起始节点
+            if (node->Inputs.size() == 0)
+                return true;
+            // 所有输入都有值
+            for (auto &input : node->Inputs)
+            {
+                if (m_Graph.IsPinLinked(input.ID) == false)
+                    return true;
+            }
+            return false;
+        };
         Notifier::Add(Notif(Notif::Type::INFO, "ExecuteNodes"));
         std::list<Node *> begin_nodes;
+        std::set<Node *> deduplication;
         for (auto &node : m_Graph.Nodes)
         {
-            if (node.Inputs.size() == 0)
-                begin_nodes.push_back(&node);
+            auto is_begin = check_is_begin_node(&node);
+            if (is_begin == false)
+                continue;
+            if (deduplication.find(&node) != deduplication.end())
+                continue;
+            begin_nodes.push_back(&node);
         }
         printf("begin_nodes.size() = %zd\n", begin_nodes.size());
 
@@ -789,35 +808,21 @@ struct Example : public Application
                     builder.Output(output.ID);
                     if (output.Type == PinType::String)
                     {
-                        static char buffer[128] = "resources/test.png";
-                        static bool wasActive = false;
+                        std::string outputStr;
+                        bool res = output.GetValue(outputStr);
+                        if (!res)
+                            printf("Error: %s\n", outputStr.c_str());
+                        char buffer[128] = {0};
+                        std::copy(outputStr.begin(), outputStr.end(), buffer);
 
                         ImGui::PushItemWidth(100.0f);
                         ImGui::InputText("##edit", buffer, 127);
                         ImGui::PopItemWidth();
-                        if (ImGui::IsItemActive() && !wasActive)
+                        if (buffer != outputStr)
                         {
-                            ed::EnableShortcuts(false);
-                            wasActive = true;
-                            std::string str;
-                            bool res = output.GetValue(str);
-                            if (!res)
-                                printf("Error: %s\n", str.c_str());
+                            output.SetValue(std::string(buffer));
+                        }
 
-                            // str to buffer
-                            std::copy(str.begin(), str.end(), buffer);
-                            printf("str to buffer: %s->%s\n", str.c_str(), buffer);
-                        }
-                        else if (!ImGui::IsItemActive() && wasActive)
-                        {
-                            ed::EnableShortcuts(true);
-                            wasActive = false;
-                            std::string str = buffer;
-                            printf("Error asdasd: %s\n", str.c_str());
-                            bool res = output.SetValue(str);
-                            if (!res)
-                                printf("Error: %s\n", str.c_str());
-                        }
                         ImGui::Spring(0);
                     }
                     if (!output.Name.empty())
@@ -986,25 +991,15 @@ struct Example : public Application
                             printf("Error: %s\n", inputStr.c_str());
                         char buffer[128] = {0};
                         std::copy(inputStr.begin(), inputStr.end(), buffer);
+
                         ImGui::PushItemWidth(100.0f);
                         ImGui::InputText("##edit", buffer, 127);
                         ImGui::PopItemWidth();
-                        static bool wasActive = false;
-                        if (ImGui::IsItemActive() && !wasActive)
+                        if (buffer != inputStr)
                         {
-                            ed::EnableShortcuts(false);
-                            wasActive = true;
-                            std::string str = buffer;
-                            printf("Error asdasd: %s\n", str.c_str());
-                            bool res = input.SetValue(str);
-                            if (!res)
-                                printf("Error: %s\n", str.c_str());
+                            input.SetValue(std::string(buffer));
                         }
-                        else if (!ImGui::IsItemActive() && wasActive)
-                        {
-                            ed::EnableShortcuts(true);
-                            wasActive = false;
-                        }
+
                         ImGui::Spring(0);
                     }
                     ImGui::PopStyleVar();
@@ -1025,35 +1020,21 @@ struct Example : public Application
                     builder.Output(output.ID);
                     if (output.Type == PinType::String)
                     {
-                        static char buffer[128] = "resources/test.png";
-                        static bool wasActive = false;
+                        std::string outputStr;
+                        bool res = output.GetValue(outputStr);
+                        if (!res)
+                            printf("Error: %s\n", outputStr.c_str());
+                        char buffer[128] = {0};
+                        std::copy(outputStr.begin(), outputStr.end(), buffer);
 
                         ImGui::PushItemWidth(100.0f);
                         ImGui::InputText("##edit", buffer, 127);
                         ImGui::PopItemWidth();
-                        if (ImGui::IsItemActive() && !wasActive)
+                        if (buffer != outputStr)
                         {
-                            ed::EnableShortcuts(false);
-                            wasActive = true;
-                            std::string str;
-                            bool res = output.GetValue(str);
-                            if (!res)
-                                printf("Error: %s\n", str.c_str());
+                            output.SetValue(std::string(buffer));
+                        }
 
-                            // str to buffer
-                            std::copy(str.begin(), str.end(), buffer);
-                            printf("str to buffer: %s->%s\n", str.c_str(), buffer);
-                        }
-                        else if (!ImGui::IsItemActive() && wasActive)
-                        {
-                            ed::EnableShortcuts(true);
-                            wasActive = false;
-                            std::string str = buffer;
-                            printf("Error asdasd: %s\n", str.c_str());
-                            bool res = output.SetValue(str);
-                            if (!res)
-                                printf("Error: %s\n", str.c_str());
-                        }
                         ImGui::Spring(0);
                     }
                     if (output.Type == PinType::Image)

@@ -76,6 +76,15 @@ struct Pin
     bool HoldImageTexture;
     void *ImageTexture = nullptr;
 
+    bool can_execute()
+    {
+        if (Kind == PinKind::Input && Value.valueless_by_exception())
+        {
+            return false;
+        }
+        return true;
+    }
+
     Pin(int id, const char *name, PinType type, PinValue value = PinValue()) : ID(id), Node(nullptr), Name(name), Type(type), Value(value), Kind(PinKind::Input)
     {
     }
@@ -189,6 +198,25 @@ struct Node
     {
         return ExecuteResult::ErrorCustom("Null Impl");
     };
+
+    bool can_execute()
+    {
+        for (auto input : Inputs)
+            if (!input.can_execute())
+                return false;
+    }
+    std::vector<Node *> get_last_nodes()
+    {
+        std::vector<Node *> nodes;
+        for (auto input : Inputs)
+        {
+            if (input.Kind == PinKind::Input && input.Node)
+            {
+                nodes.push_back(input.Node);
+            }
+        }
+        return nodes;
+    }
 };
 
 struct Link
