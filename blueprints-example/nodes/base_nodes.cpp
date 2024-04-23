@@ -404,6 +404,50 @@ Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const 
 
     return &node;
 }
+
+Node *Spawn_ImageOperator_RgbaToRgb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+{
+    m_Nodes.emplace_back(GetNextId(), "RGBA to RGB");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        if (image.channels() != 4)
+            return ExecuteResult::ErrorNode(node->ID, "Image must have 4 channels");
+
+        // Display image
+        node->Inputs[0].Value = image;
+
+        try
+        {
+            cv::Mat rgb;
+            cv::cvtColor(image, rgb, cv::COLOR_RGBA2RGB);
+            node->Outputs[0].Value = rgb;
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
+
+        return ExecuteResult::Success();
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
 Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
 {
     m_Nodes.emplace_back(GetNextId(), "BGR to RGB");
@@ -611,6 +655,7 @@ std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const
                                   {"Gray", Spawn_ImageOperator_Gray},
                                   {"Canny", Spawn_ImageOperator_Canny},
                                   {"RGB to BGR", Spawn_ImageOperator_RgbToBgr},
+                                  {"RGBA to RGB", Spawn_ImageOperator_RgbaToRgb},
                                   {"BGR to RGB", Spawn_ImageOperator_BgrToRgb},
                                   {"Gray to RGB", Spawn_ImageOperator_GrayToRGB},
                                   {"Image Add Image", Spawn_ImageOperator_ImageAddImage},
