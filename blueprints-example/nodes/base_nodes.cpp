@@ -572,6 +572,54 @@ Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId
     return &node;
 }
 
+Node *Spawn_ImageOperator_ImageAddInt(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+{
+    m_Nodes.emplace_back(GetNextId(), "Image Add Int");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "Value", PinType::Int, 0);
+    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        int value = 0;
+        result = get_value(graph, node->Inputs[1], value);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = value;
+
+        try
+        {
+            cv::Mat result;
+            cv::add(image, value, result);
+            node->Outputs[0].Value = result;
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
+
+        return ExecuteResult::Success();
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)>>>> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, {
@@ -599,6 +647,7 @@ std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const
                                   {"Image ReSize", Spawn_ImageOperator_ImageReSize},
                                   {"Image Get Size", Spawn_ImageOperator_ImageGetSize},
                                   {"Image Get Channels", Spawn_ImageOperator_ImageGetChannels},
+                                  {"Image Add Int", Spawn_ImageOperator_ImageAddInt},
                               }},
         {NodeType::Simple, {
                                {"Int to String", SpawnIntToStringNode},
