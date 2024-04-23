@@ -171,6 +171,7 @@ struct Example : public Application
                 }
                 // 执行当前节点
                 auto node_res = current_node->OnExecute(&m_Graph, current_node);
+                current_node->LastExecuteResult = node_res;
                 // 执行失败，终止执行链
                 if (node_res.has_error())
                 {
@@ -840,6 +841,12 @@ struct Example : public Application
 
                 const auto isSimple = node.Type == NodeType::Simple;
 
+                bool has_error = node.LastExecuteResult.has_error();
+                if (has_error)
+                {
+                    ImGui::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                }
+
                 bool hasOutputDelegates = false;
                 for (auto &output : node.Outputs)
                     if (output.Type == PinType::Delegate)
@@ -848,7 +855,10 @@ struct Example : public Application
                 builder.Begin(node.ID);
                 if (!isSimple)
                 {
-                    builder.Header(node.Color);
+                    if (has_error && node.LastExecuteResult.has_node_error())
+                        builder.Header(ImColor(255, 0, 0));
+                    else
+                        builder.Header(node.Color);
                     ImGui::Spring(0);
                     ImGui::TextUnformatted(node.Name.c_str());
                     ImGui::Spring(1);
@@ -895,6 +905,7 @@ struct Example : public Application
 
                 for (auto &input : node.Inputs)
                 {
+                    ed::PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(255, 0, 0, 255));
                     auto alpha = ImGui::GetStyle().Alpha;
                     if (newLinkPin && !CanCreateLink(newLinkPin, &input) && &input != newLinkPin)
                         alpha = alpha * (48.0f / 255.0f);
@@ -998,6 +1009,7 @@ struct Example : public Application
                     }
                     ImGui::PopStyleVar();
                     builder.EndInput();
+                    ed::PopStyleColor();
                 }
 
                 for (auto &output : node.Outputs)
@@ -1066,6 +1078,11 @@ struct Example : public Application
                 }
 
                 builder.End();
+
+                if (has_error)
+                {
+                    ImGui::PopStyleColor();
+                }
             }
             // Comment nodes
             for (auto &node : m_Graph.Nodes)

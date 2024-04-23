@@ -154,6 +154,12 @@ struct ExecuteResult
 
     explicit operator bool() const { return Error.has_value(); }
     bool has_error() const { return Error.has_value(); }
+    bool has_node_error() const { return has_error() && std::holds_alternative<ed::NodeId>(Error->Source); }
+    bool has_pin_error() const { return has_error() && std::holds_alternative<ed::PinId>(Error->Source); }
+    bool has_link_error() const { return has_error() && std::holds_alternative<ed::LinkId>(Error->Source); }
+    bool equal_source(ed::NodeId nodeId) const { return has_node_error() && std::get<ed::NodeId>(Error->Source) == nodeId; }
+    bool equal_source(ed::PinId pinId) const { return has_pin_error() && std::get<ed::PinId>(Error->Source) == pinId; }
+    bool equal_source(ed::LinkId linkId) const { return has_link_error() && std::get<ed::LinkId>(Error->Source) == linkId; }
 
     static ExecuteResult Success() { return ExecuteResult(); }
     static ExecuteResult ErrorNode(ed::NodeId nodeId, const std::string &message) { return ExecuteResult(ErrorInfo(nodeId, message)); }
@@ -173,6 +179,8 @@ struct Node
 
     std::string State;
     std::string SavedState;
+
+    ExecuteResult LastExecuteResult;
 
     Node(int id, const char *name, ImColor color = ImColor(255, 255, 255)) : ID(id), Name(name), Color(color), Type(NodeType::Blueprint), Size(0, 0)
     {
