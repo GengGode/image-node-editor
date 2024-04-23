@@ -132,6 +132,29 @@ Node *SpawnSetTimerNode(const std::function<int()> &GetNextId, const std::functi
     return &m_Nodes.back();
 }
 
+Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+{
+    m_Nodes.emplace_back(GetNextId(), "", ImColor(128, 195, 248));
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::Simple;
+    node.Inputs.emplace_back(GetNextId(), "Int", PinType::Int, 0);
+    node.Outputs.emplace_back(GetNextId(), "Message", PinType::String, std::string("0"));
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        int value;
+        auto result = get_value(graph, node->Inputs[0], value);
+        if (result.has_error())
+            return result;
+        node->Outputs[0].Value = std::to_string(value);
+        return ExecuteResult::Success();
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 Node *SpawnLessNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
 {
     m_Nodes.emplace_back(GetNextId(), "<", ImColor(128, 195, 248));
@@ -732,6 +755,7 @@ std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const
                                   {"Image Get Channels", Spawn_ImageOperator_ImageGetChannels},
                               }},
         {NodeType::Simple, {
+                               {"Int to String", SpawnIntToStringNode},
                                {"Message", SpawnMessageNode},
                                {"Less", SpawnLessNode},
                                {"Weird", SpawnWeirdNode},
