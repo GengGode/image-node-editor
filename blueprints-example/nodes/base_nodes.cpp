@@ -192,7 +192,7 @@ Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::functi
     m_Nodes.emplace_back(GetNextId(), "Image Source");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image Path", PinType::String, std::string("C:/"));
+    node.Inputs.emplace_back(GetNextId(), "Image Path", PinType::String, std::string("resources/base.jpg"));
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
     node.OnExecute = [](Graph *graph, Node *node)
