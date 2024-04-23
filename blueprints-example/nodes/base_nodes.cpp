@@ -635,6 +635,74 @@ Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, con
     return &node;
 }
 
+Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+{
+    m_Nodes.emplace_back(GetNextId(), "Image Get Size");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "Width", PinType::Int);
+    node.Outputs.emplace_back(GetNextId(), "Height", PinType::Int);
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = image;
+
+        try
+        {
+            node->Outputs[0].Value = image.cols;
+            node->Outputs[1].Value = image.rows;
+            return ExecuteResult::Success();
+        }
+        catch (const cv::Exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
+Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+{
+    m_Nodes.emplace_back(GetNextId(), "Image Get Channels");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "Channels", PinType::Int);
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = image;
+
+        try
+        {
+            node->Outputs[0].Value = image.channels();
+            return ExecuteResult::Success();
+        }
+        catch (const cv::Exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)>>>> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, {
@@ -660,6 +728,8 @@ std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const
                                   {"Gray to RGB", Spawn_ImageOperator_GrayToRGB},
                                   {"Image Add Image", Spawn_ImageOperator_ImageAddImage},
                                   {"Image ReSize", Spawn_ImageOperator_ImageReSize},
+                                  {"Image Get Size", Spawn_ImageOperator_ImageGetSize},
+                                  {"Image Get Channels", Spawn_ImageOperator_ImageGetChannels},
                               }},
         {NodeType::Simple, {
                                {"Message", SpawnMessageNode},
