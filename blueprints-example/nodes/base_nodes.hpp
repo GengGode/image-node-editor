@@ -75,6 +75,27 @@ struct Pin
     bool IsConnected;
     bool HoldImageTexture;
     void *ImageTexture = nullptr;
+    Application *app;
+    void event_value_changed()
+    {
+        if (Type == PinType::Image && app)
+        {
+            cv::Mat image = std::get<cv::Mat>(Value);
+            if (image.empty())
+                return;
+            if (image.channels() == 1)
+                cv::cvtColor(image, image, cv::COLOR_GRAY2RGBA);
+            else if (image.channels() == 3)
+                cv::cvtColor(image, image, cv::COLOR_RGB2RGBA);
+            int width = image.cols;
+            int height = image.rows;
+            if (ImageTexture)
+            {
+                app->DestroyTexture(ImageTexture);
+            }
+            ImageTexture = app->CreateTexture(image.data, width, height);
+        }
+    };
 
     bool can_execute()
     {
@@ -113,6 +134,7 @@ struct Pin
         if (typeMap.at(typeid(T).hash_code()) == Type)
         {
             Value = value;
+            event_value_changed();
             return true;
         }
         return false;
@@ -120,29 +142,6 @@ struct Pin
     bool HasImage()
     {
         return Type == PinType::Image && std::holds_alternative<cv::Mat>(Value) && !std::get<cv::Mat>(Value).empty();
-    }
-
-    bool GenImageTexture(Application *app)
-    {
-        if (Type == PinType::Image && std::holds_alternative<cv::Mat>(Value))
-        {
-            cv::Mat image = std::get<cv::Mat>(Value);
-            if (image.empty())
-            {
-                return false;
-            }
-            if (image.empty())
-                return false;
-            if (image.channels() == 1)
-                cv::cvtColor(image, image, cv::COLOR_GRAY2RGBA);
-            else if (image.channels() == 3)
-                cv::cvtColor(image, image, cv::COLOR_RGB2RGBA);
-            int width = image.cols;
-            int height = image.rows;
-            ImageTexture = app->CreateTexture(image.data, width, height);
-            return true;
-        }
-        return false;
     }
 };
 
@@ -320,7 +319,7 @@ struct NodeIdLess
 
 struct NodeWorldGlobal
 {
-    static std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)>>>> nodeFactories;
+    static std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>>> nodeFactories;
 };
 
 #endif // BASE_NODE_HPP

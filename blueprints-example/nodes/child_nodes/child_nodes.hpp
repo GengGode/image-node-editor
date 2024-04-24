@@ -3,7 +3,7 @@
 
 #include "../base_nodes.hpp"
 
-Node *SpawnInputActionNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnInputActionNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "InputAction Fire", ImColor(255, 128, 128));
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Delegate);
@@ -15,7 +15,7 @@ Node *SpawnInputActionNode(const std::function<int()> &GetNextId, const std::fun
     return &m_Nodes.back();
 }
 
-Node *SpawnBranchNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnBranchNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Branch");
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Flow);
@@ -28,7 +28,7 @@ Node *SpawnBranchNode(const std::function<int()> &GetNextId, const std::function
     return &m_Nodes.back();
 }
 
-Node *SpawnDoNNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnDoNNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Do N");
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "Enter", PinType::Flow);
@@ -42,7 +42,7 @@ Node *SpawnDoNNode(const std::function<int()> &GetNextId, const std::function<vo
     return &m_Nodes.back();
 }
 
-Node *SpawnOutputActionNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnOutputActionNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "OutputAction");
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "Sample", PinType::Float);
@@ -54,7 +54,7 @@ Node *SpawnOutputActionNode(const std::function<int()> &GetNextId, const std::fu
     return &m_Nodes.back();
 }
 
-Node *SpawnPrintStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnPrintStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Print String");
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Flow);
@@ -65,7 +65,7 @@ Node *SpawnPrintStringNode(const std::function<int()> &GetNextId, const std::fun
     return &m_Nodes.back();
 }
 
-Node *SpawnMessageNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnMessageNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "", ImColor(128, 195, 248));
     auto &node = m_Nodes.back();
@@ -77,7 +77,7 @@ Node *SpawnMessageNode(const std::function<int()> &GetNextId, const std::functio
     return &node;
 }
 
-Node *SpawnSetTimerNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnSetTimerNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Set Timer", ImColor(128, 195, 248));
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Flow);
@@ -92,7 +92,7 @@ Node *SpawnSetTimerNode(const std::function<int()> &GetNextId, const std::functi
     return &m_Nodes.back();
 }
 
-Node *SpawnLessNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnLessNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "<", ImColor(128, 195, 248));
     m_Nodes.back().Type = NodeType::Simple;
@@ -105,7 +105,7 @@ Node *SpawnLessNode(const std::function<int()> &GetNextId, const std::function<v
     return &m_Nodes.back();
 }
 
-Node *SpawnWeirdNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnWeirdNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "o.O", ImColor(128, 195, 248));
     m_Nodes.back().Type = NodeType::Simple;
@@ -118,7 +118,7 @@ Node *SpawnWeirdNode(const std::function<int()> &GetNextId, const std::function<
     return &m_Nodes.back();
 }
 
-Node *SpawnTraceByChannelNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnTraceByChannelNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Single Line Trace by Channel", ImColor(255, 128, 64));
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Flow);
@@ -138,7 +138,7 @@ Node *SpawnTraceByChannelNode(const std::function<int()> &GetNextId, const std::
     return &m_Nodes.back();
 }
 
-Node *SpawnComment(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnComment(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Test Comment");
     m_Nodes.back().Type = NodeType::Comment;

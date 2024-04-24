@@ -1041,8 +1041,6 @@ struct Example : public Application
                     {
                         if (output.HasImage())
                         {
-                            if (output.ImageTexture == nullptr)
-                                output.GenImageTexture(this);
                             ImGui::Image((void *)(intptr_t)output.ImageTexture, ImVec2(100, 100));
                             ImGui::Spring(0);
                         }
@@ -1354,7 +1352,7 @@ struct Example : public Application
                                     { return GetNextId(); },
                                     [&](Node *node)
                                     { BuildNode(node); },
-                                    m_Graph.Nodes);
+                                    m_Graph.Nodes, this);
                     }
                 }
                 if (type_name != nodeTypes.rbegin()->first)
@@ -1412,8 +1410,6 @@ struct Example : public Application
                     auto input = &output_node->Inputs[0];
                     if (input->HasImage())
                     {
-                        if (input->ImageTexture == nullptr)
-                            input->GenImageTexture(this);
                         ImGui::Image((void *)(intptr_t)input->ImageTexture, size);
                     }
                 }

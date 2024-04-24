@@ -3,6 +3,21 @@
 #include "../notifiers/Notifier.hpp"
 #include <filesystem>
 
+#define try_catch_block() \
+    try                   \
+    {
+
+#define catch_block(node)                                           \
+    }                                                               \
+    catch (const std::exception &e)                                 \
+    {                                                               \
+        return ExecuteResult::ErrorNode(node->ID, e.what());        \
+    }                                                               \
+    catch (...)                                                     \
+    {                                                               \
+        return ExecuteResult::ErrorNode(node->ID, "Unknown error"); \
+    }
+
 ExecuteResult get_image(Graph *graph, Pin input, cv::Mat &image)
 {
     auto link = graph->FindPinLink(input.ID);
@@ -33,13 +48,14 @@ ExecuteResult get_value(Graph *graph, Pin input, T &value)
     return ExecuteResult::Success();
 }
 
-Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "", ImColor(128, 195, 248));
     auto &node = m_Nodes.back();
     node.Type = NodeType::Simple;
     node.Inputs.emplace_back(GetNextId(), "Int", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Message", PinType::String, std::string("0"));
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -47,7 +63,7 @@ Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::fun
         auto result = get_value(graph, node->Inputs[0], value);
         if (result.has_error())
             return result;
-        node->Outputs[0].Value = std::to_string(value);
+        node->Outputs[0].SetValue(std::to_string(value));
         return ExecuteResult::Success();
     };
 
@@ -56,13 +72,14 @@ Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::fun
     return &node;
 }
 
-Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Image Source");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image Path", PinType::String, std::string("resources/base.jpg"));
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -79,21 +96,12 @@ Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::functi
         if (ext != ".png" && ext != ".jpg" && ext != ".jpeg")
             return ExecuteResult::ErrorNode(node->ID, "Invalid file format");
 
-        try
-        {
-            cv::Mat image = cv::imread(path, cv::IMREAD_UNCHANGED);
-            if (image.empty())
-                return ExecuteResult::ErrorNode(node->ID, "Failed to load image");
-            node->Outputs[0].Value = image;
-        }
-        catch (const std::exception &e)
-        {
-            return ExecuteResult::ErrorNode(node->ID, e.what());
-        }
-        catch (...)
-        {
-            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
-        }
+        try_catch_block();
+        cv::Mat image = cv::imread(path, cv::IMREAD_UNCHANGED);
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "Failed to load image");
+        node->Outputs[0].SetValue(image);
+        catch_block(node);
         return ExecuteResult::Success();
     };
 
@@ -102,12 +110,13 @@ Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::functi
     return &node;
 }
 
-Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Image Viewer");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -118,7 +127,7 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
         if (image.empty())
             return ExecuteResult::ErrorNode(node->ID, "Empty image");
 
-        node->Inputs[0].Value = image;
+        node->Inputs[0].SetValue(image);
         return ExecuteResult::Success();
     };
 
@@ -127,13 +136,14 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
     return &node;
 }
 
-Node *Spawn_ImageOperator_Gray(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_Gray(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Gray");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -153,7 +163,7 @@ Node *Spawn_ImageOperator_Gray(const std::function<int()> &GetNextId, const std:
                 cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
             else if (image.channels() == 4)
                 cv::cvtColor(image, gray, cv::COLOR_BGRA2GRAY);
-            node->Outputs[0].Value = gray;
+            node->Outputs[0].SetValue(gray);
         }
         catch (const cv::Exception &e)
         {
@@ -171,7 +181,7 @@ Node *Spawn_ImageOperator_Gray(const std::function<int()> &GetNextId, const std:
 
     return &node;
 }
-Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Canny");
     auto &node = m_Nodes.back();
@@ -180,8 +190,8 @@ Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std
     node.Inputs.emplace_back(GetNextId(), "Threshold 1", PinType::Float, 50.0f);
     node.Inputs.emplace_back(GetNextId(), "Threshold 2", PinType::Float, 150.0f);
     node.Inputs.emplace_back(GetNextId(), "Size", PinType::Int, 3);
-
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -211,7 +221,7 @@ Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std
         {
             cv::Mat canny;
             cv::Canny(image, canny, threshold_1, threshold_2, size);
-            node->Outputs[0].Value = canny;
+            node->Outputs[0].SetValue(canny);
         }
         catch (const std::exception &e)
         {
@@ -230,13 +240,14 @@ Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std
     return &node;
 }
 
-Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "RGB to BGR");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -255,7 +266,7 @@ Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const 
                 cv::cvtColor(image, bgr, cv::COLOR_RGB2BGR);
             else if (image.channels() == 4)
                 cv::cvtColor(image, bgr, cv::COLOR_RGBA2BGRA);
-            node->Outputs[0].Value = bgr;
+            node->Outputs[0].SetValue(bgr);
         }
         catch (const std::exception &e)
         {
@@ -274,13 +285,14 @@ Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const 
     return &node;
 }
 
-Node *Spawn_ImageOperator_RgbaToRgb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_RgbaToRgb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "RGBA to RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -299,7 +311,7 @@ Node *Spawn_ImageOperator_RgbaToRgb(const std::function<int()> &GetNextId, const
         {
             cv::Mat rgb;
             cv::cvtColor(image, rgb, cv::COLOR_RGBA2RGB);
-            node->Outputs[0].Value = rgb;
+            node->Outputs[0].SetValue(rgb);
         }
         catch (const std::exception &e)
         {
@@ -317,13 +329,14 @@ Node *Spawn_ImageOperator_RgbaToRgb(const std::function<int()> &GetNextId, const
 
     return &node;
 }
-Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "BGR to RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -342,7 +355,7 @@ Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const 
                 cv::cvtColor(image, rgb, cv::COLOR_BGR2RGB);
             else if (image.channels() == 4)
                 cv::cvtColor(image, rgb, cv::COLOR_BGRA2RGBA);
-            node->Outputs[0].Value = rgb;
+            node->Outputs[0].SetValue(rgb);
         }
         catch (const std::exception &e)
         {
@@ -360,13 +373,14 @@ Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const 
 
     return &node;
 }
-Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Gray to RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -383,7 +397,7 @@ Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const
             cv::Mat rgb;
             if (image.channels() == 1)
                 cv::cvtColor(image, rgb, cv::COLOR_GRAY2RGB);
-            node->Outputs[0].Value = rgb;
+            node->Outputs[0].SetValue(rgb);
         }
         catch (const std::exception &e)
         {
@@ -402,7 +416,7 @@ Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const
     return &node;
 }
 
-Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Image Add Image");
     auto &node = m_Nodes.back();
@@ -410,6 +424,7 @@ Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, c
     node.Inputs.emplace_back(GetNextId(), "Image right", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Image left", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -436,7 +451,7 @@ Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, c
         {
             cv::Mat image;
             cv::add(image_right, image_left, image);
-            node->Outputs[0].Value = image;
+            node->Outputs[0].SetValue(image);
         }
         catch (const std::exception &e)
         {
@@ -455,7 +470,7 @@ Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, c
     return &node;
 }
 
-Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Image ReSize");
     auto &node = m_Nodes.back();
@@ -464,6 +479,7 @@ Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), "Width", PinType::Int, 640);
     node.Inputs.emplace_back(GetNextId(), "Height", PinType::Int, 480);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
@@ -491,20 +507,20 @@ Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, con
         {
             cv::Mat resize;
             cv::resize(image, resize, cv::Size(width, height));
-            node->Outputs[0].Value = resize;
-            return ExecuteResult::Success();
+            node->Outputs[0].SetValue(resize);
         }
         catch (const cv::Exception &e)
         {
             return ExecuteResult::ErrorNode(node->ID, e.what());
         }
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
     return &node;
 }
 
-Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Image Get Size");
     auto &node = m_Nodes.back();
@@ -512,6 +528,8 @@ Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, co
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Width", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Height", PinType::Int);
+    node.Outputs[0].app = app;
+    node.Outputs[1].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
@@ -525,27 +543,28 @@ Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, co
 
         try
         {
-            node->Outputs[0].Value = image.cols;
-            node->Outputs[1].Value = image.rows;
-            return ExecuteResult::Success();
+            node->Outputs[0].SetValue(image.cols);
+            node->Outputs[1].SetValue(image.rows);
         }
         catch (const cv::Exception &e)
         {
             return ExecuteResult::ErrorNode(node->ID, e.what());
         }
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
     return &node;
 }
 
-Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Image Get Channels");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Channels", PinType::Int);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
@@ -559,20 +578,20 @@ Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId
 
         try
         {
-            node->Outputs[0].Value = image.channels();
-            return ExecuteResult::Success();
+            node->Outputs[0].SetValue(image.channels());
         }
         catch (const cv::Exception &e)
         {
             return ExecuteResult::ErrorNode(node->ID, e.what());
         }
+        return ExecuteResult::Success();
     };
 
     BuildNode(&node);
     return &node;
 }
 
-Node *Spawn_ImageOperator_ImageAddInt(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)
+Node *Spawn_ImageOperator_ImageAddInt(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Image Add Int");
     auto &node = m_Nodes.back();
@@ -580,6 +599,7 @@ Node *Spawn_ImageOperator_ImageAddInt(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Value", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -595,13 +615,12 @@ Node *Spawn_ImageOperator_ImageAddInt(const std::function<int()> &GetNextId, con
 
         // Display image
         node->Inputs[0].Value = image;
-        node->Inputs[1].Value = value;
 
         try
         {
             cv::Mat result;
-            cv::add(image, value, result);
-            node->Outputs[0].Value = result;
+            result = image + cv::Scalar(value, value, value, value);
+            node->Outputs[0].SetValue(result);
         }
         catch (const std::exception &e)
         {
@@ -620,7 +639,7 @@ Node *Spawn_ImageOperator_ImageAddInt(const std::function<int()> &GetNextId, con
     return &node;
 }
 
-std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes)>>>> NodeWorldGlobal::nodeFactories =
+std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>>> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, {
                                   {"InputAction", SpawnInputActionNode},
