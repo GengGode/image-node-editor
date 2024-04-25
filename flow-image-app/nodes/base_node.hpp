@@ -357,15 +357,15 @@ struct in_port : port
     }
 };
 
-struct out_port : port
+struct out_port : port, std::enable_shared_from_this<out_port>
 {
     // 输出端口值 : 用于存储输出端口的值
     global_env::port_value_t value;
     // 输出端点所属的多个连线
     std::vector<std::weak_ptr<link>> which_links;
 
-    // 输出节点变更事件
-    void event_on_output_changed(std::shared_ptr<out_port> &out_port)
+    // 完全异步：输出节点变更事件
+    void event_value_changed()
     {
         // 需要通知所有的连接到该输出端口的输入端口
         // 并且是异步通知，要么持有信号量，要么使用异步线程
@@ -374,19 +374,12 @@ struct out_port : port
 
         static auto notifier_func = [&](auto &out_port)
         {
-            std::vector<std::future<void>> futures;
             for (auto &link : out_port->which_links)
                 if (auto link_ptr = link.lock(); link_ptr)
-                    futures.push_back(std::async(std::launch::async, [&]()
-                                                 {
-                                                     // 应该是调用输入端口的事件
-                                                        link_ptr->which_to_in_port.lock()->event_ref_value_changed(); }));
-            // 这里需要想办法等待所有的异步线程结束
-            for (auto &future : futures)
-                future.get();
+                    link_ptr->which_to_in_port.lock()->event_ref_value_changed();
         };
 
-        std::thread t(notifier_func, out_port);
+        std::thread t(notifier_func, shared_from_this());
         t.detach();
     }
 
@@ -433,7 +426,10 @@ struct out_port : port
         if (auto it = global_env::type_map.find(typeid(T).hash_code());
             it != global_env::type_map.end() && it->second == type)
         {
+            auto is_changed = !global_env::is_equal(this->value, value);
             this->value = value;
+            if (is_changed)
+                event_value_changed();
             return true;
         }
         return false;
