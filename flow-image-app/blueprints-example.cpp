@@ -152,13 +152,13 @@ struct Example : public Application
                 {
                     if (output->which_links.size() == 0)
                         return nullptr;
-                    auto weak_link = output->which_links.back();
-                    if (weak_link.expired())
+                    auto weak_link = output->which_links.back().lock();
+                    if (weak_link)
                         return nullptr;
-                    auto next_node_ptr = weak_link.lock()->which_to_in_port.lock()->as_node_ptr;
-                    if (next_node_ptr.expired())
+                    auto weak_pin = weak_link->which_to_in_port.lock();
+                    if (weak_pin)
                         return nullptr;
-                    return next_node_ptr.lock();
+                    return weak_pin->as_node_ptr.lock();
                 };
 
                 // 有一个输出，继续执行链 有多个输出，选择第一个输出，其他输出插入到队列末尾
