@@ -62,7 +62,7 @@ future会调用拼图的运行函数
 ``` mermaid
 sequenceDiagram
     participant UI as 界面UI
-    box Another sad
+    box 节点1
     participant 节点1的输入节点1
     participant 节点1
     participant 节点1的输入节点2
