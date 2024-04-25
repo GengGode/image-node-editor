@@ -27,6 +27,47 @@ struct base_node;
 struct global_env : std::enable_shared_from_this<global_env>
 {
     using port_value_t = std::variant<int, float, bool, std::string, cv::Mat>;
+
+    template <typename T>
+    static bool is_equal(const T &lft, const T &rht)
+    {
+        return lft == rht;
+    }
+
+    template <>
+    static bool is_equal(const cv::Mat &lft, const cv::Mat &rht)
+    {
+        if (lft.dims == rht.dims &&
+            lft.size == rht.size &&
+            lft.elemSize() == rht.elemSize())
+        {
+            if (lft.isContinuous() && rht.isContinuous())
+            {
+                return 0 == memcmp(lft.ptr(), rht.ptr(), lft.total() * lft.elemSize());
+            }
+            else
+            {
+                const cv::Mat *arrays[] = {&lft, &rht, 0};
+                uchar *ptrs[2];
+                cv::NAryMatIterator it(arrays, ptrs, 2);
+                for (unsigned int p = 0; p < it.nplanes; p++, ++it)
+                    if (0 != memcmp(it.ptrs[0], it.ptrs[1], it.size * lft.elemSize()))
+                        return false;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool is_equal(const port_value_t &lft, const port_value_t &rht)
+    {
+        return std::visit([&](auto &&arg1, auto &&arg2)
+                          { return is_equal(arg1, arg2); },
+                          lft, rht);
+    }
+
     enum class value_type
     {
         inout_int,
