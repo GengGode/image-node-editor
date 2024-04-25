@@ -45,7 +45,7 @@ std::shared_ptr<base_node> create_image_source_node(std::shared_ptr<global_env> 
             out_port->set(image);
             return true;
         }
-        catch (const std::exception &e)
+        catch (const std::exception & /*e*/)
         {
             // env->notifier->add_message("Image Source", "Failed to load image from " + path + ": " + e.what());
             return false;
