@@ -16,6 +16,7 @@
 #include <functional>
 #include <variant>
 #include <optional>
+#include <future>
 
 #include <opencv2/opencv.hpp>
 
@@ -228,6 +229,16 @@ struct in_port : port
     std::optional<std::reference_wrapper<global_env::port_value_t>> link_value_opt;
     // 端口所属的连线
     std::optional<std::weak_ptr<link>> which_link_opt;
+
+    std::function<void(std::shared_ptr<base_node>)> callback_event_check_all_input_available;
+    // 输入节点引用值变更事件
+    void event_ref_value_changed()
+    {
+        // 调用节点的检测全部输入可用性函数，如果全部输入可用，则调用节点的执行函数
+        if (callback_event_check_all_input_available)
+            callback_event_check_all_input_available(as_node_ptr.lock());
+    }
+
     // 构造函数
     in_port(ed::PinId id, std::weak_ptr<base_node> node, const std::string &name, const std::string &label, global_env::value_type type, source_type default_source, std::optional<global_env::port_value_t> self_value_opt)
         : port{id, node, name, label, type, port_type::in}, default_source(default_source), self_value_opt(self_value_opt)
@@ -311,9 +322,35 @@ struct out_port : port
     global_env::port_value_t value;
     // 输出端点所属的多个连线
     std::vector<std::weak_ptr<link>> which_links;
+
+    // 输出节点变更事件
+    void event_on_output_changed(std::shared_ptr<out_port> &out_port)
+    {
+        // 需要通知所有的连接到该输出端口的输入端口
+        // 并且是异步通知，要么持有信号量，要么使用异步线程
+        // 持有信号量需要在绑定时进行，异步线程则涉及到线程析构问题
+        // 先尝试异步线程
+
+        static auto notifier_func = [&](auto &out_port)
+        {
+            std::vector<std::future<void>> futures;
+            for (auto &link : out_port->which_links)
+                if (auto link_ptr = link.lock(); link_ptr)
+                    futures.push_back(std::async(std::launch::async, [&]()
+                                                 {
+                                                     // 应该是调用输入端口的事件
+                                                        link_ptr->which_to_in_port.lock()->event_ref_value_changed(); }));
+            // 这里需要想办法等待所有的异步线程结束
+            for (auto &future : futures)
+                future.get();
+        };
+
+        std::thread t(notifier_func, out_port);
+        t.detach();
+    }
+
     // 构造函数
-    out_port(ed::PinId id, std::weak_ptr<base_node> node, const std::string &name, const std::string &label, global_env::value_type type)
-        : port{id, node, name, label, type, port_type::out}
+    out_port(ed::PinId id, std::weak_ptr<base_node> node, const std::string &name, const std::string &label, global_env::value_type type) : port{id, node, name, label, type, port_type::out}
     {
     }
 
@@ -375,6 +412,9 @@ struct link
     // 连线所属的输出端口
     std::weak_ptr<out_port> which_from_out_port;
 
+    // 用来通知传递触发信号
+    std::condition_variable cv;
+
     // 构造函数
     link(ed::LinkId id, const std::string &name, const std::string &label, std::shared_ptr<in_port> to, std::shared_ptr<out_port> from) : uuid(id), name(name), label(label), which_to_in_port(to), which_from_out_port(from)
     {
@@ -386,6 +426,19 @@ struct link
 
 struct base_node
 {
+    struct base_error
+    {
+        enum class error_source
+        {
+            node,
+            port,
+            link,
+            other
+        };
+
+        std::string message;
+        error_source source;
+    };
     // 全局唯一ID : 用于全局检索
     ed::NodeId uuid;
     // 名称 : 调试时使用
@@ -402,6 +455,20 @@ struct base_node
     std::vector<std::shared_ptr<out_port>> out_ports;
     // 节点所属的连线
     std::vector<std::weak_ptr<link>> whick_links;
+    // 节点工作环境
+    std::shared_ptr<global_env> env;
+    // 节点异步工作线程对象
+    std::optional<std::future<void>> async_worker;
+    // 节点错误信息
+    std::optional<base_error> last_error_opt;
+    // 输出节点变更事件
+    std::function<void(std::shared_ptr<out_port> &out_port)> event_on_output_changed = [&](std::shared_ptr<out_port> &out_port)
+    {
+        for (auto &link : out_port->which_links)
+            if (auto link_ptr = link.lock(); link_ptr)
+                ; // link_ptr->which_to_in_port.lock()->as_node_ptr.lock()->event.on_update(env);
+    };
+    // 输入节点变更事件
 
     global_env::base_node_ui ui;
     global_env::node_event event;
