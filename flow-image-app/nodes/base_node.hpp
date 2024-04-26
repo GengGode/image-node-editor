@@ -273,13 +273,13 @@ struct in_port : port
     // 端口所属的连线
     std::optional<std::weak_ptr<link>> which_link_opt;
 
-    std::function<void(std::shared_ptr<base_node>)> callback_event_check_all_input_available;
+    std::function<void(std::shared_ptr<base_node>)> callback_event_check_available_and_execute;
     // 输入节点引用值变更事件
     void event_ref_value_changed()
     {
         // 调用节点的检测全部输入可用性函数，如果全部输入可用，则调用节点的执行函数
-        if (callback_event_check_all_input_available)
-            callback_event_check_all_input_available(as_node_ptr.lock());
+        if (callback_event_check_available_and_execute)
+            callback_event_check_available_and_execute(as_node_ptr.lock());
     }
 
     // 构造函数
