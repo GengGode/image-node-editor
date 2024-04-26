@@ -14,6 +14,7 @@
 #include <utility>
 #include <functional>
 #include <memory>
+#include <set>
 
 #include "nodes/base_node.hpp"
 
@@ -115,12 +116,34 @@ struct Example : public Application
 
     void ExecuteNodes()
     {
+        auto check_is_begin_node = [&](std::shared_ptr<base_node> node)
+        {
+            // 没有输入，即起始节点
+            if (node->in_ports.size() == 0)
+                return true;
+            // 所有输入都有值
+            for (auto &input : node->in_ports)
+            {
+                if (env->is_pin_linked(input->uuid) == false)
+                    return true;
+            }
+            return false;
+        };
+
         Notifier::Add(Notif(Notif::Type::INFO, "ExecuteNodes"));
         std::list<std::shared_ptr<base_node>> begin_nodes;
+        std::set<std::shared_ptr<base_node>> deduplication;
         for (auto &node : env->nodes)
         {
             if (node->in_ports.size() == 0)
                 begin_nodes.push_back(node);
+
+            auto is_begin = check_is_begin_node(node);
+            if (is_begin == false)
+                continue;
+            if (deduplication.find(node) != deduplication.end())
+                continue;
+            begin_nodes.push_back(node);
         }
         printf("起点节点 .size() = %zd\n", begin_nodes.size());
 
