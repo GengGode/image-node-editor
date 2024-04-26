@@ -64,7 +64,9 @@ struct global_env : std::enable_shared_from_this<global_env>
     static bool is_equal(const port_value_t &lft, const port_value_t &rht)
     {
         return std::visit([&](auto &&arg1, auto &&arg2)
-                          { return is_equal(arg1, arg2); },
+                          { if (typeid(arg1)!= typeid(arg2))
+                                return false;
+                            return is_equal(arg1, arg2); },
                           lft, rht);
     }
 
