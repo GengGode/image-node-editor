@@ -46,11 +46,25 @@ else()
     if(WIN32)
         set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type")
     endif()
+    # if exist opencv-lib-Debug.zip or opencv-lib-Release.zip
+    if(EXISTS "${IMGUI_NODE_EDITOR_ROOT_DIR}/external/opencv-lib-${CMAKE_BUILD_TYPE}.zip"
+        AND NOT EXISTS "${IMGUI_NODE_EDITOR_ROOT_DIR}/external/opencv-lib-${CMAKE_BUILD_TYPE}")
+        message(STATUS "opencv-lib-${CMAKE_BUILD_TYPE}.zip found, auto download deps...")
+        # unzip opencv-lib-Debug.zip or opencv-lib-Release.zip
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${IMGUI_NODE_EDITOR_ROOT_DIR}/external/opencv-lib-${CMAKE_BUILD_TYPE}.zip" WORKING_DIRECTORY "${IMGUI_NODE_EDITOR_ROOT_DIR}/external")
+        message(STATUS "unzip opencv-lib-${CMAKE_BUILD_TYPE}.zip success")
+
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(OpenCV_LIBS opencv_world480d.lib)
+            set(OpenCV_BINS opencv_world480d.dll)
+        else()
+            set(OpenCV_LIBS opencv_world480.lib)
+            set(OpenCV_BINS opencv_world480.dll)
+        endif()
+    endif()
+
     set(Opencv_DIR "${IMGUI_NODE_EDITOR_ROOT_DIR}/external/opencv-lib-${CMAKE_BUILD_TYPE}")
     message(STATUS "Opencv_DIR = ${Opencv_DIR}")
-    #find_package(OpenCV REQUIRED)
-    set(OpenCV_LIBS opencv_world480d.lib)
-    set(OpenCV_BINS opencv_world480d.dll)
     #message(STATUS "OpenCV_LIBS = ${OpenCV_LIBS}")
     set(OpenCV_INCLUDE_DIRS "${Opencv_DIR}/include")
     #message(STATUS "OpenCV_INCLUDE_DIRS = ${OpenCV_INCLUDE_DIRS}")
