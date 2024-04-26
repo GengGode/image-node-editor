@@ -646,34 +646,18 @@ struct Example : public Application
                     }
                     if (input->type == global_env::value_type::inout_string)
                     {
-                        static char buffer[128] = {0};
-                        static bool wasActive = false;
-
+                        std::string input_value;
+                        bool res = input->get(input_value);
+                        if (!res)
+                            printf("Error: %s\n", input_value.c_str());
+                        char buffer[128] = {0};
+                        std::copy(input_value.begin(), input_value.end(), buffer);
                         ImGui::PushItemWidth(100.0f);
                         ImGui::InputText("##edit", buffer, 127);
                         ImGui::PopItemWidth();
-                        if (ImGui::IsItemActive() && !wasActive)
+                        if (buffer != input_value)
                         {
-                            ed::EnableShortcuts(false);
-                            wasActive = true;
-                            std::string str;
-                            bool res = input->get(str);
-                            if (!res)
-                                printf("Error: %s\n", str.c_str());
-
-                            // str to buffer
-                            std::copy(str.begin(), str.end(), buffer);
-                            printf("str to buffer: %s->%s\n", str.c_str(), buffer);
-                        }
-                        else if (!ImGui::IsItemActive() && wasActive)
-                        {
-                            ed::EnableShortcuts(true);
-                            wasActive = false;
-                            std::string str = buffer;
-                            printf("Error asdasd: %s\n", str.c_str());
-                            bool res = input->set_self(str);
-                            if (!res)
-                                printf("Error: %s\n", str.c_str());
+                            input->set_self(std::string(buffer));
                         }
                         ImGui::Spring(0);
                     }
