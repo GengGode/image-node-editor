@@ -163,7 +163,14 @@ struct Example : public Application
                     auto node_res = current_node->event.on_execute(env->get_base_ptr());
                     // 执行失败，终止执行链
                     if (!node_res)
+                    {
+                        if (current_node->last_error_opt.has_value())
+                        {
+                            auto last_error = current_node->last_error_opt.value();
+                            printf("last_error_opt = %s\n", last_error.message.c_str());
+                        }
                         break;
+                    }
                     // 执行成功，继续执行链
                     // 没有输出，即最终节点，终止执行链
                     if (current_node->out_ports.size() == 0)
