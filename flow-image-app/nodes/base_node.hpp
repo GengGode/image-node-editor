@@ -329,7 +329,7 @@ struct in_port : port
     template <typename T>
     bool get(T &value)
     {
-        if (has_value())
+        if (has_value() == false)
             return false;
         if (auto it = global_env::type_map.find(typeid(T).hash_code());
             it != global_env::type_map.end() && it->second == type)
@@ -347,7 +347,7 @@ struct in_port : port
     template <typename T>
     bool set_self(const T &value)
     {
-        if (default_source != source_type::only_other_node_no_self)
+        if (default_source == source_type::only_other_node_no_self)
             return false;
         if (auto it = global_env::type_map.find(typeid(T).hash_code());
             it != global_env::type_map.end() && it->second == type)
@@ -407,7 +407,7 @@ struct out_port : port, std::enable_shared_from_this<out_port>
     template <typename T>
     bool get(T &value)
     {
-        if (has_value())
+        if (has_value() == false)
             return false;
         if (auto it = global_env::type_map.find(typeid(T).hash_code());
             it != global_env::type_map.end() && it->second == type)
