@@ -23,33 +23,30 @@ std::shared_ptr<base_node> create_image_source_node(std::shared_ptr<global_env> 
     {
         auto &in_port = node->in_ports[0];
         auto &out_port = node->out_ports[0];
-        if (in_port->has_value() == false)
-        {
-            // env->notifier->add_message("Image Source", "Image path is empty");
-            return false;
-        }
+
         std::string path;
         if (in_port->get(path) == false)
         {
-            // env->notifier->add_message("Image Source", "Failed to get image path");
+            node->last_error_opt = base_node::base_error{"Failed to get input value", base_node::base_error::error_source::node};
             return false;
         }
+
         try
         {
             auto image = cv::imread(path);
             if (image.empty())
             {
-                // env->notifier->add_message("Image Source", "Failed to load image from " + path);
+                node->last_error_opt = base_node::base_error{"Failed to load image from " + path, base_node::base_error::error_source::node};
                 return false;
             }
             out_port->set(image);
-            return true;
         }
-        catch (const std::exception & /*e*/)
+        catch (const std::exception &e)
         {
-            // env->notifier->add_message("Image Source", "Failed to load image from " + path + ": " + e.what());
+            node->last_error_opt = base_node::base_error{std::string("Failed to load image from ") + path + ": " + e.what(), base_node::base_error::error_source::node};
             return false;
         }
+        return true;
     };
     return node;
 }
