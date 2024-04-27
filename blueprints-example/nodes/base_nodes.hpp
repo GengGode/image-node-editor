@@ -30,6 +30,9 @@ enum class PinType
 {
     Flow,
     Image,
+    Rect,
+    Size,
+    Point,
     Bool,
     Int,
     Float,
@@ -39,7 +42,7 @@ enum class PinType
     Delegate,
 };
 
-typedef std::variant<int, float, bool, std::string, cv::Mat> PinValue;
+typedef std::variant<int, float, bool, std::string, cv::Mat, cv::Rect, cv::Size, cv::Point> PinValue;
 
 enum class PinKind
 {
@@ -116,6 +119,9 @@ struct Pin
         {typeid(bool).hash_code(), PinType::Bool},
         {typeid(std::string).hash_code(), PinType::String},
         {typeid(cv::Mat).hash_code(), PinType::Image},
+        {typeid(cv::Rect).hash_code(), PinType::Rect},
+        {typeid(cv::Size).hash_code(), PinType::Size},
+        {typeid(cv::Point).hash_code(), PinType::Point},
     };
     template <typename T>
     bool GetValue(T &value)

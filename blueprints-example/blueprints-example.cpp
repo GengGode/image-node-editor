@@ -326,6 +326,14 @@ struct Example : public Application
         default:
         case PinType::Flow:
             return ImColor(255, 255, 255);
+        case PinType::Image:
+            return ImColor(51, 150, 215);
+        case PinType::Rect:
+            return ImColor(220, 48, 48);
+        case PinType::Size:
+            return ImColor(220, 148, 48);
+        case PinType::Point:
+            return ImColor(220, 148, 148);
         case PinType::Bool:
             return ImColor(220, 48, 48);
         case PinType::Int:
@@ -367,6 +375,15 @@ struct Example : public Application
             break;
         case PinType::Image:
             iconType = IconType::RoundSquare;
+            break;
+        case PinType::Rect:
+            iconType = IconType::Circle;
+            break;
+        case PinType::Size:
+            iconType = IconType::Circle;
+            break;
+        case PinType::Point:
+            iconType = IconType::Circle;
             break;
         case PinType::Object:
             iconType = IconType::Circle;
