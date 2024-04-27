@@ -1,6 +1,8 @@
 # Preview: 
 A pipeline like image algorithm editor, in order to adjust algorithm parameters in real-time, adjust algorithm content, edit algorithms, and attempt to use it as a pipeline
 
+[![Artifacts](https://github.com/GengGode/image-node-editor/actions/workflows/artifacts.yml/badge.svg)](https://github.com/GengGode/image-node-editor/actions/workflows/artifacts.yml)
+
 # 关于节点
 
 节点有多个输入输出，他们似乎都被定义成一种类型，但是在我看来，节点模型应该被叫做拼图模型  
