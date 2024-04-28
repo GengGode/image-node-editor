@@ -157,6 +157,23 @@ struct Pin
         }
         return false;
     }
+
+    template <typename T, class Pred>
+    bool SetValue(T value, Pred pred)
+    {
+        if (typeMap.at(typeid(T).hash_code()) == Type)
+        {
+            bool isChanged = !is_equal(std::get<T>(Value), value);
+            Value = value;
+            if (isChanged)
+            {
+                pred();
+            }
+            return true;
+        }
+        return false;
+    }
+
     bool HasImage()
     {
         return Type == PinType::Image && std::holds_alternative<cv::Mat>(Value) && !std::get<cv::Mat>(Value).empty();
