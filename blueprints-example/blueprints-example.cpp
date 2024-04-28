@@ -719,146 +719,10 @@ struct Example : public Application
 
             util::BlueprintNodeBuilder builder(m_HeaderBackground, GetTextureWidth(m_HeaderBackground), GetTextureHeight(m_HeaderBackground));
 
-            for (auto &node : m_Graph.Nodes)
-            {
-                if (node.Type != NodeType::Blueprint && node.Type != NodeType::Simple)
-                    continue;
-
-                const auto isSimple = node.Type == NodeType::Simple;
-
-                bool hasOutputDelegates = false;
-                for (auto &output : node.Outputs)
-                    if (output.Type == PinType::Delegate)
-                        hasOutputDelegates = true;
-
-                builder.Begin(node.ID);
-                if (!isSimple)
-                {
-                    builder.Header(node.Color);
-                    ImGui::Spring(0);
-                    ImGui::TextUnformatted(node.Name.c_str());
-                    ImGui::Spring(1);
-                    ImGui::Dummy(ImVec2(0, 28));
-                    if (hasOutputDelegates)
-                    {
-                        ImGui::BeginVertical("delegates", ImVec2(0, 28));
-                        ImGui::Spring(1, 0);
-                        for (auto &output : node.Outputs)
-                        {
-                            if (output.Type != PinType::Delegate)
-                                continue;
-
-                            auto alpha = ImGui::GetStyle().Alpha;
-                            if (newLinkPin && !CanCreateLink(newLinkPin, &output) && &output != newLinkPin)
-                                alpha = alpha * (48.0f / 255.0f);
-
-                            ed::BeginPin(output.ID, ed::PinKind::Output);
-                            ed::PinPivotAlignment(ImVec2(1.0f, 0.5f));
-                            ed::PinPivotSize(ImVec2(0, 0));
-                            ImGui::BeginHorizontal(output.ID.AsPointer());
-                            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
-                            if (!output.Name.empty())
-                            {
-                                ImGui::TextUnformatted(output.Name.c_str());
-                                ImGui::Spring(0);
-                            }
-                            DrawPinIcon(output, m_Graph.IsPinLinked(output.ID), (int)(alpha * 255));
-                            ImGui::Spring(0, ImGui::GetStyle().ItemSpacing.x / 2);
-                            ImGui::EndHorizontal();
-                            ImGui::PopStyleVar();
-                            ed::EndPin();
-
-                            DrawItemRect(ImColor(255, 0, 0));
-                        }
-                        ImGui::Spring(1, 0);
-                        ImGui::EndVertical();
-                        ImGui::Spring(0, ImGui::GetStyle().ItemSpacing.x / 2);
-                    }
-                    else
-                        ImGui::Spring(0);
-                    builder.EndHeader();
-                }
-
-                for (auto &input : node.Inputs)
-                {
-                    auto alpha = ImGui::GetStyle().Alpha;
-                    if (newLinkPin && !CanCreateLink(newLinkPin, &input) && &input != newLinkPin)
-                        alpha = alpha * (48.0f / 255.0f);
-
-                    builder.Input(input.ID);
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
-                    DrawPinIcon(input, m_Graph.IsPinLinked(input.ID), (int)(alpha * 255));
-                    ImGui::Spring(0);
-                    if (!input.Name.empty())
-                    {
-                        ImGui::TextUnformatted(input.Name.c_str());
-                        ImGui::Spring(0);
-                    }
-                    if (input.Type == PinType::Bool)
-                    {
-                        ImGui::Button("Hello");
-                        ImGui::Spring(0);
-                    }
-                    ImGui::PopStyleVar();
-                    builder.EndInput();
-                }
-
-                if (isSimple)
-                {
-                    builder.Middle();
-
-                    ImGui::Spring(1, 0);
-                    ImGui::TextUnformatted(node.Name.c_str());
-                    ImGui::Spring(1, 0);
-                }
-
-                for (auto &output : node.Outputs)
-                {
-                    if (!isSimple && output.Type == PinType::Delegate)
-                        continue;
-
-                    auto alpha = ImGui::GetStyle().Alpha;
-                    if (newLinkPin && !CanCreateLink(newLinkPin, &output) && &output != newLinkPin)
-                        alpha = alpha * (48.0f / 255.0f);
-
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
-                    builder.Output(output.ID);
-                    if (output.Type == PinType::String)
-                    {
-                        std::string outputStr;
-                        bool res = output.GetValue(outputStr);
-                        if (!res)
-                            printf("Error: %s\n", outputStr.c_str());
-                        char buffer[128] = {0};
-                        std::copy(outputStr.begin(), outputStr.end(), buffer);
-
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::InputText("##edit", buffer, 127);
-                        ImGui::PopItemWidth();
-                        if (buffer != outputStr)
-                        {
-                            output.SetValue(std::string(buffer));
-                        }
-
-                        ImGui::Spring(0);
-                    }
-                    if (!output.Name.empty())
-                    {
-                        ImGui::Spring(0);
-                        ImGui::TextUnformatted(output.Name.c_str());
-                    }
-                    ImGui::Spring(0);
-                    DrawPinIcon(output, m_Graph.IsPinLinked(output.ID), (int)(alpha * 255));
-                    ImGui::PopStyleVar();
-                    builder.EndOutput();
-                }
-
-                builder.End();
-            }
             // 图片节点 绘制
             for (auto &node : m_Graph.Nodes)
             {
-                if (node.Type != NodeType::ImageFlow)
+                if (node.Type == NodeType::Comment)
                     continue;
 
                 const auto isSimple = node.Type == NodeType::Simple;
@@ -995,7 +859,8 @@ struct Example : public Application
                         ImGui::PopItemWidth();
                         if (value != last_value)
                         {
-                            input.SetValue(value);
+                            input.SetValue(value, []()
+                                           { printf("callback\n"); });
                         }
                         ImGui::Spring(0);
                     }
@@ -1351,29 +1216,25 @@ struct Example : public Application
         if (ImGui::BeginPopup("Create New Node"))
         {
             auto newNodePostion = openPopupPosition;
-            // ImGui::SetCursorScreenPos(ImGui::GetMousePosOnOpeningCurrentPopup());
-
-            // auto drawList = ImGui::GetWindowDrawList();
-            // drawList->AddCircleFilled(ImGui::GetMousePosOnOpeningCurrentPopup(), 10.0f, 0xFFFF00FF);
-
-            // 这里是右键创建新的节点，走一个遍历所有节点列表然后创建新的节点
 
             Node *node = nullptr;
             for (auto &[type_name, type] : nodeTypes)
             {
-                for (auto &[name, func] : NodeWorldGlobal::nodeFactories[type])
+                if (ImGui::BeginMenu(type_name.c_str()))
                 {
-                    if (ImGui::MenuItem(name.c_str()))
+                    for (auto &[name, func] : NodeWorldGlobal::nodeFactories[type])
                     {
-                        node = func([&]()
-                                    { return GetNextId(); },
-                                    [&](Node *node)
-                                    { BuildNode(node); },
-                                    m_Graph.Nodes, this);
+                        if (ImGui::MenuItem(name.c_str()))
+                        {
+                            node = func([&]()
+                                        { return GetNextId(); },
+                                        [&](Node *node)
+                                        { BuildNode(node); },
+                                        m_Graph.Nodes, this);
+                        }
                     }
+                    ImGui::EndMenu();
                 }
-                if (type_name != nodeTypes.rbegin()->first)
-                    ImGui::Separator();
             }
 
             if (node)

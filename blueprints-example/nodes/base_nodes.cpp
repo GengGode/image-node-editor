@@ -3,75 +3,6 @@
 #include "../notifiers/Notifier.hpp"
 #include <filesystem>
 
-#define try_catch_block() \
-    try                   \
-    {
-
-#define catch_block(node)                                           \
-    }                                                               \
-    catch (const std::exception &e)                                 \
-    {                                                               \
-        return ExecuteResult::ErrorNode(node->ID, e.what());        \
-    }                                                               \
-    catch (...)                                                     \
-    {                                                               \
-        return ExecuteResult::ErrorNode(node->ID, "Unknown error"); \
-    }
-
-ExecuteResult get_image(Graph *graph, Pin input, cv::Mat &image)
-{
-    auto link = graph->FindPinLink(input.ID);
-    if (!link)
-        return ExecuteResult::ErrorPin(input.ID, "Not Find Pin Link");
-    auto start_pin = graph->FindPin(link->StartPinID);
-    if (!start_pin && start_pin->Kind != PinKind::Output)
-        return ExecuteResult::ErrorLink(link->ID, "Not Find Link Start Pin");
-    if (!start_pin->GetValue(image))
-        return ExecuteResult::ErrorLink(link->ID, "Not Get Value");
-    return ExecuteResult::Success();
-}
-template <typename T>
-ExecuteResult get_value(Graph *graph, Pin input, T &value)
-{
-    auto link = graph->FindPinLink(input.ID);
-    if (!link)
-    {
-        if (!input.GetValue(value))
-            return ExecuteResult::ErrorPin(input.ID, std::string("Not Find Pin Link or Not default value type: ") + typeid(T).name());
-        return ExecuteResult::Success();
-    }
-    auto start_pin = graph->FindPin(link->StartPinID);
-    if (!start_pin && start_pin->Kind != PinKind::Output)
-        return ExecuteResult::ErrorLink(link->ID, "Not Find Link Start Pin");
-    if (!start_pin->GetValue(value))
-        return ExecuteResult::ErrorLink(link->ID, "Not Get Value");
-    return ExecuteResult::Success();
-}
-
-Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
-{
-    m_Nodes.emplace_back(GetNextId(), "", ImColor(128, 195, 248));
-    auto &node = m_Nodes.back();
-    node.Type = NodeType::Simple;
-    node.Inputs.emplace_back(GetNextId(), "Int", PinType::Int, 0);
-    node.Outputs.emplace_back(GetNextId(), "Message", PinType::String, std::string("0"));
-    node.Outputs[0].app = app;
-
-    node.OnExecute = [](Graph *graph, Node *node)
-    {
-        int value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-        node->Outputs[0].SetValue(std::to_string(value));
-        return ExecuteResult::Success();
-    };
-
-    BuildNode(&node);
-
-    return &node;
-}
-
 Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Image Source");
@@ -2221,71 +2152,131 @@ Node *Spawn_ImageOperator_ImageChannelMerge(const std::function<int()> &GetNextI
     return &node;
 }
 
+// ImageAndMaskCopy
+Node *Spawn_ImageOperator_ImageAndMaskCopy(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "Image And Mask Copy");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "Mask", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        cv::Mat mask;
+        result = get_image(graph, node->Inputs[1], mask);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = mask;
+
+        try
+        {
+            cv::Mat result;
+            image.copyTo(result, mask);
+            node->Outputs[0].SetValue(result);
+        }
+        catch (const std::exception &e)
+        {
+            return ExecuteResult::ErrorNode(node->ID, e.what());
+        }
+        catch (...)
+        {
+            return ExecuteResult::ErrorNode(node->ID, "Unknown error");
+        }
+
+        return ExecuteResult::Success();
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>>> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, {
-                                  {"InputAction", SpawnInputActionNode},
-                                  {"Branch", SpawnBranchNode},
-                                  {"Do N", SpawnDoNNode},
-                                  {"OutputAction", SpawnOutputActionNode},
-                                  {"Print String", SpawnPrintStringNode},
-                                  {"Message", SpawnMessageNode},
-                                  {"Set Timer", SpawnSetTimerNode},
-                                  {"Less", SpawnLessNode},
-                                  {"Weird", SpawnWeirdNode},
-                                  {"Trace by Channel", SpawnTraceByChannelNode},
+                                  //{"InputAction", SpawnInputActionNode},
+                                  //{"Branch", SpawnBranchNode},
+                                  //{"Do N", SpawnDoNNode},
+                                  //{"OutputAction", SpawnOutputActionNode},
+                                  //{"Print String", SpawnPrintStringNode},
+                                  //{"Message", SpawnMessageNode},
+                                  //{"Set Timer", SpawnSetTimerNode},
+                                  //{"Less", SpawnLessNode},
+                                  //{"Weird", SpawnWeirdNode},
+                                  //{"Trace by Channel", SpawnTraceByChannelNode},
                               }},
+        {NodeType::BaseType, BaseTypeNodes},
+        {NodeType::BaseConvert, BaseConvertNodes},
+        {NodeType::BaseOperation, BaseOperationNodes},
         {NodeType::ImageFlow, {
                                   {"Image Source", Spawn_ImageSource},
                                   {"Image Viewer", Spawn_ImageViewer},
-                                  {"Gray", Spawn_ImageOperator_Gray},
-                                  {"Canny", Spawn_ImageOperator_Canny},
-                                  {"RGB to BGR", Spawn_ImageOperator_RgbToBgr},
-                                  {"RGBA to RGB", Spawn_ImageOperator_RgbaToRgb},
-                                  {"BGR to RGB", Spawn_ImageOperator_BgrToRgb},
-                                  {"Gray to RGB", Spawn_ImageOperator_GrayToRGB},
-                                  {"Image Add Image", Spawn_ImageOperator_ImageAddImage},
-                                  {"Image ReSize", Spawn_ImageOperator_ImageReSize},
                                   {"Image Get Size", Spawn_ImageOperator_ImageGetSize},
                                   {"Image Get Rect", Spawn_ImageOperator_ImageGetRect},
                                   {"Image Get Channels", Spawn_ImageOperator_ImageGetChannels},
-                                  {"Image Add Int", Spawn_ImageOperator_ImageAddInt},
-                                  {"Int to Size", Spawn_ImageOperator_IntToSize},
-                                  {"Size to Int", Spawn_ImageOperator_SizeToInt},
-                                  {"Int to Point", Spawn_ImageOperator_IntToPoint},
-                                  {"Point to Int", Spawn_ImageOperator_PointToInt},
-                                  {"Int to Rect", Spawn_ImageOperator_IntToRect},
-                                  {"Rect to Int", Spawn_ImageOperator_RectToInt},
-                                  {"Point and Size to Rect", Spawn_ImageOperator_PointAndSizeToRect},
-                                  {"Rect to Point and Size", Spawn_ImageOperator_RectToPointAndSize},
-                                  {"Point to Size", Spawn_ImageOperator_PointToSize},
-                                  {"Size to Point", Spawn_ImageOperator_SizeToPoint},
-                                  {"Point Add Point", Spawn_ImageOperator_PointAddPoint},
-                                  {"Point Sub Point", Spawn_ImageOperator_PointSubPoint},
-                                  {"Point Mul Int", Spawn_ImageOperator_PointMulInt},
-                                  {"Point Div Int", Spawn_ImageOperator_PointDivInt},
-                                  {"Point Mul Float", Spawn_ImageOperator_PointMulFloat},
-                                  {"Point Div Float", Spawn_ImageOperator_PointDivFloat},
-                                  {"Size Add Size", Spawn_ImageOperator_SizeAddSize},
-                                  {"Size Sub Size", Spawn_ImageOperator_SizeSubSize},
-                                  {"Size Mul Int", Spawn_ImageOperator_SizeMulInt},
-                                  {"Size Div Int", Spawn_ImageOperator_SizeDivInt},
-                                  {"Size Mul Float", Spawn_ImageOperator_SizeMulFloat},
-                                  {"Size Div Float", Spawn_ImageOperator_SizeDivFloat},
-
-                                  {"Image Get Rect Image", Spawn_ImageOperator_ImageGetRectImage},
-                                  {"Dilate", Spawn_ImageOperator_Dilate},
-                                  {"Erode", Spawn_ImageOperator_Erode},
-                                  {"Morphology Open", Spawn_ImageOperator_MorphologyOpen},
-                                  {"Morphology Close", Spawn_ImageOperator_MorphologyClose},
-                                  {"Morphology Gradient", Spawn_ImageOperator_MorphologyGradient},
-                                  {"Morphology Top Hat", Spawn_ImageOperator_MorphologyTopHat},
-                                  {"Morphology Black Hat", Spawn_ImageOperator_MorphologyBlackHat},
-                                  {"Mask Image", Spawn_ImageOperator_MaskImage},
-                                  {"Image Channel Split", Spawn_ImageOperator_ImageChannelSplit},
-                                  {"Image Channel Merge", Spawn_ImageOperator_ImageChannelMerge},
 
                               }},
+        {NodeType::ImageValue, {
+                                   {"Int to Size", Spawn_ImageOperator_IntToSize},
+                                   {"Size to Int", Spawn_ImageOperator_SizeToInt},
+                                   {"Int to Point", Spawn_ImageOperator_IntToPoint},
+                                   {"Point to Int", Spawn_ImageOperator_PointToInt},
+                                   {"Int to Rect", Spawn_ImageOperator_IntToRect},
+                                   {"Rect to Int", Spawn_ImageOperator_RectToInt},
+                                   {"Point and Size to Rect", Spawn_ImageOperator_PointAndSizeToRect},
+                                   {"Rect to Point and Size", Spawn_ImageOperator_RectToPointAndSize},
+                                   {"Point to Size", Spawn_ImageOperator_PointToSize},
+                                   {"Size to Point", Spawn_ImageOperator_SizeToPoint},
+                                   {"Point Add Point", Spawn_ImageOperator_PointAddPoint},
+                                   {"Point Sub Point", Spawn_ImageOperator_PointSubPoint},
+                                   {"Point Mul Int", Spawn_ImageOperator_PointMulInt},
+                                   {"Point Div Int", Spawn_ImageOperator_PointDivInt},
+                                   {"Point Mul Float", Spawn_ImageOperator_PointMulFloat},
+                                   {"Point Div Float", Spawn_ImageOperator_PointDivFloat},
+                                   {"Size Add Size", Spawn_ImageOperator_SizeAddSize},
+                                   {"Size Sub Size", Spawn_ImageOperator_SizeSubSize},
+                                   {"Size Mul Int", Spawn_ImageOperator_SizeMulInt},
+                                   {"Size Div Int", Spawn_ImageOperator_SizeDivInt},
+                                   {"Size Mul Float", Spawn_ImageOperator_SizeMulFloat},
+                                   {"Size Div Float", Spawn_ImageOperator_SizeDivFloat},
+                               }},
+        {NodeType::ImageOperation, {
+                                       {"Dilate", Spawn_ImageOperator_Dilate},
+                                       {"Erode", Spawn_ImageOperator_Erode},
+                                       {"Morphology Open", Spawn_ImageOperator_MorphologyOpen},
+                                       {"Morphology Close", Spawn_ImageOperator_MorphologyClose},
+                                       {"Morphology Gradient", Spawn_ImageOperator_MorphologyGradient},
+                                       {"Morphology Top Hat", Spawn_ImageOperator_MorphologyTopHat},
+                                       {"Morphology Black Hat", Spawn_ImageOperator_MorphologyBlackHat},
+                                       {"Mask Image", Spawn_ImageOperator_MaskImage},
+                                       {"Image Channel Split", Spawn_ImageOperator_ImageChannelSplit},
+                                       {"Image Channel Merge", Spawn_ImageOperator_ImageChannelMerge},
+                                       {"Image And Mask Copy", Spawn_ImageOperator_ImageAndMaskCopy},
+                                       {"Image Add Int", Spawn_ImageOperator_ImageAddInt},
+                                       {"Image Add Image", Spawn_ImageOperator_ImageAddImage},
+                                       {"Image ReSize", Spawn_ImageOperator_ImageReSize},
+                                       {"Gray", Spawn_ImageOperator_Gray},
+                                       {"Canny", Spawn_ImageOperator_Canny},
+                                       {"Image Get Rect Image", Spawn_ImageOperator_ImageGetRectImage},
+
+                                   }},
+        {NodeType::ImageOther, {
+                                   {"RGB to BGR", Spawn_ImageOperator_RgbToBgr},
+                                   {"RGBA to RGB", Spawn_ImageOperator_RgbaToRgb},
+                                   {"BGR to RGB", Spawn_ImageOperator_BgrToRgb},
+                                   {"Gray to RGB", Spawn_ImageOperator_GrayToRGB},
+                               }},
         {NodeType::Simple, {
                                {"Int to String", SpawnIntToStringNode},
                                {"Message", SpawnMessageNode},

@@ -53,13 +53,25 @@ enum class PinKind
 enum class NodeType
 {
     Blueprint,
+    BaseType,
+    BaseConvert,
+    BaseOperation,
     ImageFlow,
+    ImageValue,
+    ImageOperation,
+    ImageOther,
     Simple,
     Comment
 };
 static std::vector<std::pair<std::string, NodeType>> nodeTypes = {
     {"Blueprint", NodeType::Blueprint},
+    {"BaseType", NodeType::BaseType},
+    {"BaseConvert", NodeType::BaseConvert},
+    {"BaseOperation", NodeType::BaseOperation},
     {"ImageFlow", NodeType::ImageFlow},
+    {"ImageValue", NodeType::ImageValue},
+    {"ImageOperation", NodeType::ImageOperation},
+    {"ImageOther", NodeType::ImageOther},
     {"Simple", NodeType::Simple},
     {"Comment", NodeType::Comment}};
 
@@ -328,4 +340,49 @@ struct NodeWorldGlobal
     static std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>>> nodeFactories;
 };
 
+#define try_catch_block \
+    try                 \
+    {
+
+#define catch_block_and_return                                      \
+    }                                                               \
+    catch (const std::exception &e)                                 \
+    {                                                               \
+        return ExecuteResult::ErrorNode(node->ID, e.what());        \
+    }                                                               \
+    catch (...)                                                     \
+    {                                                               \
+        return ExecuteResult::ErrorNode(node->ID, "Unknown error"); \
+    }                                                               \
+    return ExecuteResult::Success();
+
+static ExecuteResult get_image(Graph *graph, Pin input, cv::Mat &image)
+{
+    auto link = graph->FindPinLink(input.ID);
+    if (!link)
+        return ExecuteResult::ErrorPin(input.ID, "Not Find Pin Link");
+    auto start_pin = graph->FindPin(link->StartPinID);
+    if (!start_pin && start_pin->Kind != PinKind::Output)
+        return ExecuteResult::ErrorLink(link->ID, "Not Find Link Start Pin");
+    if (!start_pin->GetValue(image))
+        return ExecuteResult::ErrorLink(link->ID, "Not Get Value");
+    return ExecuteResult::Success();
+}
+template <typename T>
+static ExecuteResult get_value(Graph *graph, Pin input, T &value)
+{
+    auto link = graph->FindPinLink(input.ID);
+    if (!link)
+    {
+        if (!input.GetValue(value))
+            return ExecuteResult::ErrorPin(input.ID, std::string("Not Find Pin Link or Not default value type: ") + typeid(T).name());
+        return ExecuteResult::Success();
+    }
+    auto start_pin = graph->FindPin(link->StartPinID);
+    if (!start_pin && start_pin->Kind != PinKind::Output)
+        return ExecuteResult::ErrorLink(link->ID, "Not Find Link Start Pin");
+    if (!start_pin->GetValue(value))
+        return ExecuteResult::ErrorLink(link->ID, "Not Get Value");
+    return ExecuteResult::Success();
+}
 #endif // BASE_NODE_HPP

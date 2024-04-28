@@ -2,6 +2,9 @@
 #define CHILD_NODES_HPP
 
 #include "../base_nodes.hpp"
+#include "base/base_type.hpp"
+#include "base/base_convert.hpp"
+#include "base/base_operation.hpp"
 
 Node *SpawnInputActionNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
