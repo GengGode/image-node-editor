@@ -28,6 +28,8 @@ using namespace ax;
 
 using ax::Widgets::IconType;
 
+typedef std::variant<int, float, bool, std::string, cv::Mat, cv::Rect, cv::Size, cv::Point> PinValue;
+
 struct MainThread
 {
     inline static std::thread::id id = std::this_thread::get_id();
