@@ -49,7 +49,52 @@ enum class PinType
     Delegate,
 };
 
-typedef std::variant<int, float, bool, std::string, cv::Mat, cv::Rect, cv::Size, cv::Point> PinValue;
+template <typename T>
+static bool is_equal(const T &lft, const T &rht)
+{
+    return lft == rht;
+}
+
+template <>
+static bool is_equal(const cv::Mat &lft, const cv::Mat &rht)
+{
+    if (lft.empty() && rht.empty())
+        return true;
+    if (lft.empty() || rht.empty())
+        return false;
+
+    if (lft.dims == rht.dims &&
+        lft.size == rht.size &&
+        lft.elemSize() == rht.elemSize())
+    {
+        if (lft.isContinuous() && rht.isContinuous())
+        {
+            return 0 == memcmp(lft.ptr(), rht.ptr(), lft.total() * lft.elemSize());
+        }
+        else
+        {
+            const cv::Mat *arrays[] = {&lft, &rht, 0};
+            uchar *ptrs[2];
+            cv::NAryMatIterator it(arrays, ptrs, 2);
+            for (unsigned int p = 0; p < it.nplanes; p++, ++it)
+                if (0 != memcmp(it.ptrs[0], it.ptrs[1], it.size * lft.elemSize()))
+                    return false;
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool is_equal(const PinValue &lft, const PinValue &rht)
+{
+    return std::visit([&](auto &&arg1, auto &&arg2)
+                      { if (typeid(arg1)!= typeid(arg2))
+                                return false;
+                            return is_equal(arg1, arg2); },
+                      lft, rht);
+}
 
 enum class PinKind
 {
