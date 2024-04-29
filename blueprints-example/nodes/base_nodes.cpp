@@ -3,13 +3,13 @@
 // #include "../notifiers/Notifier.hpp"
 #include <filesystem>
 
-Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+Node *Spawn_ImageFileSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image Source");
+    m_Nodes.emplace_back(GetNextId(), "图像文件源");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image Path", PinType::String, std::string("resources/texture.png"));
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image, cv::Mat());
+    node.Inputs.emplace_back(GetNextId(), "图像路径", PinType::String, std::string("resources/texture.png"));
+    node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image, cv::Mat());
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -21,16 +21,16 @@ Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::functi
 
         std::filesystem::path p(path);
         if (!std::filesystem::exists(p))
-            return ExecuteResult::ErrorNode(node->ID, "File not found");
+            return ExecuteResult::ErrorNode(node->ID, "文件没有找到");
 
-        std::string ext = p.extension().string();
-        if (ext != ".png" && ext != ".jpg" && ext != ".jpeg")
-            return ExecuteResult::ErrorNode(node->ID, "Invalid file format");
+        // std::string ext = p.extension().string();
+        // if (ext != ".png" && ext != ".jpg" && ext != ".jpeg")
+        //     return ExecuteResult::ErrorNode(node->ID, "不支持的文件格式");
 
         try_catch_block;
         cv::Mat image = cv::imread(path, cv::IMREAD_UNCHANGED);
         if (image.empty())
-            return ExecuteResult::ErrorNode(node->ID, "Failed to load image");
+            return ExecuteResult::ErrorNode(node->ID, "图片加载失败");
         node->Outputs[0].SetValue(image);
         catch_block_and_return;
     };
@@ -42,10 +42,10 @@ Node *Spawn_ImageSource(const std::function<int()> &GetNextId, const std::functi
 
 Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image Viewer");
+    m_Nodes.emplace_back(GetNextId(), "图像查看器");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -55,7 +55,7 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
         if (result.has_error())
             return result;
         if (image.empty())
-            return ExecuteResult::ErrorNode(node->ID, "Empty image");
+            return ExecuteResult::ErrorNode(node->ID, "图像为空");
 
         node->Inputs[0].SetValue(image);
         return ExecuteResult::Success();
@@ -920,8 +920,8 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
         {NodeType::BaseConvert, BaseConvertNodes},
         {NodeType::BaseOperation, BaseOperationNodes},
         {NodeType::ImageFlow, {
-                                  {"Image Source", Spawn_ImageSource},
-                                  {"Image Viewer", Spawn_ImageViewer},
+                                  {"图像文件源", Spawn_ImageFileSource},
+                                  {"图像查看器", Spawn_ImageViewer},
                                   {"Image Get Size", Spawn_ImageOperator_ImageGetSize},
                                   {"Image Get Rect", Spawn_ImageOperator_ImageGetRect},
                                   {"Image Get Channels", Spawn_ImageOperator_ImageGetChannels},
@@ -941,11 +941,6 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
                                        {"Image Channel Split", Spawn_ImageOperator_ImageChannelSplit},
                                        {"Image Channel Merge", Spawn_ImageOperator_ImageChannelMerge},
                                        {"Image And Mask Copy", Spawn_ImageOperator_ImageAndMaskCopy},
-                                       {"Image Add Int", Spawn_ImageOperator_ImageAddInt},
-                                       {"Image Add Image", Spawn_ImageOperator_ImageAddImage},
-                                       {"Image Sub Image", Spawn_ImageOperator_ImageSubImage},
-                                       {"Image Mul Image", Spawn_ImageOperator_ImageMulImage},
-                                       {"Image Div Image", Spawn_ImageOperator_ImageDivImage},
                                        {"Image ReSize", Spawn_ImageOperator_ImageReSize},
                                        {"Threshold", Spawn_ImageOperator_Threshold},
                                        {"Adaptive Threshold", Spawn_ImageOperator_AdaptiveThreshold},

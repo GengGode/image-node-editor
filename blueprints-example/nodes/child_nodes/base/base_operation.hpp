@@ -10,7 +10,7 @@
 // bool 取反
 Node *SpawnBoolNotNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Bool Not", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "布尔值 非", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "In", PinType::Bool, false);
@@ -42,7 +42,7 @@ Node *SpawnBoolNotNode(const std::function<int()> &GetNextId, const std::functio
 // bool 与
 Node *SpawnBoolAndNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Bool And", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "布尔值 与", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Bool, false);
@@ -80,7 +80,7 @@ Node *SpawnBoolAndNode(const std::function<int()> &GetNextId, const std::functio
 // bool 或
 Node *SpawnBoolOrNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Bool Or", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "布尔值 或", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Bool, false);
@@ -118,7 +118,7 @@ Node *SpawnBoolOrNode(const std::function<int()> &GetNextId, const std::function
 // bool 异或
 Node *SpawnBoolXorNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Bool Xor", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "布尔值 异或", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Bool, false);
@@ -156,7 +156,7 @@ Node *SpawnBoolXorNode(const std::function<int()> &GetNextId, const std::functio
 // 8bool to int
 Node *SpawnBytesToIntNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Byte To Int", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "比特数组 转 整数", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "Byte 0", PinType::Bool, 0);
@@ -208,7 +208,7 @@ Node *SpawnBytesToIntNode(const std::function<int()> &GetNextId, const std::func
 // int 加法
 Node *SpawnIntAddNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Add", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 加", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
@@ -246,7 +246,7 @@ Node *SpawnIntAddNode(const std::function<int()> &GetNextId, const std::function
 // int 减法
 Node *SpawnIntSubtractNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Subtract", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 减", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
@@ -284,7 +284,7 @@ Node *SpawnIntSubtractNode(const std::function<int()> &GetNextId, const std::fun
 // int 乘法
 Node *SpawnIntMultiplyNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Multiply", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 乘", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
@@ -322,7 +322,7 @@ Node *SpawnIntMultiplyNode(const std::function<int()> &GetNextId, const std::fun
 // int 除法
 Node *SpawnIntDivideNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Divide", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 除", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
@@ -365,7 +365,7 @@ Node *SpawnIntDivideNode(const std::function<int()> &GetNextId, const std::funct
 // int 取余
 Node *SpawnIntModuloNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Modulo", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 取余", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
@@ -408,17 +408,17 @@ Node *SpawnIntModuloNode(const std::function<int()> &GetNextId, const std::funct
 // int 比较
 Node *SpawnIntCompareNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Compare", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 比较", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Int, 0);
-    node.Outputs.emplace_back(GetNextId(), "Equal", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Not Equal", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Less", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Less or Equal", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Greater", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Greater or Equal", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "相等", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "不相等", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "小于", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "小于等于", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "大于", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "大于等于", PinType::Bool);
     node.Outputs[0].app = app;
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
@@ -466,7 +466,7 @@ Node *SpawnIntCompareNode(const std::function<int()> &GetNextId, const std::func
 // int 乘方
 Node *SpawnIntPowerNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Power", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 乘方", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "Base", PinType::Int, 0);
@@ -508,7 +508,7 @@ Node *SpawnIntPowerNode(const std::function<int()> &GetNextId, const std::functi
 // int 乘浮点
 Node *SpawnIntMultiplyFloatNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Multiply Float", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 乘 浮点数", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "Int", PinType::Int, 0);
@@ -547,7 +547,7 @@ Node *SpawnIntMultiplyFloatNode(const std::function<int()> &GetNextId, const std
 // int 除浮点
 Node *SpawnIntDivideFloatNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int Divide Float", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整数 除 浮点数", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "Int", PinType::Int, 0);
@@ -594,7 +594,7 @@ Node *SpawnIntDivideFloatNode(const std::function<int()> &GetNextId, const std::
 // float 加法
 Node *SpawnFloatAddNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float Add", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 加", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
@@ -632,7 +632,7 @@ Node *SpawnFloatAddNode(const std::function<int()> &GetNextId, const std::functi
 // float 减法
 Node *SpawnFloatSubtractNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float Subtract", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 减", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
@@ -670,7 +670,7 @@ Node *SpawnFloatSubtractNode(const std::function<int()> &GetNextId, const std::f
 // float 乘法
 Node *SpawnFloatMultiplyNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float Multiply", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 乘", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
@@ -708,7 +708,7 @@ Node *SpawnFloatMultiplyNode(const std::function<int()> &GetNextId, const std::f
 // float 除法
 Node *SpawnFloatDivideNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float Divide", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 除", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
@@ -751,7 +751,7 @@ Node *SpawnFloatDivideNode(const std::function<int()> &GetNextId, const std::fun
 // float 取余
 Node *SpawnFloatModuloNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float Modulo", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 取余", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
@@ -794,17 +794,17 @@ Node *SpawnFloatModuloNode(const std::function<int()> &GetNextId, const std::fun
 // float 比较
 Node *SpawnFloatCompareNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float Compare", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 比较", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Float, 0.0f);
-    node.Outputs.emplace_back(GetNextId(), "Equal", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Not Equal", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Less", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Less or Equal", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Greater", PinType::Bool);
-    node.Outputs.emplace_back(GetNextId(), "Greater or Equal", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "相等", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "不相等", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "小于", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "小于等于", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "大于", PinType::Bool);
+    node.Outputs.emplace_back(GetNextId(), "大于等于", PinType::Bool);
     node.Outputs[0].app = app;
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
@@ -852,7 +852,7 @@ Node *SpawnFloatCompareNode(const std::function<int()> &GetNextId, const std::fu
 // float 乘方
 Node *SpawnFloatPowerNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float Power", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 乘方", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "Base", PinType::Float, 0.0f);
@@ -890,29 +890,29 @@ Node *SpawnFloatPowerNode(const std::function<int()> &GetNextId, const std::func
 
 static NodeWorldGlobal::FactoryGroupFunc_t BaseOperationNodes = {
 
-    {"Bool Not", SpawnBoolNotNode},
-    {"Bool And", SpawnBoolAndNode},
-    {"Bool Or", SpawnBoolOrNode},
-    {"Bool Xor", SpawnBoolXorNode},
-    {"Bytes To Int", SpawnBytesToIntNode},
+    {"布尔值 非", SpawnBoolNotNode},
+    {"布尔值 与", SpawnBoolAndNode},
+    {"布尔值 或", SpawnBoolOrNode},
+    {"布尔值 异或", SpawnBoolXorNode},
+    {"比特数组 转 整数", SpawnBytesToIntNode},
 
-    {"Int Add", SpawnIntAddNode},
-    {"Int Subtract", SpawnIntSubtractNode},
-    {"Int Multiply", SpawnIntMultiplyNode},
-    {"Int Divide", SpawnIntDivideNode},
-    {"Int Modulo", SpawnIntModuloNode},
-    {"Int Compare", SpawnIntCompareNode},
-    {"Int Power", SpawnIntPowerNode},
-    {"Int Multiply Float", SpawnIntMultiplyFloatNode},
-    {"Int Divide Float", SpawnIntDivideFloatNode},
+    {"整数 加", SpawnIntAddNode},
+    {"整数 减", SpawnIntSubtractNode},
+    {"整数 乘", SpawnIntMultiplyNode},
+    {"整数 除", SpawnIntDivideNode},
+    {"整数 取余", SpawnIntModuloNode},
+    {"整数 比较", SpawnIntCompareNode},
+    {"整数 乘方", SpawnIntPowerNode},
+    {"整数 乘 浮点数", SpawnIntMultiplyFloatNode},
+    {"整数 除 浮点数", SpawnIntDivideFloatNode},
 
-    {"Float Add", SpawnFloatAddNode},
-    {"Float Subtract", SpawnFloatSubtractNode},
-    {"Float Multiply", SpawnFloatMultiplyNode},
-    {"Float Divide", SpawnFloatDivideNode},
-    {"Float Modulo", SpawnFloatModuloNode},
-    {"Float Compare", SpawnFloatCompareNode},
-    {"Float Power", SpawnFloatPowerNode},
+    {"浮点数 加", SpawnFloatAddNode},
+    {"浮点数 减", SpawnFloatSubtractNode},
+    {"浮点数 乘", SpawnFloatMultiplyNode},
+    {"浮点数 除", SpawnFloatDivideNode},
+    {"浮点数 取余", SpawnFloatModuloNode},
+    {"浮点数 比较", SpawnFloatCompareNode},
+    {"浮点数 乘方", SpawnFloatPowerNode},
 
     //{"String Concatenate", SpawnStringConcatenateNode},
     //{"String Length", SpawnStringLengthNode},

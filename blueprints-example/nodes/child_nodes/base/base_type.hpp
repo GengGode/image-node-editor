@@ -8,8 +8,9 @@
 // bool 类型节点
 Node *SpawnBoolNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Bool", ImColor(255, 128, 128));
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Bool, false);
+    m_Nodes.emplace_back(GetNextId(), "布尔值", ImColor(255, 128, 128));
+    m_Nodes.back().Type = NodeType::Simple;
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "布尔值", PinType::Bool, false);
 
     BuildNode(&m_Nodes.back());
 
@@ -19,8 +20,9 @@ Node *SpawnBoolNode(const std::function<int()> &GetNextId, const std::function<v
 // int 类型节点
 Node *SpawnIntNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int", ImColor(255, 128, 128));
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Int, 0);
+    m_Nodes.emplace_back(GetNextId(), "整数", ImColor(255, 128, 128));
+    m_Nodes.back().Type = NodeType::Simple;
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "浮点数", PinType::Int, 0);
 
     BuildNode(&m_Nodes.back());
 
@@ -30,8 +32,9 @@ Node *SpawnIntNode(const std::function<int()> &GetNextId, const std::function<vo
 // float 类型节点
 Node *SpawnFloatNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float", ImColor(255, 128, 128));
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Float, 0.0f);
+    m_Nodes.emplace_back(GetNextId(), "浮点数", ImColor(255, 128, 128));
+    m_Nodes.back().Type = NodeType::Simple;
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "浮点数", PinType::Float, 0.0f);
 
     BuildNode(&m_Nodes.back());
 
@@ -41,8 +44,9 @@ Node *SpawnFloatNode(const std::function<int()> &GetNextId, const std::function<
 // string 类型节点
 Node *SpawnStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "String", ImColor(255, 128, 128));
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::String, "");
+    m_Nodes.emplace_back(GetNextId(), "文本", ImColor(255, 128, 128));
+    m_Nodes.back().Type = NodeType::Simple;
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "文本", PinType::String, "");
 
     BuildNode(&m_Nodes.back());
 
@@ -50,9 +54,9 @@ Node *SpawnStringNode(const std::function<int()> &GetNextId, const std::function
 }
 
 static NodeWorldGlobal::FactoryGroupFunc_t BaseTypeNodes = {
-    {"Bool", SpawnBoolNode},
-    {"Int", SpawnIntNode},
-    {"Float", SpawnFloatNode},
-    {"String", SpawnStringNode},
+    {"布尔值", SpawnBoolNode},
+    {"整数", SpawnIntNode},
+    {"浮点数", SpawnFloatNode},
+    {"文本", SpawnStringNode},
 };
 #endif // BASE_TYPE_HPP

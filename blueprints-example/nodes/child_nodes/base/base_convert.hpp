@@ -8,11 +8,11 @@
 // bool -> int
 Node *SpawnBoolToIntNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Bool To Int", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "布尔值 转 整形", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Bool);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Int);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "整形", PinType::Int);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -41,11 +41,11 @@ Node *SpawnBoolToIntNode(const std::function<int()> &GetNextId, const std::funct
 // int -> bool
 Node *SpawnIntToBoolNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int To Bool", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整形 转 布尔值", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Int);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Bool);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "整形", PinType::Int);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -74,11 +74,11 @@ Node *SpawnIntToBoolNode(const std::function<int()> &GetNextId, const std::funct
 // int -> float
 Node *SpawnIntToFloatNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int To Float", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整形 转 浮点数", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Int);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Float);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "整形", PinType::Int);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -107,11 +107,11 @@ Node *SpawnIntToFloatNode(const std::function<int()> &GetNextId, const std::func
 // float -> int
 Node *SpawnFloatToIntNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float To Int", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 转 整数", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Float, 0.0f);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Int);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "浮点数", PinType::Float, 0.0f);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "整数", PinType::Int);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -140,11 +140,11 @@ Node *SpawnFloatToIntNode(const std::function<int()> &GetNextId, const std::func
 // float -> bool
 Node *SpawnFloatToBoolNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float To Bool", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 转 布尔值", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Float);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Bool);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -173,11 +173,11 @@ Node *SpawnFloatToBoolNode(const std::function<int()> &GetNextId, const std::fun
 // bool -> float
 Node *SpawnBoolToFloatNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Bool To Float", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "布尔值 转 浮点数", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Bool);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Float);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -206,11 +206,11 @@ Node *SpawnBoolToFloatNode(const std::function<int()> &GetNextId, const std::fun
 // string -> int
 Node *SpawnStringToIntNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "String To Int", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "文本 转 整数", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::String);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Int);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "文本", PinType::String);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "整数", PinType::Int);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -239,11 +239,11 @@ Node *SpawnStringToIntNode(const std::function<int()> &GetNextId, const std::fun
 // string -> float
 Node *SpawnStringToFloatNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "String To Float", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "文本 转 浮点数", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::String);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Float);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "文本", PinType::String);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -272,11 +272,11 @@ Node *SpawnStringToFloatNode(const std::function<int()> &GetNextId, const std::f
 // string -> bool
 Node *SpawnStringToBoolNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "String To Bool", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "文本 转 布尔值", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::String);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::Bool);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "文本", PinType::String);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -305,11 +305,11 @@ Node *SpawnStringToBoolNode(const std::function<int()> &GetNextId, const std::fu
 // int -> string
 Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int To String", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "整型 转 文本", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Int);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::String);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "整型", PinType::Int);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "文本", PinType::String);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -338,11 +338,11 @@ Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::fun
 // float -> string
 Node *SpawnFloatToStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Float To String", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "浮点数 转 文本", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Float);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::String);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "文本", PinType::String);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -371,11 +371,11 @@ Node *SpawnFloatToStringNode(const std::function<int()> &GetNextId, const std::f
 // bool -> string
 Node *SpawnBoolToStringNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Bool To String", ImColor(255, 128, 128));
+    m_Nodes.emplace_back(GetNextId(), "布尔值 转 文本", ImColor(255, 128, 128));
     auto &node = m_Nodes.back();
     node.Type = NodeType::BaseConvert;
-    m_Nodes.back().Inputs.emplace_back(GetNextId(), "", PinType::Bool);
-    m_Nodes.back().Outputs.emplace_back(GetNextId(), "", PinType::String);
+    m_Nodes.back().Inputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
+    m_Nodes.back().Outputs.emplace_back(GetNextId(), "文本", PinType::String);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -401,19 +401,19 @@ Node *SpawnBoolToStringNode(const std::function<int()> &GetNextId, const std::fu
     return &node;
 }
 
-static NodeWorldGlobal::FactoryGroupFunc_t BaseConvertNodes = {
-    {"Bool To Int", SpawnBoolToIntNode},
-    {"Int To Bool", SpawnIntToBoolNode},
-    {"Int To Float", SpawnIntToFloatNode},
-    {"Float To Int", SpawnFloatToIntNode},
-    {"Float To Bool", SpawnFloatToBoolNode},
-    {"Bool To Float", SpawnBoolToFloatNode},
-    {"String To Int", SpawnStringToIntNode},
-    {"String To Float", SpawnStringToFloatNode},
-    {"String To Bool", SpawnStringToBoolNode},
-    {"Int To String", SpawnIntToStringNode},
-    {"Float To String", SpawnFloatToStringNode},
-    {"Bool To String", SpawnBoolToStringNode},
+static std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>> BaseConvertNodes = {
+    {"布尔值 转 整数", SpawnBoolToIntNode},
+    {"整型 转 布尔值", SpawnIntToBoolNode},
+    {"整型 转 浮点数", SpawnIntToFloatNode},
+    {"浮点数 转 整数", SpawnFloatToIntNode},
+    {"浮点数 转 布尔值", SpawnFloatToBoolNode},
+    {"布尔值 转 浮点数", SpawnBoolToFloatNode},
+    {"文本 转 整数", SpawnStringToIntNode},
+    {"文本 转 浮点数", SpawnStringToFloatNode},
+    {"文本 转 布尔值", SpawnStringToBoolNode},
+    {"整型 转 文本", SpawnIntToStringNode},
+    {"浮点数 转 文本", SpawnFloatToStringNode},
+    {"布尔值 转 文本", SpawnBoolToStringNode},
 };
 
 #endif // BASE_TYPE_HPP

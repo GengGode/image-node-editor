@@ -5,11 +5,11 @@
 // rgb to bgr
 Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "RGB to BGR");
+    m_Nodes.emplace_back(GetNextId(), "RGB 转 BGR");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "BGR", PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -40,11 +40,11 @@ Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const 
 }
 Node *Spawn_ImageOperator_RgbaToRgb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "RGBA to RGB");
+    m_Nodes.emplace_back(GetNextId(), "RGBA 转 RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "RGBA", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -75,11 +75,11 @@ Node *Spawn_ImageOperator_RgbaToRgb(const std::function<int()> &GetNextId, const
 }
 Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "BGR to RGB");
+    m_Nodes.emplace_back(GetNextId(), "BGR 转 RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "BGR", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -110,11 +110,11 @@ Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const 
 }
 Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Gray to RGB");
+    m_Nodes.emplace_back(GetNextId(), "灰度 转 RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "灰度", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -141,13 +141,13 @@ Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const
 
     return &node;
 }
-Node *Spawn_ImageOperator_Gray(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+Node *Spawn_ImageOperator_ImageToGray(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Gray");
+    m_Nodes.emplace_back(GetNextId(), "图像 转 灰度");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "灰度", PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -180,7 +180,7 @@ Node *Spawn_ImageOperator_Gray(const std::function<int()> &GetNextId, const std:
 Node *Spawn_ImageOperator_RGBToHSV(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
 
-    m_Nodes.emplace_back(GetNextId(), "RGB to HSV");
+    m_Nodes.emplace_back(GetNextId(), "RGB 转 HSV");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
@@ -211,7 +211,7 @@ Node *Spawn_ImageOperator_RGBToHSV(const std::function<int()> &GetNextId, const 
 Node *Spawn_ImageOperator_HSVToRGB(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
 
-    m_Nodes.emplace_back(GetNextId(), "HSV to RGB");
+    m_Nodes.emplace_back(GetNextId(), "HSV 转 RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "HSV", PinType::Image);
@@ -242,7 +242,7 @@ Node *Spawn_ImageOperator_HSVToRGB(const std::function<int()> &GetNextId, const 
 Node *Spawn_ImageOperator_RGBToLAB(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
 
-    m_Nodes.emplace_back(GetNextId(), "RGB to LAB");
+    m_Nodes.emplace_back(GetNextId(), "RGB 转 LAB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
@@ -273,7 +273,7 @@ Node *Spawn_ImageOperator_RGBToLAB(const std::function<int()> &GetNextId, const 
 Node *Spawn_ImageOperator_LABToRGB(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
 
-    m_Nodes.emplace_back(GetNextId(), "LAB to RGB");
+    m_Nodes.emplace_back(GetNextId(), "LAB 转 RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "LAB", PinType::Image);
@@ -304,7 +304,7 @@ Node *Spawn_ImageOperator_LABToRGB(const std::function<int()> &GetNextId, const 
 Node *Spawn_ImageOperator_RGBToYUV(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
 
-    m_Nodes.emplace_back(GetNextId(), "RGB to YUV");
+    m_Nodes.emplace_back(GetNextId(), "RGB 转 YUV");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
@@ -335,7 +335,7 @@ Node *Spawn_ImageOperator_RGBToYUV(const std::function<int()> &GetNextId, const 
 Node *Spawn_ImageOperator_YUVToRGB(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
 
-    m_Nodes.emplace_back(GetNextId(), "YUV to RGB");
+    m_Nodes.emplace_back(GetNextId(), "YUV 转 RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "YUV", PinType::Image);
@@ -366,7 +366,7 @@ Node *Spawn_ImageOperator_YUVToRGB(const std::function<int()> &GetNextId, const 
 Node *Spawn_ImageOperator_RGBToYCrCb(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
 
-    m_Nodes.emplace_back(GetNextId(), "RGB to YCrCb");
+    m_Nodes.emplace_back(GetNextId(), "RGB 转 YCrCb");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
@@ -397,7 +397,7 @@ Node *Spawn_ImageOperator_RGBToYCrCb(const std::function<int()> &GetNextId, cons
 Node *Spawn_ImageOperator_YCrCbToRGB(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
 
-    m_Nodes.emplace_back(GetNextId(), "YCrCb to RGB");
+    m_Nodes.emplace_back(GetNextId(), "YCrCb 转 RGB");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "YCrCb", PinType::Image);
@@ -426,17 +426,17 @@ Node *Spawn_ImageOperator_YCrCbToRGB(const std::function<int()> &GetNextId, cons
 }
 
 static NodeWorldGlobal::FactoryGroupFunc_t ImageColorConvertNodes = {
-    {"RGB to BGR", Spawn_ImageOperator_RgbToBgr},
-    {"RGBA to RGB", Spawn_ImageOperator_RgbaToRgb},
-    {"BGR to RGB", Spawn_ImageOperator_BgrToRgb},
-    {"Gray to RGB", Spawn_ImageOperator_GrayToRGB},
-    {"Gray", Spawn_ImageOperator_Gray},
-    {"RGB to HSV", Spawn_ImageOperator_RGBToHSV},
-    {"HSV to RGB", Spawn_ImageOperator_HSVToRGB},
-    {"RGB to LAB", Spawn_ImageOperator_RGBToLAB},
-    {"LAB to RGB", Spawn_ImageOperator_LABToRGB},
-    {"RGB to YUV", Spawn_ImageOperator_RGBToYUV},
-    {"YUV to RGB", Spawn_ImageOperator_YUVToRGB},
-    {"RGB to YCrCb", Spawn_ImageOperator_RGBToYCrCb},
-    {"YCrCb to RGB", Spawn_ImageOperator_YCrCbToRGB},
+    {"RGB 转 BGR", Spawn_ImageOperator_RgbToBgr},
+    {"RGBA 转 RGB", Spawn_ImageOperator_RgbaToRgb},
+    {"BGR 转 RGB", Spawn_ImageOperator_BgrToRgb},
+    {"灰度 转 RGB", Spawn_ImageOperator_GrayToRGB},
+    {"图像 转 灰度", Spawn_ImageOperator_ImageToGray},
+    {"RGB 转 HSV", Spawn_ImageOperator_RGBToHSV},
+    {"HSV 转 RGB", Spawn_ImageOperator_HSVToRGB},
+    {"RGB 转 LAB", Spawn_ImageOperator_RGBToLAB},
+    {"LAB 转 RGB", Spawn_ImageOperator_LABToRGB},
+    {"RGB 转 YUV", Spawn_ImageOperator_RGBToYUV},
+    {"YUV 转 RGB", Spawn_ImageOperator_YUVToRGB},
+    {"RGB 转 YCrCb", Spawn_ImageOperator_RGBToYCrCb},
+    {"YCrCb 转 RGB", Spawn_ImageOperator_YCrCbToRGB},
 };
