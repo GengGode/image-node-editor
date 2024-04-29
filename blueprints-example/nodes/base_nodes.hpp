@@ -26,6 +26,11 @@ using namespace ax;
 
 using ax::Widgets::IconType;
 
+struct MainThread
+{
+    inline static std::thread::id id = std::this_thread::get_id();
+};
+
 enum class PinType
 {
     Flow,
@@ -90,9 +95,12 @@ struct Pin
     bool IsConnected;
     bool HoldImageTexture;
     void *ImageTexture = nullptr;
+    bool needUpdateTexture = false;
     Application *app;
     void event_value_changed()
     {
+        if (std::this_thread::get_id() != MainThread::id)
+            return;
         if (Type == PinType::Image && app)
         {
             cv::Mat image = std::get<cv::Mat>(Value);
@@ -141,6 +149,14 @@ struct Pin
         if (typeMap.at(typeid(T).hash_code()) == Type && std::holds_alternative<T>(Value))
         {
             value = std::get<T>(Value);
+            if (std::holds_alternative<cv::Mat>(Value))
+            {
+                if (needUpdateTexture)
+                {
+                    event_value_changed();
+                    needUpdateTexture = false;
+                }
+            }
             return true;
         }
         return false;
@@ -151,8 +167,20 @@ struct Pin
     {
         if (typeMap.at(typeid(T).hash_code()) == Type)
         {
+            if (std::holds_alternative<T>(Value) == false)
+            {
+                Value = value;
+                needUpdateTexture = true;
+                event_value_changed();
+                return true;
+            }
+            bool isChanged = !is_equal(std::get<T>(Value), value);
             Value = value;
-            event_value_changed();
+            if (isChanged)
+            {
+                needUpdateTexture = true;
+                event_value_changed();
+            }
             return true;
         }
         return false;
@@ -163,10 +191,19 @@ struct Pin
     {
         if (typeMap.at(typeid(T).hash_code()) == Type)
         {
+            if (std::holds_alternative<T>(Value) == false)
+            {
+                Value = value;
+                needUpdateTexture = true;
+                event_value_changed();
+                return true;
+            }
             bool isChanged = !is_equal(std::get<T>(Value), value);
             Value = value;
             if (isChanged)
             {
+                needUpdateTexture = true;
+                event_value_changed();
                 pred();
             }
             return true;
@@ -176,7 +213,18 @@ struct Pin
 
     bool HasImage()
     {
-        return Type == PinType::Image && std::holds_alternative<cv::Mat>(Value) && !std::get<cv::Mat>(Value).empty();
+        if (Type != PinType::Image)
+            return false;
+        if (std::holds_alternative<cv::Mat>(Value) == false)
+            return false;
+        if (std::get<cv::Mat>(Value).empty())
+            return false;
+        if (needUpdateTexture)
+        {
+            event_value_changed();
+            needUpdateTexture = false;
+        }
+        return true;
     }
 };
 
@@ -271,6 +319,76 @@ struct Graph
 {
     std::vector<Node> Nodes;
     std::vector<Link> Links;
+    struct ExectureEnv
+    {
+        std::atomic<bool> isRunning = false;
+        std::atomic<bool> needRunning = false; // 在下一次循环中是否需要执行
+        std::map<ed::NodeId, std::chrono::steady_clock::time_point> nodeBeginExecuteTime;
+        std::map<ed::NodeId, std::chrono::steady_clock::time_point> nodeEndExecuteTime;
+        std::map<ed::NodeId, std::chrono::steady_clock::duration> nodeExecuteTime;
+        std::list<ed::NodeId> nodeBeginExecuteList;
+        std::future<std::vector<ExecuteResult>> future; // 异步执行
+        // need inint
+        std::function<std::vector<ExecuteResult>(Graph *)> executeFunc;
+        Graph *graph;
+
+        void need_execute()
+        {
+            needRunning = true;
+            async_execute();
+        }
+
+        void async_execute()
+        {
+            // 如果没有执行过，或者需要执行，且没有正在执行
+            if (needRunning && !isRunning)
+            {
+                isRunning = true;
+                future = std::async(std::launch::async, executeFunc, graph);
+            }
+            if (future.valid() && future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                auto results = future.get();
+                for (auto result : results)
+                {
+                    if (result.has_error())
+                    {
+                        if (result.has_node_error())
+                        {
+                            auto node = graph->FindNode(std::get<ed::NodeId>(result.Error->Source));
+                            if (node)
+                            {
+                                node->LastExecuteResult = result;
+                            }
+                        }
+                        if (result.has_pin_error())
+                        {
+                            auto pin = graph->FindPin(std::get<ed::PinId>(result.Error->Source));
+                            if (pin)
+                            {
+                                pin->Node->LastExecuteResult = result;
+                            }
+                        }
+                        if (result.has_link_error())
+                        {
+                            auto link = graph->FindLink(std::get<ed::LinkId>(result.Error->Source));
+                            if (link)
+                            {
+                                auto start_pin = graph->FindPin(link->StartPinID);
+                                if (start_pin)
+                                {
+                                    start_pin->Node->LastExecuteResult = result;
+                                }
+                            }
+                        }
+                    }
+                }
+                isRunning = false;
+                needRunning = false;
+            }
+        }
+    };
+    ExectureEnv env;
 
     Node *FindNode(ed::NodeId id)
     {

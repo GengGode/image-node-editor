@@ -2,7 +2,7 @@
 #include <application.h>
 #include "utilities/builders.h"
 #include "utilities/widgets.h"
-#include "notifiers/Notifier.hpp"
+// #include "notifiers/Notifier.hpp"
 
 #include <imgui_node_editor.h>
 #include <imgui_internal.h>
@@ -162,7 +162,7 @@ struct Example : public Application
             }
             return false;
         };
-        Notifier::Add(Notif(Notif::Type::INFO, "ExecuteNodes"));
+        // Notifier::Add(Notif(Notif::Type::INFO, "ExecuteNodes"));
         std::list<Node *> begin_nodes;
         std::set<Node *> deduplication;
         for (auto &node : m_Graph.Nodes)
@@ -174,18 +174,18 @@ struct Example : public Application
                 continue;
             begin_nodes.push_back(&node);
         }
-        printf("begin_nodes.size() = %zd\n", begin_nodes.size());
+        // printf("begin_nodes.size() = %zd\n", begin_nodes.size());
 
         for (auto &node : begin_nodes)
         {
             auto current_node = node;
             while (current_node)
             {
-                printf("current_node->Name = %s\n", current_node->Name.c_str());
+                // printf("current_node->Name = %s\n", current_node->Name.c_str());
                 // 没有OnExecute函数，终止执行链
                 if (!current_node->OnExecute)
                 {
-                    printf("node->OnExecute is null\n");
+                    //   printf("node->OnExecute is null\n");
                     break;
                 }
                 // 执行当前节点
@@ -194,8 +194,8 @@ struct Example : public Application
                 // 执行失败，终止执行链
                 if (node_res.has_error())
                 {
-                    printf("node->OnExecute failed\n");
-                    printf("    node_res = %s\n", node_res.Error.value().Message.c_str());
+                    //   printf("node->OnExecute failed\n");
+                    //   printf("    node_res = %s\n", node_res.Error.value().Message.c_str());
                     break;
                 }
                 // 执行成功，继续执行链
@@ -203,7 +203,7 @@ struct Example : public Application
                 if (current_node->Outputs.size() == 0)
                     break;
                 // 有多个输出，打印输出数量
-                printf("current_node->Outputs.size() = %zd\n", current_node->Outputs.size());
+                // printf("current_node->Outputs.size() = %zd\n", current_node->Outputs.size());
                 // 有一个输出，继续执行链
                 // 有多个输出，选择第一个输出
                 // TODO: 暂不处理多输出情况
@@ -246,8 +246,8 @@ struct Example : public Application
                     }
                 }
             }
-            if (current_node)
-                printf("current_node->Name = %s\n", current_node->Name.c_str());
+            // if (current_node)
+            //     printf("current_node->Name = %s\n", current_node->Name.c_str());
         }
     }
 
@@ -295,6 +295,15 @@ struct Example : public Application
         m_HeaderBackground = LoadTexture("data/BlueprintBackground.png");
         m_SaveIcon = LoadTexture("data/ic_save_white_24dp.png");
         m_RestoreIcon = LoadTexture("data/ic_restore_white_24dp.png");
+
+        // graph env init
+        m_Graph.env.graph = &m_Graph;
+        m_Graph.env.executeFunc = [this](Graph *graph)
+        {
+            std::vector<ExecuteResult> results;
+            ExecuteNodes();
+            return results;
+        };
     }
 
     void OnStop() override
@@ -501,7 +510,7 @@ struct Example : public Application
             static int count = 0;
             printf("run count = %d\n", count++);
 
-            Notifier::Add(Notif(Notif::Type::SUCCESS, "run"));
+            // Notifier::Add(Notif(Notif::Type::SUCCESS, "run"));
             ExecuteNodes();
         }
         ImGui::Spring();
@@ -827,7 +836,8 @@ struct Example : public Application
                         ImGui::Checkbox("##edit", &value);
                         if (value != last_value)
                         {
-                            input.SetValue(value);
+                            input.SetValue(value, [this]()
+                                           { this->m_Graph.env.need_execute(); });
                         }
                         ImGui::Spring(0);
                     }
@@ -843,7 +853,8 @@ struct Example : public Application
                         ImGui::PopItemWidth();
                         if (value != last_value)
                         {
-                            input.SetValue(value);
+                            input.SetValue(value, [this]()
+                                           { this->m_Graph.env.need_execute(); });
                         }
                         ImGui::Spring(0);
                     }
@@ -859,8 +870,8 @@ struct Example : public Application
                         ImGui::PopItemWidth();
                         if (value != last_value)
                         {
-                            input.SetValue(value, []()
-                                           { printf("callback\n"); });
+                            input.SetValue(value, [this]()
+                                           { this->m_Graph.env.need_execute(); });
                         }
                         ImGui::Spring(0);
                     }
@@ -879,7 +890,8 @@ struct Example : public Application
                         ImGui::PopItemWidth();
                         if (buffer != inputStr)
                         {
-                            input.SetValue(std::string(buffer));
+                            input.SetValue(std::string(buffer), [this]()
+                                           { this->m_Graph.env.need_execute(); });
                         }
 
                         ImGui::Spring(0);
@@ -914,7 +926,8 @@ struct Example : public Application
                         ImGui::PopItemWidth();
                         if (buffer != outputStr)
                         {
-                            output.SetValue(std::string(buffer));
+                            output.SetValue(std::string(buffer), [this]()
+                                            { this->m_Graph.env.need_execute(); });
                         }
 
                         ImGui::Spring(0);
@@ -1353,6 +1366,8 @@ struct Example : public Application
 
 int main(int argc, char **argv)
 {
+    MainThread::id = std::this_thread::get_id();
+
     Example exampe("Blueprints", argc, argv);
 
     if (exampe.Create())
