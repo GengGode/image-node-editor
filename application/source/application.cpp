@@ -112,13 +112,8 @@ void Application::RecreateFontAtlas()
 
     io.Fonts = IM_NEW(ImFontAtlas);
 
-    ImFontConfig config;
-    config.OversampleH = 4;
-    config.OversampleV = 4;
-    config.PixelSnapH = false;
-
-    m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/YuanShenFont.ttf", 18.0f, &config);
-    m_HeaderFont  = io.Fonts->AddFontFromFileTTF("data/YuanShenFont.ttf",  20.0f, &config);
+    m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/YuanShenFont.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+    m_HeaderFont = io.Fonts->AddFontFromFileTTF("data/YuanShenFont.ttf", 20.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
 
     io.Fonts->Build();
 }
