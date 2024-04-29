@@ -1149,6 +1149,7 @@ struct Example : public Application
 
 #if 1
         auto openPopupPosition = ImGui::GetMousePos();
+        static ImVec2 createNodePosition;
         ed::Suspend();
         if (ed::ShowNodeContextMenu(&contextNodeId))
             ImGui::OpenPopup("Node Context Menu");
@@ -1160,6 +1161,7 @@ struct Example : public Application
         {
             ImGui::OpenPopup("Create New Node");
             newNodeLinkPin = nullptr;
+            createNodePosition = openPopupPosition;
         }
         ed::Resume();
 
@@ -1228,8 +1230,6 @@ struct Example : public Application
 
         if (ImGui::BeginPopup("Create New Node"))
         {
-            auto newNodePostion = openPopupPosition;
-
             Node *node = nullptr;
             for (auto &[type_name, type] : nodeTypes)
             {
@@ -1256,7 +1256,7 @@ struct Example : public Application
 
                 createNewNode = false;
 
-                ed::SetNodePosition(node->ID, newNodePostion);
+                ed::SetNodePosition(node->ID, createNodePosition);
 
                 if (auto startPin = newNodeLinkPin)
                 {
