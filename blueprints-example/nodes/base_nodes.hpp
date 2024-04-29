@@ -16,6 +16,8 @@
 #include <functional>
 #include <variant>
 #include <optional>
+#include <atomic>
+#include <future>
 
 #include <opencv2/opencv.hpp>
 
