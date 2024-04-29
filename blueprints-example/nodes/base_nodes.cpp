@@ -948,6 +948,7 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
                                        {"Image Get Rect Image", Spawn_ImageOperator_ImageGetRectImage},
 
                                    }},
+        {NodeType::ImageOperation_Edge, ImageOperatorEdgeNodes},
         {NodeType::ImageOther, ImageColorConvertNodes},
         {NodeType::Simple, {
                                {"Int to String", SpawnIntToStringNode},

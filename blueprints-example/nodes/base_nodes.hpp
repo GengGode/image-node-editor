@@ -28,7 +28,9 @@ using namespace ax;
 
 using ax::Widgets::IconType;
 
-typedef std::variant<int, float, bool, std::string, cv::Mat, cv::Rect, cv::Size, cv::Point> PinValue;
+typedef std::vector<cv::Point> Contour;
+typedef std::vector<Contour> Contours;
+typedef std::variant<int, float, bool, std::string, cv::Mat, cv::Rect, cv::Size, cv::Point, Contours> PinValue;
 
 struct MainThread
 {
@@ -42,6 +44,7 @@ enum class PinType
     Rect,
     Size,
     Point,
+    Contours,
     Bool,
     Int,
     Float,
@@ -114,19 +117,36 @@ enum class NodeType
     ImageType,
     ImageValue,
     ImageOperation,
+    ImageOperation_Threshold,  // 阈值类
+    ImageOperation_Filter,     // 滤波类
+    ImageOperation_Morphology, // 形态学类
+    ImageOperation_Edge,       // 边缘类
+    ImageOperation_Histogram,  // 直方图类
+    ImageOperation_Feature,    // 特征类
+    ImageOperation_Match,      // 匹配类
+    ImageOperation_Other,      // 其他类
     ImageOther,
     Simple,
     Comment
 };
 static std::vector<std::pair<std::string, NodeType>> nodeTypes = {
-    {"Blueprint", NodeType::Blueprint},
-    {"BaseType", NodeType::BaseType},
-    {"BaseConvert", NodeType::BaseConvert},
-    {"BaseOperation", NodeType::BaseOperation},
-    {"ImageFlow", NodeType::ImageFlow},
-    {"ImageValue", NodeType::ImageValue},
-    {"ImageOperation", NodeType::ImageOperation},
-    {"ImageOther", NodeType::ImageOther},
+    {"蓝图", NodeType::Blueprint},
+    {"基础类型", NodeType::BaseType},
+    {"基础转换", NodeType::BaseConvert},
+    {"基础操作", NodeType::BaseOperation},
+    {"图像流程", NodeType::ImageFlow},
+    {"图像类型", NodeType::ImageType},
+    {"图像值", NodeType::ImageValue},
+    {"图像操作", NodeType::ImageOperation},
+    {"图像操作-阈值类", NodeType::ImageOperation_Threshold},
+    {"图像操作-滤波类", NodeType::ImageOperation_Filter},
+    {"图像操作-形态学类", NodeType::ImageOperation_Morphology},
+    {"图像操作-边缘类", NodeType::ImageOperation_Edge},
+    {"图像操作-直方图类", NodeType::ImageOperation_Histogram},
+    {"图像操作-特征类", NodeType::ImageOperation_Feature},
+    {"图像操作-匹配类", NodeType::ImageOperation_Match},
+    {"图像操作-其他类", NodeType::ImageOperation_Other},
+    {"图像其他操作", NodeType::ImageOther},
     {"Simple", NodeType::Simple},
     {"Comment", NodeType::Comment}};
 
@@ -192,6 +212,7 @@ struct Pin
         {typeid(cv::Rect).hash_code(), PinType::Rect},
         {typeid(cv::Size).hash_code(), PinType::Size},
         {typeid(cv::Point).hash_code(), PinType::Point},
+        {typeid(Contours).hash_code(), PinType::Contours},
     };
     template <typename T>
     bool GetValue(T &value)

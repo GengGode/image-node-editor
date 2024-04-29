@@ -8,6 +8,7 @@
 #include "image/image_type.hpp"
 #include "image/image_math.hpp"
 #include "image/image_color_convert.hpp"
+#include "image/image_operator_edge.hpp"
 
 Node *SpawnInputActionNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {

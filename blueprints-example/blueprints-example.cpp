@@ -1290,7 +1290,7 @@ struct Example : public Application
 
         Node *output_node = nullptr;
         for (auto &node : m_Graph.Nodes)
-            if (node.Name == "Image Viewer")
+            if (node.Name == "图像查看器")
             {
                 std::string name = "output " + std::to_string((int)(size_t)node.ID);
                 ImGui::Begin(name.c_str());
