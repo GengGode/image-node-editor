@@ -111,6 +111,7 @@ enum class NodeType
     BaseConvert,
     BaseOperation,
     ImageFlow,
+    ImageType,
     ImageValue,
     ImageOperation,
     ImageOther,
