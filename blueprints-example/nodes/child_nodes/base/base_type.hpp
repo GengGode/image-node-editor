@@ -49,7 +49,7 @@ Node *SpawnStringNode(const std::function<int()> &GetNextId, const std::function
     return &m_Nodes.back();
 }
 
-static std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>> BaseTypeNodes = {
+static NodeWorldGlobal::FactoryGroupFunc_t BaseTypeNodes = {
     {"Bool", SpawnBoolNode},
     {"Int", SpawnIntNode},
     {"Float", SpawnFloatNode},

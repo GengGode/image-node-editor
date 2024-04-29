@@ -521,7 +521,8 @@ struct NodeIdLess
 
 struct NodeWorldGlobal
 {
-    static std::map<NodeType, std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>>> nodeFactories;
+    using FactoryGroupFunc_t = std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>>;
+    static std::map<NodeType, FactoryGroupFunc_t> nodeFactories;
 };
 
 #define try_catch_block \

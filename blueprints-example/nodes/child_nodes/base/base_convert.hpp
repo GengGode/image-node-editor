@@ -401,7 +401,7 @@ Node *SpawnBoolToStringNode(const std::function<int()> &GetNextId, const std::fu
     return &node;
 }
 
-static std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>> BaseConvertNodes = {
+static NodeWorldGlobal::FactoryGroupFunc_t BaseConvertNodes = {
     {"Bool To Int", SpawnBoolToIntNode},
     {"Int To Bool", SpawnIntToBoolNode},
     {"Int To Float", SpawnIntToFloatNode},

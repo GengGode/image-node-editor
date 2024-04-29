@@ -5,6 +5,9 @@
 #include "base/base_type.hpp"
 #include "base/base_convert.hpp"
 #include "base/base_operation.hpp"
+#include "image/image_type.hpp"
+#include "image/image_math.hpp"
+#include "image/image_color_convert.hpp"
 
 Node *SpawnInputActionNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -149,5 +152,16 @@ Node *SpawnComment(const std::function<int()> &GetNextId, const std::function<vo
 
     return &m_Nodes.back();
 }
+
+static NodeWorldGlobal::FactoryGroupFunc_t BlueprintNodes = {{"InputAction", SpawnInputActionNode},
+                                                             {"Branch", SpawnBranchNode},
+                                                             {"Do N", SpawnDoNNode},
+                                                             {"OutputAction", SpawnOutputActionNode},
+                                                             {"Print String", SpawnPrintStringNode},
+                                                             {"Message", SpawnMessageNode},
+                                                             {"Set Timer", SpawnSetTimerNode},
+                                                             {"Less", SpawnLessNode},
+                                                             {"Weird", SpawnWeirdNode},
+                                                             {"Trace by Channel", SpawnTraceByChannelNode}};
 
 #endif // CHILD_NODES_HPP

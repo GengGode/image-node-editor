@@ -888,7 +888,7 @@ Node *SpawnFloatPowerNode(const std::function<int()> &GetNextId, const std::func
     return &node;
 }
 
-static std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>> BaseOperationNodes = {
+static NodeWorldGlobal::FactoryGroupFunc_t BaseOperationNodes = {
 
     {"Bool Not", SpawnBoolNotNode},
     {"Bool And", SpawnBoolAndNode},
