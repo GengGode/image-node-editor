@@ -710,6 +710,7 @@ struct Example : public Application
         static ed::NodeId contextNodeId = 0;
         static ed::LinkId contextLinkId = 0;
         static ed::PinId contextPinId = 0;
+        static std::optional<ErrorInfo> contextError_opt;
         static bool createNewNode = false;
         static Pin *newNodeLinkPin = nullptr;
         static Pin *newLinkPin = nullptr;
@@ -740,6 +741,7 @@ struct Example : public Application
                 if (has_error)
                 {
                     ImGui::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    contextError_opt = node.LastExecuteResult.Error;
                 }
 
                 bool hasOutputDelegates = false;
@@ -756,6 +758,14 @@ struct Example : public Application
                         builder.Header(node.Color);
                     ImGui::Spring(0);
                     ImGui::TextUnformatted(node.Name.c_str());
+                    if (ImGui::IsItemHovered())
+                    {
+                        // printf("hovered\n");
+                        ed::Suspend(); // If not done here, the Tooltip spawns somewhat far away from the mouse
+                        if (node.LastExecuteResult.has_node_error())
+                            ImGui::SetTooltip("错误: %s", node.LastExecuteResult.Error.value().Message.c_str());
+                        ed::Resume();
+                    }
                     ImGui::Spring(1);
                     ImGui::Dummy(ImVec2(0, 28));
                     if (hasOutputDelegates)
@@ -898,6 +908,14 @@ struct Example : public Application
                     }
                     ImGui::PopStyleVar();
                     builder.EndInput();
+                    if (ImGui::IsItemHovered())
+                    {
+                        // printf("hovered\n");
+                        ed::Suspend(); // If not done here, the Tooltip spawns somewhat far away from the mouse
+                        if (node.LastExecuteResult.has_pin_error())
+                            ImGui::SetTooltip("错误: %s", node.LastExecuteResult.Error.value().Message.c_str());
+                        ed::Resume();
+                    }
                     ed::PopStyleColor();
                 }
 
