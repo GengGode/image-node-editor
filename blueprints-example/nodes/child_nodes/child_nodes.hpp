@@ -10,6 +10,7 @@
 #include "image/image_type.hpp"
 #include "image/image_math.hpp"
 #include "image/image_color_convert.hpp"
+#include "image/image_feature.hpp"
 #include "image/image_operator_edge.hpp"
 
 #endif // CHILD_NODES_HPP

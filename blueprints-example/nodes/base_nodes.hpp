@@ -35,7 +35,7 @@ typedef std::pair<KeyPoints, cv::Mat> Feature;
 typedef std::vector<cv::DMatch> Matches;
 
 typedef std::variant<int, float, bool, std::string,
-                     cv::Mat, cv::Rect, cv::Size, cv::Point,
+                     cv::Mat, cv::Rect, cv::Size, cv::Point, cv::Scalar,
                      Contour, Contours,
                      cv::KeyPoint, KeyPoints, Feature, cv::DMatch, Matches>
     PinValue;
@@ -52,12 +52,13 @@ enum class PinType
     Rect,
     Size,
     Point,
+    Color,
     Contour,
     Contours,
     KeyPoint,
     KeyPoints,
     Feature,
-    DMatch,
+    Match,
     Matches,
     Bool,
     Int,
@@ -68,6 +69,25 @@ enum class PinType
     Delegate,
 };
 
+const std::map<std::size_t, PinType> typeMap = {
+    {typeid(int).hash_code(), PinType::Int},
+    {typeid(float).hash_code(), PinType::Float},
+    {typeid(bool).hash_code(), PinType::Bool},
+    {typeid(std::string).hash_code(), PinType::String},
+    {typeid(cv::Mat).hash_code(), PinType::Image},
+    {typeid(cv::Rect).hash_code(), PinType::Rect},
+    {typeid(cv::Size).hash_code(), PinType::Size},
+    {typeid(cv::Point).hash_code(), PinType::Point},
+    {typeid(cv::Scalar).hash_code(), PinType::Color},
+    {typeid(Contour).hash_code(), PinType::Contour},
+    {typeid(Contours).hash_code(), PinType::Contours},
+    {typeid(cv::KeyPoint).hash_code(), PinType::KeyPoint},
+    {typeid(KeyPoints).hash_code(), PinType::KeyPoints},
+    {typeid(Feature).hash_code(), PinType::Feature},
+    {typeid(cv::DMatch).hash_code(), PinType::Match},
+    {typeid(Matches).hash_code(), PinType::Matches},
+
+};
 template <typename T>
 static bool is_equal(const T &lft, const T &rht)
 {
@@ -296,17 +316,6 @@ struct Pin
     {
     }
 
-    const std::map<std::size_t, PinType> typeMap = {
-        {typeid(int).hash_code(), PinType::Int},
-        {typeid(float).hash_code(), PinType::Float},
-        {typeid(bool).hash_code(), PinType::Bool},
-        {typeid(std::string).hash_code(), PinType::String},
-        {typeid(cv::Mat).hash_code(), PinType::Image},
-        {typeid(cv::Rect).hash_code(), PinType::Rect},
-        {typeid(cv::Size).hash_code(), PinType::Size},
-        {typeid(cv::Point).hash_code(), PinType::Point},
-        {typeid(Contours).hash_code(), PinType::Contours},
-    };
     template <typename T>
     bool GetValue(T &value)
     {
