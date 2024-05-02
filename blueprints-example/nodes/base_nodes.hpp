@@ -30,7 +30,15 @@ using ax::Widgets::IconType;
 
 typedef std::vector<cv::Point> Contour;
 typedef std::vector<Contour> Contours;
-typedef std::variant<int, float, bool, std::string, cv::Mat, cv::Rect, cv::Size, cv::Point, Contours> PinValue;
+typedef std::vector<cv::KeyPoint> KeyPoints;
+typedef std::pair<KeyPoints, cv::Mat> Feature;
+typedef std::vector<cv::DMatch> Matches;
+
+typedef std::variant<int, float, bool, std::string,
+                     cv::Mat, cv::Rect, cv::Size, cv::Point,
+                     Contour, Contours,
+                     cv::KeyPoint, KeyPoints, Feature, cv::DMatch, Matches>
+    PinValue;
 
 struct MainThread
 {
@@ -44,7 +52,13 @@ enum class PinType
     Rect,
     Size,
     Point,
+    Contour,
     Contours,
+    KeyPoint,
+    KeyPoints,
+    Feature,
+    DMatch,
+    Matches,
     Bool,
     Int,
     Float,
@@ -90,6 +104,85 @@ static bool is_equal(const cv::Mat &lft, const cv::Mat &rht)
     }
 
     return false;
+}
+
+template <>
+static bool is_equal(const Contour &lft, const Contour &rht)
+{
+    if (lft.size() != rht.size())
+        return false;
+    for (size_t i = 0; i < lft.size(); i++)
+    {
+        if (lft[i] != rht[i])
+            return false;
+    }
+    return true;
+}
+
+template <>
+static bool is_equal(const Contours &lft, const Contours &rht)
+{
+    if (lft.size() != rht.size())
+        return false;
+    for (size_t i = 0; i < lft.size(); i++)
+    {
+        if (!is_equal(lft[i], rht[i]))
+            return false;
+    }
+    return true;
+}
+
+template <>
+static bool is_equal(const cv::KeyPoint &lft, const cv::KeyPoint &rht)
+{
+    return lft.pt == rht.pt &&
+           lft.size == rht.size &&
+           lft.angle == rht.angle &&
+           lft.response == rht.response &&
+           lft.octave == rht.octave &&
+           lft.class_id == rht.class_id;
+}
+
+template <>
+static bool is_equal(const KeyPoints &lft, const KeyPoints &rht)
+{
+    if (lft.size() != rht.size())
+        return false;
+    for (size_t i = 0; i < lft.size(); i++)
+    {
+        if (!is_equal(lft[i], rht[i]))
+            return false;
+    }
+    return true;
+}
+
+template <>
+static bool is_equal(const Feature &lft, const Feature &rht)
+{
+    return is_equal(lft.first, rht.first) &&
+           is_equal(lft.second, rht.second);
+}
+
+template <>
+static bool is_equal(const cv::DMatch &lft, const cv::DMatch &rht)
+{
+    return lft.queryIdx == rht.queryIdx &&
+           lft.trainIdx == rht.trainIdx &&
+           lft.imgIdx == rht.imgIdx &&
+           lft.distance == rht.distance;
+}
+
+template <>
+static bool is_equal(const Matches &lft, const Matches &rht)
+{
+    if (lft.size() != rht.size())
+        return false;
+    for (size_t i = 0; i < lft.size(); i++)
+    {
+        if (!is_equal(lft[i], rht[i]))
+            return false;
+    }
+    return true;
 }
 
 static bool is_equal(const PinValue &lft, const PinValue &rht)
