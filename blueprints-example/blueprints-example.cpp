@@ -165,6 +165,7 @@ struct Example : public Application
         // Notifier::Add(Notif(Notif::Type::INFO, "ExecuteNodes"));
         std::list<Node *> begin_nodes;
         std::set<Node *> deduplication;
+        // 获取运行链的起始节点
         for (auto &node : m_Graph.Nodes)
         {
             auto is_begin = check_is_begin_node(&node);
@@ -174,49 +175,40 @@ struct Example : public Application
                 continue;
             begin_nodes.push_back(&node);
         }
-        // printf("begin_nodes.size() = %zd\n", begin_nodes.size());
 
+        // 挨个执行链的起始节点
         for (auto &node : begin_nodes)
         {
             auto current_node = node;
+            // 直到没有下一个节点
             while (current_node)
             {
-                // printf("current_node->Name = %s\n", current_node->Name.c_str());
                 // 没有OnExecute函数，终止执行链
                 if (!current_node->OnExecute)
-                {
-                    //   printf("node->OnExecute is null\n");
                     break;
-                }
                 // 执行当前节点
                 auto node_res = current_node->OnExecute(&m_Graph, current_node);
                 current_node->LastExecuteResult = node_res;
                 // 执行失败，终止执行链
                 if (node_res.has_error())
-                {
-                    //   printf("node->OnExecute failed\n");
-                    //   printf("    node_res = %s\n", node_res.Error.value().Message.c_str());
                     break;
-                }
                 // 执行成功，继续执行链
+
                 // 没有输出，即最终节点，终止执行链
                 if (current_node->Outputs.size() == 0)
                     break;
-                // 有多个输出，打印输出数量
-                // printf("current_node->Outputs.size() = %zd\n", current_node->Outputs.size());
-                // 有一个输出，继续执行链
-                // 有多个输出，选择第一个输出
-                // TODO: 暂不处理多输出情况
+                // 输出有连接，遍历执行所有输出连接的节点
                 int i = 0;
                 for (auto &output : current_node->Outputs)
                 {
-                    // 输出有连接，继续执行链
+                    // 输出没有连接，继续遍历下一个输出
                     if (m_Graph.IsPinLinked(output.ID) == false)
                     {
                         current_node = nullptr;
                         continue;
                     }
 
+                    // 获取输出连接
                     auto links = m_Graph.FindPinLinks(output.ID);
                     for (auto &link : links)
                     {
@@ -225,7 +217,6 @@ struct Example : public Application
                             current_node = nullptr;
                             continue;
                         }
-
                         auto endpin = m_Graph.FindPin(link->EndPinID);
                         if (endpin == nullptr)
                         {
@@ -238,6 +229,7 @@ struct Example : public Application
                             continue;
                         }
 
+                        // 仅直接执行第一个连接，其他连接添加到起始节点列表
                         if (i == 0)
                             current_node = endpin->Node;
                         else
@@ -246,8 +238,6 @@ struct Example : public Application
                     }
                 }
             }
-            // if (current_node)
-            //     printf("current_node->Name = %s\n", current_node->Name.c_str());
         }
     }
 
