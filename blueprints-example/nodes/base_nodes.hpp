@@ -445,6 +445,9 @@ struct Node
     std::string SavedState;
 
     ExecuteResult LastExecuteResult;
+    std::optional<std::chrono::steady_clock::time_point> BeginExecuteTime;
+    std::optional<std::chrono::steady_clock::time_point> EndExecuteTime;
+    std::optional<std::chrono::steady_clock::duration> ExecuteTime;
 
     Node(int id, const char *name, ImColor color = ImColor(255, 255, 255)) : ID(id), Name(name), Color(color), Type(NodeType::Blueprint), Size(0, 0)
     {
@@ -471,6 +474,16 @@ struct Node
             }
         }
         return nodes;
+    }
+
+    std::string get_last_execute_time()
+    {
+        if (ExecuteTime)
+        {
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(*ExecuteTime);
+            return std::to_string(duration.count()) + " ms";
+        }
+        return "0 ms";
     }
 };
 
@@ -649,20 +662,23 @@ struct NodeWorldGlobal
     static std::map<NodeType, FactoryGroupFunc_t> nodeFactories;
 };
 
-#define try_catch_block \
-    try                 \
+#define try_catch_block                                        \
+    node->BeginExecuteTime = std::chrono::steady_clock::now(); \
+    try                                                        \
     {
 
-#define catch_block_and_return                                      \
-    }                                                               \
-    catch (const std::exception &e)                                 \
-    {                                                               \
-        return ExecuteResult::ErrorNode(node->ID, e.what());        \
-    }                                                               \
-    catch (...)                                                     \
-    {                                                               \
-        return ExecuteResult::ErrorNode(node->ID, "Unknown error"); \
-    }                                                               \
+#define catch_block_and_return                                           \
+    }                                                                    \
+    catch (const std::exception &e)                                      \
+    {                                                                    \
+        return ExecuteResult::ErrorNode(node->ID, e.what());             \
+    }                                                                    \
+    catch (...)                                                          \
+    {                                                                    \
+        return ExecuteResult::ErrorNode(node->ID, "Unknown error");      \
+    }                                                                    \
+    node->EndExecuteTime = std::chrono::steady_clock::now();             \
+    node->ExecuteTime = *node->EndExecuteTime - *node->BeginExecuteTime; \
     return ExecuteResult::Success();
 
 static ExecuteResult get_image(Graph *graph, Pin input, cv::Mat &image)

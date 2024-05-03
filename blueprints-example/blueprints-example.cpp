@@ -959,6 +959,18 @@ struct Example : public Application
                     builder.EndOutput();
                 }
 
+                // footer
+                if (!isSimple)
+                {
+                    // builder.Header(ImColor(255, 0, 0));
+                    ImGui::Spring(1);
+                    std::string footer = "耗时：" + node.get_last_execute_time();
+                    ImGui::TextUnformatted(footer.c_str());
+                    ImGui::Spring(1);
+
+                    // builder.EndHeader();
+                }
+
                 builder.End();
 
                 if (has_error)
