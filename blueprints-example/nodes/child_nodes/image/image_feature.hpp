@@ -329,9 +329,10 @@ Node *Spawn_ImageFeature_MatchFeaturePoints(const std::function<int()> &GetNextI
 
         try_catch_block
         {
-            cv::BFMatcher matcher(cv::NORM_L2, true);
             std::vector<std::vector<cv::DMatch>> matches;
-            matcher.knnMatch(feature1.second, feature2.second, matches, 2);
+            auto matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
+            // matcher->knnMatch(query_fts.descriptors, train_fts.descriptors, match_group, 2);
+            matcher->knnMatch(feature1.second, feature2.second, matches, 2);
 
             std::vector<cv::DMatch> good_matches;
             for (size_t i = 0; i < matches.size(); i++)
