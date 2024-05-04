@@ -459,6 +459,52 @@ Node *Spawn_ImageOperator_IntToColor(const std::function<int()> &GetNextId, cons
     return &node;
 }
 
+// cv::Mat createMat(int rows, int cols, int type, const cv::Scalar &s)
+Node *Spawn_ImageOperator_CreateImage(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "创建图片");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Rows", PinType::Int, 1024);
+    node.Inputs.emplace_back(GetNextId(), "Cols", PinType::Int, 1024);
+    node.Inputs.emplace_back(GetNextId(), "通道数", PinType::Int, 3);
+    node.Inputs.emplace_back(GetNextId(), "颜色", PinType::Color, cv::Scalar(0, 0, 0, 0));
+    node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
+
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        int rows = 1024;
+        get_value(graph, node->Inputs[0], rows);
+
+        int cols = 1024;
+        get_value(graph, node->Inputs[1], cols);
+
+        int channels = 3;
+        get_value(graph, node->Inputs[2], channels);
+
+        cv::Scalar scalar(0, 0, 0, 0);
+        get_value(graph, node->Inputs[3], scalar);
+
+        // Display image
+        node->Inputs[0].Value = rows;
+        node->Inputs[1].Value = cols;
+        node->Inputs[2].Value = channels;
+        node->Inputs[3].Value = scalar;
+
+        try_catch_block
+        {
+            cv::Mat image(rows, cols, CV_MAKETYPE(CV_8U, channels), scalar);
+            node->Outputs[0].SetValue(image);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 static NodeWorldGlobal::FactoryGroupFunc_t ImageTypeNodes = {
     {"Int to Point", Spawn_ImageOperator_IntToPoint},
     {"Int to Size", Spawn_ImageOperator_IntToSize},
@@ -472,4 +518,5 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageTypeNodes = {
     {"Point and Size to Rect", Spawn_ImageOperator_PointAndSizeToRect},
     {"随机颜色", Spawn_ImageOperator_RandomColor},
     {"Int to Color", Spawn_ImageOperator_IntToColor},
+    {"创建图片", Spawn_ImageOperator_CreateImage},
 };
