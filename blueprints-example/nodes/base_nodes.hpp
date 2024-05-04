@@ -233,6 +233,7 @@ enum class NodeType
     ImageFlow,
     ImageType,
     ImageValue,
+    ImageDraw,
     ImageOperation,
     ImageOperation_Threshold,  // 阈值类
     ImageOperation_Filter,     // 滤波类
@@ -254,6 +255,7 @@ static std::vector<std::pair<std::string, NodeType>> nodeTypes = {
     {"图像流程", NodeType::ImageFlow},
     {"图像类型", NodeType::ImageType},
     {"图像值", NodeType::ImageValue},
+    {"图像绘制", NodeType::ImageDraw},
     {"图像操作", NodeType::ImageOperation},
     {"图像操作-阈值类", NodeType::ImageOperation_Threshold},
     {"图像操作-滤波类", NodeType::ImageOperation_Filter},
