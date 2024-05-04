@@ -2,39 +2,46 @@
 #include "base_nodes.hpp"
 
 // 一些轮廓相关处理
-// EdgeDetection
-Node *Spawn_ImageOperator_EdgeDetection(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+// canny
+Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "Canny轮廓检测");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "Threshold 1", PinType::Float, 50.0f);
+    node.Inputs.emplace_back(GetNextId(), "Threshold 2", PinType::Float, 150.0f);
+    node.Inputs.emplace_back(GetNextId(), "Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-
     node.Outputs[0].app = app;
 
-    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
+        auto result = get_image(graph, node->Inputs[0], image);
         if (result.has_error())
             return result;
 
-        // Display image
-        node->Inputs[0].Value = image;
+        float threshold_1 = 50;
+        get_value(graph, node->Inputs[1], threshold_1);
+        float threshold_2 = 150;
+        get_value(graph, node->Inputs[2], threshold_2);
+        int size = 3;
+        get_value(graph, node->Inputs[3], size);
 
         try_catch_block
         {
-            cv::Mat gray, edge;
-            cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-            cv::Canny(gray, edge, 50, 150);
-
-            node->Outputs[0].SetValue(edge);
+            if (size % 2 == 0)
+                return ExecuteResult::ErrorNode(node->ID, "Size must be odd");
+            cv::Mat canny;
+            cv::Canny(image, canny, threshold_1, threshold_2, size);
+            node->Outputs[0].SetValue(canny);
         }
         catch_block_and_return;
     };
 
     BuildNode(&node);
+
     return &node;
 }
 
@@ -45,6 +52,7 @@ Node *Spawn_ImageOperator_SobelEdgeDetection(const std::function<int()> &GetNext
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
     node.Outputs[0].app = app;
@@ -434,7 +442,7 @@ Node *Spawn_ImageOperator_HoughCircleDetection(const std::function<int()> &GetNe
 }
 
 static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorEdgeNodes = {
-    {"Canny轮廓检测", Spawn_ImageOperator_EdgeDetection},
+    {"Canny轮廓检测", Spawn_ImageOperator_Canny},
     {"Sobel轮廓检测", Spawn_ImageOperator_SobelEdgeDetection},
     {"Laplacian轮廓检测", Spawn_ImageOperator_LaplacianEdgeDetection},
     {"Scharr轮廓检测", Spawn_ImageOperator_ScharrEdgeDetection},
