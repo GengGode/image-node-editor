@@ -370,6 +370,69 @@ Node *Spawn_ImageOperator_SelectContourByIndex(const std::function<int()> &GetNe
     return &node;
 }
 
+// 霍夫变换查找圆
+Node *Spawn_ImageOperator_HoughCircleDetection(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "霍夫圆查找");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "模式", PinType::Int, cv::HOUGH_GRADIENT);
+    node.Inputs.emplace_back(GetNextId(), "dp", PinType::Float, 1.0f);
+    node.Inputs.emplace_back(GetNextId(), "最小距离", PinType::Float, 20.0f);
+    node.Inputs.emplace_back(GetNextId(), "param1", PinType::Float, 100.0f);
+    node.Inputs.emplace_back(GetNextId(), "param2", PinType::Float, 100.0f);
+    node.Inputs.emplace_back(GetNextId(), "minRadius", PinType::Int, 0);
+    node.Inputs.emplace_back(GetNextId(), "maxRadius", PinType::Int, 0);
+    node.Outputs.emplace_back(GetNextId(), "Circles", PinType::Circles);
+
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+        int method = cv::HOUGH_GRADIENT;
+        get_value(graph, node->Inputs[1], method);
+        float dp = 0;
+        get_value(graph, node->Inputs[2], dp);
+        float minDist = 0;
+        get_value(graph, node->Inputs[3], minDist);
+        float param1 = 0;
+        get_value(graph, node->Inputs[4], param1);
+        float param2 = 0;
+        get_value(graph, node->Inputs[5], param2);
+        int minRadius = 0;
+        get_value(graph, node->Inputs[6], minRadius);
+        int maxRadius = 0;
+        get_value(graph, node->Inputs[7], maxRadius);
+
+        // Display image
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = method;
+        node->Inputs[2].Value = dp;
+        node->Inputs[3].Value = minDist;
+        node->Inputs[4].Value = param1;
+        node->Inputs[5].Value = param2;
+        node->Inputs[6].Value = minRadius;
+        node->Inputs[7].Value = maxRadius;
+
+        try_catch_block
+        {
+            std::vector<cv::Vec3f> circles;
+            cv::HoughCircles(image, circles, method, dp, minDist, param1, param2, minRadius, maxRadius);
+
+            node->Outputs[0].SetValue(circles);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorEdgeNodes = {
     {"Canny轮廓检测", Spawn_ImageOperator_EdgeDetection},
     {"Sobel轮廓检测", Spawn_ImageOperator_SobelEdgeDetection},
@@ -380,5 +443,6 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorEdgeNodes = {
     {"排序轮廓-基于面积", Spawn_ImageOperator_SortContoursByArea},
     {"过滤轮廓-基于面积", Spawn_ImageOperator_FilterContoursByAreaRange},
     {"选择轮廓-基于索引", Spawn_ImageOperator_SelectContourByIndex},
+    {"霍夫圆查找", Spawn_ImageOperator_HoughCircleDetection},
 
 };
