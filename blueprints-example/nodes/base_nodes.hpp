@@ -33,11 +33,13 @@ typedef std::vector<Contour> Contours;
 typedef std::vector<cv::KeyPoint> KeyPoints;
 typedef std::pair<KeyPoints, cv::Mat> Feature;
 typedef std::vector<cv::DMatch> Matches;
+typedef std::vector<cv::Vec3f> Circles;
 
 typedef std::variant<int, float, bool, std::string,
                      cv::Mat, cv::Rect, cv::Size, cv::Point, cv::Scalar,
                      Contour, Contours,
-                     cv::KeyPoint, KeyPoints, Feature, cv::DMatch, Matches>
+                     cv::KeyPoint, KeyPoints, Feature, cv::DMatch, Matches,
+                     Circles>
     PinValue;
 
 struct MainThread
@@ -60,6 +62,7 @@ enum class PinType
     Feature,
     Match,
     Matches,
+    Circles,
     Bool,
     Int,
     Float,
@@ -86,6 +89,7 @@ const std::map<std::size_t, PinType> typeMap = {
     {typeid(Feature).hash_code(), PinType::Feature},
     {typeid(cv::DMatch).hash_code(), PinType::Match},
     {typeid(Matches).hash_code(), PinType::Matches},
+    {typeid(Circles).hash_code(), PinType::Circles},
 
 };
 template <typename T>
