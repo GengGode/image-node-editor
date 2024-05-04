@@ -213,6 +213,9 @@ Node *Spawn_ImageOperator_DrawContours(const std::function<int()> &GetNextId, co
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "轮廓数组", PinType::Contours);
+    node.Inputs.emplace_back(GetNextId(), "绘制颜色", PinType::Color);
+    node.Inputs.emplace_back(GetNextId(), "随机颜色", PinType::Bool, false);
+    node.Inputs.emplace_back(GetNextId(), "线宽", PinType::Int, 2);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
     node.Outputs[0].app = app;
@@ -228,15 +231,36 @@ Node *Spawn_ImageOperator_DrawContours(const std::function<int()> &GetNextId, co
         auto result2 = get_value(graph, node->Inputs[1], contours);
         if (result2.has_error())
             return result2;
+        cv::Scalar color;
+        get_value(graph, node->Inputs[2], color);
+
+        bool random_color = false;
+        get_value(graph, node->Inputs[3], random_color);
+
+        int thickness = 2;
+        get_value(graph, node->Inputs[4], thickness);
 
         // Display image
         node->Inputs[0].Value = image;
         node->Inputs[1].Value = contours;
+        node->Inputs[2].Value = color;
+        node->Inputs[3].Value = random_color;
+        node->Inputs[4].Value = thickness;
 
         try_catch_block
         {
-            cv::drawContours(image, contours, -1, cv::Scalar(0, 255, 0), 2);
-
+            if (random_color)
+            {
+                for (size_t i = 0; i < contours.size(); i++)
+                {
+                    cv::Scalar color(rand() & 255, rand() & 255, rand() & 255);
+                    cv::drawContours(image, contours, i, color, thickness);
+                }
+            }
+            else
+            {
+                cv::drawContours(image, contours, -1, color, thickness);
+            }
             node->Outputs[0].SetValue(image);
         }
         catch_block_and_return;
