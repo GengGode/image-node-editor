@@ -405,6 +405,60 @@ Node *Spawn_ImageOperator_RandomColor(const std::function<int()> &GetNextId, con
     return &node;
 }
 
+// cv::Scalar(r, g, b, a) int to color
+Node *Spawn_ImageOperator_IntToColor(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "Int to Color");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "R", PinType::Int, 0);
+    node.Inputs.emplace_back(GetNextId(), "G", PinType::Int, 0);
+    node.Inputs.emplace_back(GetNextId(), "B", PinType::Int, 0);
+    node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 255);
+    node.Outputs.emplace_back(GetNextId(), "颜色", PinType::Color);
+
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        int r = 0;
+        auto result = get_value(graph, node->Inputs[0], r);
+        if (result.has_error())
+            return result;
+
+        int g = 0;
+        result = get_value(graph, node->Inputs[1], g);
+        if (result.has_error())
+            return result;
+
+        int b = 0;
+        result = get_value(graph, node->Inputs[2], b);
+        if (result.has_error())
+            return result;
+
+        int a = 255;
+        result = get_value(graph, node->Inputs[3], a);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = r;
+        node->Inputs[1].Value = g;
+        node->Inputs[2].Value = b;
+        node->Inputs[3].Value = a;
+
+        try_catch_block
+        {
+            cv::Scalar color(r, g, b, a);
+            node->Outputs[0].SetValue(color);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 static NodeWorldGlobal::FactoryGroupFunc_t ImageTypeNodes = {
     {"Int to Point", Spawn_ImageOperator_IntToPoint},
     {"Int to Size", Spawn_ImageOperator_IntToSize},
@@ -417,4 +471,5 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageTypeNodes = {
     {"Rect to Point and Size", Spawn_ImageOperator_RectToPointAndSize},
     {"Point and Size to Rect", Spawn_ImageOperator_PointAndSizeToRect},
     {"随机颜色", Spawn_ImageOperator_RandomColor},
+    {"Int to Color", Spawn_ImageOperator_IntToColor},
 };
