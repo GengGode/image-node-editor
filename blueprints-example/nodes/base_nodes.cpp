@@ -69,7 +69,7 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
 // Image Get Size
 Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image Get Size");
+    m_Nodes.emplace_back(GetNextId(), "获取图像大小");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
@@ -107,7 +107,7 @@ Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, co
 // Image Get Rect
 Node *Spawn_ImageOperator_ImageGetRect(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image Get Rect");
+    m_Nodes.emplace_back(GetNextId(), "获取图像范围");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
@@ -152,7 +152,7 @@ Node *Spawn_ImageOperator_ImageGetRect(const std::function<int()> &GetNextId, co
 // Image Get Channels
 Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image Get Channels");
+    m_Nodes.emplace_back(GetNextId(), "获取图像通道数");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
@@ -762,9 +762,9 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
         {NodeType::ImageFlow, {
                                   {"图像文件源", Spawn_ImageFileSource},
                                   {"图像查看器", Spawn_ImageViewer},
-                                  {"Image Get Size", Spawn_ImageOperator_ImageGetSize},
-                                  {"Image Get Rect", Spawn_ImageOperator_ImageGetRect},
-                                  {"Image Get Channels", Spawn_ImageOperator_ImageGetChannels},
+                                  {"获取图像大小", Spawn_ImageOperator_ImageGetSize},
+                                  {"获取图像范围", Spawn_ImageOperator_ImageGetRect},
+                                  {"获取图像通道数", Spawn_ImageOperator_ImageGetChannels},
 
                               }},
         {NodeType::ImageType, ImageTypeNodes},
