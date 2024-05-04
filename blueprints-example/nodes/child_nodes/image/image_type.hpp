@@ -382,10 +382,10 @@ Node *Spawn_ImageOperator_PointAndSizeToRect(const std::function<int()> &GetNext
 // cv::Scalar -1 randomColor
 Node *Spawn_ImageOperator_RandomColor(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Random Color");
+    m_Nodes.emplace_back(GetNextId(), "随机颜色");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Outputs.emplace_back(GetNextId(), "Color", PinType::Color);
+    node.Outputs.emplace_back(GetNextId(), "颜色", PinType::Color);
 
     node.Outputs[0].app = app;
 
@@ -416,5 +416,5 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageTypeNodes = {
     {"Rect to Int", Spawn_ImageOperator_RectToInt},
     {"Rect to Point and Size", Spawn_ImageOperator_RectToPointAndSize},
     {"Point and Size to Rect", Spawn_ImageOperator_PointAndSizeToRect},
-    {"Random Color", Spawn_ImageOperator_RandomColor},
+    {"随机颜色", Spawn_ImageOperator_RandomColor},
 };
