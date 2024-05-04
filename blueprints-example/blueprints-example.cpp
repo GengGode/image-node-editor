@@ -384,6 +384,36 @@ struct Example : public Application
         case PinType::Point:
             iconType = IconType::Circle;
             break;
+        case PinType::Color:
+            iconType = IconType::Circle;
+            break;
+
+        case PinType::Contour:
+            iconType = IconType::Circle;
+            break;
+        case PinType::KeyPoint:
+            iconType = IconType::Circle;
+            break;
+        case PinType::Feature:
+            iconType = IconType::Circle;
+            break;
+        case PinType::Match:
+            iconType = IconType::Circle;
+            break;
+
+        case PinType::Contours:
+            iconType = IconType::Grid;
+            break;
+        case PinType::KeyPoints:
+            iconType = IconType::Grid;
+            break;
+        case PinType::Matches:
+            iconType = IconType::Grid;
+            break;
+        case PinType::Circles:
+            iconType = IconType::Grid;
+            break;
+
         case PinType::Object:
             iconType = IconType::Circle;
             break;
