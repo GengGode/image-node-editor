@@ -734,9 +734,11 @@ struct Example : public Application
         static bool createNewNode = false;
         static Pin *newNodeLinkPin = nullptr;
         static Pin *newLinkPin = nullptr;
+        static bool isUpdateNewNodePositon = false;
 
         static float leftPaneWidth = 400.0f;
         static float rightPaneWidth = 800.0f;
+
         Splitter(true, 4.0f, &leftPaneWidth, &rightPaneWidth, 50.0f, 50.0f);
 
         ShowLeftPane(leftPaneWidth - 4.0f);
@@ -1218,6 +1220,7 @@ struct Example : public Application
                             newLinkPin = nullptr;
                             ed::Suspend();
                             ImGui::OpenPopup("Create New Node");
+                            isUpdateNewNodePositon = true;
                             ed::Resume();
                         }
                     }
@@ -1272,8 +1275,13 @@ struct Example : public Application
         else if (ed::ShowBackgroundContextMenu())
         {
             ImGui::OpenPopup("Create New Node");
+            isUpdateNewNodePositon = true;
+        }
+        if (isUpdateNewNodePositon)
+        {
             newNodeLinkPin = nullptr;
             createNodePosition = openPopupPosition;
+            isUpdateNewNodePositon = false;
         }
         ed::Resume();
 
