@@ -12,5 +12,6 @@
 #include "image/image_color_convert.hpp"
 #include "image/image_feature.hpp"
 #include "image/image_operator_edge.hpp"
+#include "image/image_operator_threshold.hpp"
 
 #endif // CHILD_NODES_HPP
