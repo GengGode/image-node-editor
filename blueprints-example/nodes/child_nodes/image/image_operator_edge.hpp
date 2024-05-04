@@ -465,6 +465,62 @@ Node *Spawn_ImageOperator_HoughCircleDetection(const std::function<int()> &GetNe
     return &node;
 }
 
+// 绘制霍夫圆
+Node *Spawn_ImageOperator_DrawHoughCircles(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "绘制霍夫圆");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), "Circles", PinType::Circles);
+    node.Inputs.emplace_back(GetNextId(), "绘制颜色", PinType::Color);
+    node.Inputs.emplace_back(GetNextId(), "线宽", PinType::Int, 2);
+    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        std::vector<cv::Vec3f> circles;
+        auto result2 = get_value(graph, node->Inputs[1], circles);
+        if (result2.has_error())
+            return result2;
+
+        cv::Scalar color;
+        get_value(graph, node->Inputs[2], color);
+
+        int thickness = 2;
+        get_value(graph, node->Inputs[3], thickness);
+
+        // Display image
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = circles;
+        node->Inputs[2].Value = color;
+        node->Inputs[3].Value = thickness;
+
+        try_catch_block
+        {
+            for (size_t i = 0; i < circles.size(); i++)
+            {
+                cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+                int radius = cvRound(circles[i][2]);
+                cv::circle(image, center, radius, color, thickness);
+            }
+
+            node->Outputs[0].SetValue(image);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorEdgeNodes = {
     {"Canny轮廓检测", Spawn_ImageOperator_Canny},
     {"Sobel轮廓检测", Spawn_ImageOperator_SobelEdgeDetection},
@@ -476,5 +532,5 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorEdgeNodes = {
     {"过滤轮廓-基于面积", Spawn_ImageOperator_FilterContoursByAreaRange},
     {"选择轮廓-基于索引", Spawn_ImageOperator_SelectContourByIndex},
     {"霍夫圆查找", Spawn_ImageOperator_HoughCircleDetection},
-
+    {"绘制霍夫圆", Spawn_ImageOperator_DrawHoughCircles},
 };
