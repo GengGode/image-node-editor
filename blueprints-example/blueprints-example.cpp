@@ -951,82 +951,85 @@ struct Example : public Application
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
                     builder.Output(output.ID);
 
-                    // ImGui::Text("index: %d", output.Value.index());
                     if (output.Type == PinType::String)
                     {
                         std::string outputStr;
                         bool res = output.GetValue(outputStr);
-                        if (!res)
-                            printf("Error: %s\n", outputStr.c_str());
-                        char buffer[128] = {0};
-                        std::copy(outputStr.begin(), outputStr.end(), buffer);
-
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::InputText("##edit", buffer, 127);
-                        ImGui::PopItemWidth();
-                        if (buffer != outputStr)
+                        if (res)
                         {
-                            output.SetValue(std::string(buffer), [this]()
-                                            { this->m_Graph.env.need_execute(); });
-                        }
+                            char buffer[128] = {0};
+                            std::copy(outputStr.begin(), outputStr.end(), buffer);
 
-                        ImGui::Spring(0);
+                            ImGui::PushItemWidth(100.0f);
+                            ImGui::InputText("##edit", buffer, 127);
+                            ImGui::PopItemWidth();
+                            if (buffer != outputStr)
+                            {
+                                output.SetValue(std::string(buffer), [this]()
+                                                { this->m_Graph.env.need_execute(); });
+                            }
+                            ImGui::Spring(0);
+                        }
                     }
                     if (output.Type == PinType::KeyPoints)
                     {
                         KeyPoints keyPoints;
                         bool res = output.GetValue(keyPoints);
-                        if (!res)
-                            printf("Error: %s\n", "keyPoints");
-                        auto size = keyPoints.size();
+                        if (res)
+                        {
+                            auto size = keyPoints.size();
 
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::Text("数量: %d", size);
-                        ImGui::PopItemWidth();
+                            ImGui::PushItemWidth(100.0f);
+                            ImGui::Text("数量: %d", size);
+                            ImGui::PopItemWidth();
 
-                        ImGui::Spring(0);
+                            ImGui::Spring(0);
+                        }
                     }
                     if (output.Type == PinType::Feature)
                     {
                         Feature feature;
                         bool res = output.GetValue(feature);
-                        if (!res)
-                            printf("Error: %s\n", "keyPoints");
-                        auto size = feature.first.size();
+                        if (res)
+                        {
+                            auto size = feature.first.size();
 
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::Text("数量: %d", size);
-                        ImGui::PopItemWidth();
+                            ImGui::PushItemWidth(100.0f);
+                            ImGui::Text("数量: %d", size);
+                            ImGui::PopItemWidth();
 
-                        ImGui::Spring(0);
+                            ImGui::Spring(0);
+                        }
                     }
                     if (output.Type == PinType::Matches)
                     {
                         std::vector<cv::DMatch> matches;
                         bool res = output.GetValue(matches);
-                        if (!res)
-                            printf("Error: %s\n", "matches");
-                        auto size = matches.size();
+                        if (res)
+                        {
+                            auto size = matches.size();
 
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::Text("数量: %d", size);
-                        ImGui::PopItemWidth();
+                            ImGui::PushItemWidth(100.0f);
+                            ImGui::Text("数量: %d", size);
+                            ImGui::PopItemWidth();
 
-                        ImGui::Spring(0);
+                            ImGui::Spring(0);
+                        }
                     }
                     if (output.Type == PinType::Circles)
                     {
                         Circles circles;
                         bool res = output.GetValue(circles);
-                        if (!res)
-                            printf("Error: %s\n", "circles");
-                        auto size = circles.size();
+                        if (res)
+                        {
+                            auto size = circles.size();
 
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::Text("数量: %d", size);
-                        ImGui::PopItemWidth();
+                            ImGui::PushItemWidth(100.0f);
+                            ImGui::Text("数量: %d", size);
+                            ImGui::PopItemWidth();
 
-                        ImGui::Spring(0);
+                            ImGui::Spring(0);
+                        }
                     }
 
                     if (output.Type == PinType::Image)
