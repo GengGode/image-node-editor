@@ -875,7 +875,6 @@ struct Example : public Application
                         }
                         ImGui::Spring(0);
                     }
-
                     if (input.Type == PinType::String)
                     {
                         std::string inputStr;
@@ -896,6 +895,7 @@ struct Example : public Application
 
                         ImGui::Spring(0);
                     }
+
                     ImGui::PopStyleVar();
                     builder.EndInput();
                     if (ImGui::IsItemHovered())
@@ -920,6 +920,8 @@ struct Example : public Application
 
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
                     builder.Output(output.ID);
+
+                    // ImGui::Text("index: %d", output.Value.index());
                     if (output.Type == PinType::String)
                     {
                         std::string outputStr;
@@ -940,6 +942,63 @@ struct Example : public Application
 
                         ImGui::Spring(0);
                     }
+                    if (output.Type == PinType::KeyPoints)
+                    {
+                        KeyPoints keyPoints;
+                        bool res = output.GetValue(keyPoints);
+                        if (!res)
+                            printf("Error: %s\n", "keyPoints");
+                        auto size = keyPoints.size();
+
+                        ImGui::PushItemWidth(100.0f);
+                        ImGui::Text("数量: %d", size);
+                        ImGui::PopItemWidth();
+
+                        ImGui::Spring(0);
+                    }
+                    if (output.Type == PinType::Feature)
+                    {
+                        Feature feature;
+                        bool res = output.GetValue(feature);
+                        if (!res)
+                            printf("Error: %s\n", "keyPoints");
+                        auto size = feature.first.size();
+
+                        ImGui::PushItemWidth(100.0f);
+                        ImGui::Text("数量: %d", size);
+                        ImGui::PopItemWidth();
+
+                        ImGui::Spring(0);
+                    }
+                    if (output.Type == PinType::Matches)
+                    {
+                        std::vector<cv::DMatch> matches;
+                        bool res = output.GetValue(matches);
+                        if (!res)
+                            printf("Error: %s\n", "matches");
+                        auto size = matches.size();
+
+                        ImGui::PushItemWidth(100.0f);
+                        ImGui::Text("数量: %d", size);
+                        ImGui::PopItemWidth();
+
+                        ImGui::Spring(0);
+                    }
+                    if (output.Type == PinType::Circles)
+                    {
+                        Circles circles;
+                        bool res = output.GetValue(circles);
+                        if (!res)
+                            printf("Error: %s\n", "circles");
+                        auto size = circles.size();
+
+                        ImGui::PushItemWidth(100.0f);
+                        ImGui::Text("数量: %d", size);
+                        ImGui::PopItemWidth();
+
+                        ImGui::Spring(0);
+                    }
+
                     if (output.Type == PinType::Image)
                     {
                         if (output.HasImage())
@@ -1366,6 +1425,15 @@ struct Example : public Application
 
             drawList->PopClipRect();
         }
+
+        static bool show_profiler_window = true;
+        // if (show_profiler_window)
+        //{
+        //     ImGui::Begin("Profiler Window", &show_profiler_window);
+        //     auto &entry = profiler._entries[profiler.GetCurrentEntryIndex()];
+        //     ImGuiWidgetFlameGraph::PlotFlame("CPU", &ProfilerValueGetter, &entry, Profiler::_StageCount, 0, "Main Thread", FLT_MAX, FLT_MAX, ImVec2(400, 0));
+        //     ImGui::End();
+        // }
 
         // ImGui::PushFont(io.Fonts->Fonts[1]);
         // ImGui::PopFont();
