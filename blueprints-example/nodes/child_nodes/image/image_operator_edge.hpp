@@ -254,7 +254,7 @@ Node *Spawn_ImageOperator_DrawContours(const std::function<int()> &GetNextId, co
                 for (size_t i = 0; i < contours.size(); i++)
                 {
                     cv::Scalar color(rand() & 255, rand() & 255, rand() & 255);
-                    cv::drawContours(image, contours, i, color, thickness);
+                    cv::drawContours(image, contours, static_cast<int>(i), color, thickness);
                 }
             }
             else
