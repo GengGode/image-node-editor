@@ -72,7 +72,7 @@ enum class PinType
     Delegate,
 };
 
-const std::map<std::size_t, PinType> typeMap = {
+static const std::map<std::size_t, PinType> typeMap = {
     {typeid(int).hash_code(), PinType::Int},
     {typeid(float).hash_code(), PinType::Float},
     {typeid(bool).hash_code(), PinType::Bool},
@@ -90,8 +90,27 @@ const std::map<std::size_t, PinType> typeMap = {
     {typeid(cv::DMatch).hash_code(), PinType::Match},
     {typeid(Matches).hash_code(), PinType::Matches},
     {typeid(Circles).hash_code(), PinType::Circles},
-
 };
+static const std::map<PinType, std::string> typeLabelNames = {
+    {PinType::Int, "整数"},
+    {PinType::Float, "浮点数"},
+    {PinType::Bool, "布尔值"},
+    {PinType::String, "文本"},
+    {PinType::Image, "图像"},
+    {PinType::Rect, "矩形范围"},
+    {PinType::Size, "大小"},
+    {PinType::Point, "坐标点"},
+    {PinType::Color, "颜色"},
+    {PinType::Contour, "轮廓"},
+    {PinType::Contours, "轮廓集合"},
+    {PinType::KeyPoint, "关键点"},
+    {PinType::KeyPoints, "关键点集合"},
+    {PinType::Feature, "特征数据"},
+    {PinType::Match, "匹配对"},
+    {PinType::Matches, "匹配集合"},
+    {PinType::Circles, "霍夫圆数据集合"},
+};
+
 template <typename T>
 static bool is_equal(const T &lft, const T &rht)
 {
@@ -320,6 +339,11 @@ struct Pin
 
     Pin(int id, const char *name, PinType type, port_value_t value = port_value_t()) : ID(id), Node(nullptr), Name(name), Type(type), Value(value), Kind(PinKind::Input)
     {
+    }
+    Pin(int id, PinType type, std::string name = "", port_value_t value = port_value_t()) : ID(id), Node(nullptr), Name(name), Type(type), Value(value), Kind(PinKind::Input)
+    {
+        if (name.empty())
+            Name = typeLabelNames.at(type);
     }
 
     template <typename T>

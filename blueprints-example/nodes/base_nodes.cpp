@@ -8,8 +8,8 @@ Node *Spawn_ImageFileSource(const std::function<int()> &GetNextId, const std::fu
     m_Nodes.emplace_back(GetNextId(), "图像文件源");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "图像路径", PinType::String, std::string("resources/texture.png"));
-    node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image, cv::Mat());
+    node.Inputs.emplace_back(GetNextId(), PinType::String, "图像路径", std::string("resources/texture.png"));
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -45,7 +45,7 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
     m_Nodes.emplace_back(GetNextId(), "图像查看器");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Inputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -72,10 +72,10 @@ Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, co
     m_Nodes.emplace_back(GetNextId(), "获取图像大小");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Size", PinType::Size);
-    node.Outputs.emplace_back(GetNextId(), "Width", PinType::Int);
-    node.Outputs.emplace_back(GetNextId(), "Height", PinType::Int);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), PinType::Size);
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "Width");
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "Height");
 
     node.Outputs[0].app = app;
     node.Outputs[1].app = app;
