@@ -40,7 +40,7 @@ typedef std::variant<int, float, bool, std::string,
                      Contour, Contours,
                      cv::KeyPoint, KeyPoints, Feature, cv::DMatch, Matches,
                      Circles>
-    PinValue;
+    port_value_t;
 
 struct MainThread
 {
@@ -209,7 +209,7 @@ static bool is_equal(const Matches &lft, const Matches &rht)
     return true;
 }
 
-static bool is_equal(const PinValue &lft, const PinValue &rht)
+static bool is_equal(const port_value_t &lft, const port_value_t &rht)
 {
     return std::visit([&](auto &&arg1, auto &&arg2)
                       { if (typeid(arg1)!= typeid(arg2))
@@ -278,7 +278,7 @@ struct Pin
     ::Node *Node;
     std::string Name;
     PinType Type;
-    PinValue Value;
+    port_value_t Value;
     PinKind Kind;
     bool NeedInputSource = false;
     bool IsConnected;
@@ -318,7 +318,7 @@ struct Pin
         return true;
     }
 
-    Pin(int id, const char *name, PinType type, PinValue value = PinValue()) : ID(id), Node(nullptr), Name(name), Type(type), Value(value), Kind(PinKind::Input)
+    Pin(int id, const char *name, PinType type, port_value_t value = port_value_t()) : ID(id), Node(nullptr), Name(name), Type(type), Value(value), Kind(PinKind::Input)
     {
     }
 
