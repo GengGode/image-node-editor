@@ -470,6 +470,7 @@ struct Node
     ImColor Color;
     NodeType Type;
     ImVec2 Size;
+    ImVec2 Position;
 
     std::string State;
     std::string SavedState;
@@ -537,6 +538,7 @@ struct Graph
     std::vector<Link> Links;
     struct ExectureEnv
     {
+
         std::atomic<bool> isRunning = false;
         std::atomic<bool> needRunning = false; // 在下一次循环中是否需要执行
         std::map<ed::NodeId, std::chrono::steady_clock::time_point> nodeBeginExecuteTime;
@@ -547,6 +549,7 @@ struct Graph
         // need inint
         std::function<std::vector<ExecuteResult>(Graph *)> executeFunc;
         Graph *graph;
+        Application *app;
 
         void need_execute()
         {
@@ -677,7 +680,682 @@ struct Graph
 
         return links;
     }
+
+    bool serialize(std::string &json_buff);
+    bool deserialize(const std::string &json_buff);
 };
+
+#include <json.hpp>
+
+struct Serialize
+{
+    json::value operator()(const ImVec2 &v) const
+    {
+        return json::object{{"ImVec2", json::array{v.x, v.y}}};
+    }
+    json::value operator()(const ImColor &v) const
+    {
+        return json::object{{"ImColor", json::array{v.Value.x, v.Value.y, v.Value.z, v.Value.w}}};
+    }
+    json::value operator()(const cv::Rect &v) const
+    {
+        return json::object{{"cv::Rect", json::array{v.x, v.y, v.width, v.height}}};
+    }
+    json::value operator()(const cv::Size &v) const
+    {
+        return json::object{{"cv::Size", json::array{v.width, v.height}}};
+    }
+    json::value operator()(const cv::Point &v) const
+    {
+        return json::object{{"cv::Point", json::array{v.x, v.y}}};
+    }
+    json::value operator()(const cv::Scalar &v) const
+    {
+        return json::object{{"cv::Scalar", json::array{v[0], v[1], v[2], v[3]}}};
+    }
+    json::value operator()(const Contour &v) const
+    {
+        json::array arr;
+        for (auto point : v)
+        {
+            arr.push_back(json::array{point.x, point.y});
+        }
+        return json::object{{"Contour", arr}};
+    }
+    json::value operator()(const Contours &v) const
+    {
+        json::array arr;
+        for (auto contour : v)
+        {
+            json::array contour_arr;
+            for (auto point : contour)
+            {
+                contour_arr.push_back(json::array{point.x, point.y});
+            }
+            arr.push_back(contour_arr);
+        }
+        return json::object{{"Contours", arr}};
+    }
+    json::value operator()(const cv::KeyPoint &v) const
+    {
+        return json::object{{"cv::KeyPoint", json::array{v.pt.x, v.pt.y, v.size, v.angle, v.response, v.octave, v.class_id}}};
+    }
+    json::value operator()(const KeyPoints &v) const
+    {
+        json::array arr;
+        for (auto keypoint : v)
+        {
+            arr.push_back(json::array{keypoint.pt.x, keypoint.pt.y, keypoint.size, keypoint.angle, keypoint.response, keypoint.octave, keypoint.class_id});
+        }
+        return json::object{{"KeyPoints", arr}};
+    }
+    json::value operator()(const Feature &v) const
+    {
+        json::array keypoint_arr;
+        for (auto keypoint : v.first)
+        {
+            keypoint_arr.push_back(json::array{keypoint.pt.x, keypoint.pt.y, keypoint.size, keypoint.angle, keypoint.response, keypoint.octave, keypoint.class_id});
+        }
+        return json::object{{"Feature", json::array{keypoint_arr, "cv::Mat"}}};
+    }
+    json::value operator()(const cv::DMatch &v) const
+    {
+        return json::object{{"cv::DMatch", json::array{v.queryIdx, v.trainIdx, v.imgIdx, v.distance}}};
+    }
+    json::value operator()(const Matches &v) const
+    {
+        json::array arr;
+        for (auto match : v)
+        {
+            arr.push_back(json::array{match.queryIdx, match.trainIdx, match.imgIdx, match.distance});
+        }
+        return json::object{{"Matches", arr}};
+    }
+    json::value operator()(const Circles &v) const
+    {
+        json::array arr;
+        for (auto circle : v)
+        {
+            arr.push_back(json::array{circle[0], circle[1], circle[2]});
+        }
+        return json::object{{"Circles", arr}};
+    }
+
+    json::value operator()(const port_value_t &v) const
+    {
+        if (std::holds_alternative<int>(v))
+        {
+            return json::object{{"int", std::get<int>(v)}};
+        }
+        if (std::holds_alternative<float>(v))
+        {
+            return json::object{{"float", std::get<float>(v)}};
+        }
+        if (std::holds_alternative<bool>(v))
+        {
+            return json::object{{"bool", std::get<bool>(v)}};
+        }
+        if (std::holds_alternative<std::string>(v))
+        {
+            return json::object{{"string", std::get<std::string>(v)}};
+        }
+        if (std::holds_alternative<cv::Mat>(v))
+        {
+            return json::object{{"cv::Mat", "cv::Mat"}};
+        }
+        if (std::holds_alternative<cv::Rect>(v))
+        {
+            return json::object{{"cv::Rect", json::serialize(std::get<cv::Rect>(v), *this)}};
+        }
+        if (std::holds_alternative<cv::Size>(v))
+        {
+            return json::object{{"cv::Size", json::serialize(std::get<cv::Size>(v), *this)}};
+        }
+        if (std::holds_alternative<cv::Point>(v))
+        {
+            return json::object{{"cv::Point", json::serialize(std::get<cv::Point>(v), *this)}};
+        }
+        if (std::holds_alternative<cv::Scalar>(v))
+        {
+            return json::object{{"cv::Scalar", json::serialize(std::get<cv::Scalar>(v), *this)}};
+        }
+        if (std::holds_alternative<Contour>(v))
+        {
+            return json::object{{"Contour", json::serialize(std::get<Contour>(v), *this)}};
+        }
+        if (std::holds_alternative<Contours>(v))
+        {
+            return json::object{{"Contours", json::serialize(std::get<Contours>(v), *this)}};
+        }
+        if (std::holds_alternative<cv::KeyPoint>(v))
+        {
+            return json::object{{"cv::KeyPoint", json::serialize(std::get<cv::KeyPoint>(v), *this)}};
+        }
+        if (std::holds_alternative<KeyPoints>(v))
+        {
+            return json::object{{"KeyPoints", json::serialize(std::get<KeyPoints>(v), *this)}};
+        }
+        if (std::holds_alternative<Feature>(v))
+        {
+            return json::object{{"Feature", json::serialize(std::get<Feature>(v), *this)}};
+        }
+        if (std::holds_alternative<cv::DMatch>(v))
+        {
+            return json::object{{"cv::DMatch", json::serialize(std::get<cv::DMatch>(v), *this)}};
+        }
+        if (std::holds_alternative<Matches>(v))
+        {
+            return json::object{{"Matches", json::serialize(std::get<Matches>(v), *this)}};
+        }
+        if (std::holds_alternative<Circles>(v))
+        {
+            return json::object{{"Circles", json::serialize(std::get<Circles>(v), *this)}};
+        }
+        return json::object{{"null", "null"}};
+    }
+
+    json::value operator()(const Node *node) const
+    {
+        json::object obj;
+        obj["type"] = "node";
+        obj["node_id"] = (int)node->ID.AsPointer();
+        obj["node_name"] = node->Name;
+        obj["node_type"] = (int)node->Type;
+        obj["node_type_name"] = nodeTypes.at((int)node->Type).first;
+        obj["node_color"] = json::serialize(node->Color, *this);
+        obj["node_size"] = json::serialize(node->Size, *this);
+        obj["node_position"] = json::serialize(node->Position, *this);
+        json::array inputs;
+        for (auto input : node->Inputs)
+        {
+            json::object input_obj;
+            input_obj["type"] = "input";
+            input_obj["input_id"] = (int)input.ID.AsPointer();
+            input_obj["input_name"] = input.Name;
+            input_obj["input_type"] = (int)input.Type;
+            input_obj["input_type_label"] = typeLabelNames.at(input.Type);
+            input_obj["input_value"] = json::serialize(input.Value, *this);
+            input_obj["input_kind"] = (int)input.Kind;
+            inputs.push_back(input_obj);
+        }
+        obj["inputs"] = inputs;
+        json::array outputs;
+        for (auto output : node->Outputs)
+        {
+            json::object output_obj;
+            output_obj["type"] = "output";
+            output_obj["output_id"] = (int)output.ID.AsPointer();
+            output_obj["output_name"] = output.Name;
+            output_obj["output_type"] = (int)output.Type;
+            output_obj["output_type_label"] = typeLabelNames.at(output.Type);
+            output_obj["output_value"] = json::serialize(output.Value, *this);
+            output_obj["output_kind"] = (int)output.Kind;
+            outputs.push_back(output_obj);
+        }
+        obj["outputs"] = outputs;
+        return obj;
+    }
+
+    json::value operator()(const Link *link) const
+    {
+        json::object obj;
+        obj["type"] = "link";
+        obj["link_id"] = (int)link->ID.AsPointer();
+        obj["link_start_pin_id"] = (int)link->StartPinID.AsPointer();
+        obj["link_end_pin_id"] = (int)link->EndPinID.AsPointer();
+        obj["link_color"] = json::serialize(link->Color, *this);
+        return obj;
+    }
+};
+
+struct Deserializer
+{
+    bool operator()(const json::value &json, ImVec2 &v) const
+    {
+        if (json.is_object() && json.as_object().contains("ImVec2"))
+        {
+            auto arr = json.as_object().at("ImVec2").as_array();
+            v.x = arr[0].as_float();
+            v.y = arr[1].as_float();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, ImColor &v) const
+    {
+        if (json.is_object() && json.as_object().contains("ImColor"))
+        {
+            auto arr = json.as_object().at("ImColor").as_array();
+            v.Value.x = arr[0].as_float();
+            v.Value.y = arr[1].as_float();
+            v.Value.z = arr[2].as_float();
+            v.Value.w = arr[3].as_float();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, cv::Rect &v) const
+    {
+        if (json.is_object() && json.as_object().contains("cv::Rect"))
+        {
+            auto arr = json.as_object().at("cv::Rect").as_array();
+            v.x = arr[0].as_integer();
+            v.y = arr[1].as_integer();
+            v.width = arr[2].as_integer();
+            v.height = arr[3].as_integer();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, cv::Size &v) const
+    {
+        if (json.is_object() && json.as_object().contains("cv::Size"))
+        {
+            auto arr = json.as_object().at("cv::Size").as_array();
+            v.width = arr[0].as_integer();
+            v.height = arr[1].as_integer();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, cv::Point &v) const
+    {
+        if (json.is_object() && json.as_object().contains("cv::Point"))
+        {
+            auto arr = json.as_object().at("cv::Point").as_array();
+            v.x = arr[0].as_integer();
+            v.y = arr[1].as_integer();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, cv::Scalar &v) const
+    {
+        if (json.is_object() && json.as_object().contains("cv::Scalar"))
+        {
+            auto arr = json.as_object().at("cv::Scalar").as_array();
+            v[0] = arr[0].as_float();
+            v[1] = arr[1].as_float();
+            v[2] = arr[2].as_float();
+            v[3] = arr[3].as_float();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, Contour &v) const
+    {
+        if (json.is_object() && json.as_object().contains("Contour"))
+        {
+            auto arr = json.as_object().at("Contour").as_array();
+            for (auto point_json : arr)
+            {
+                cv::Point point;
+                if (operator()(point_json, point))
+                {
+                    v.push_back(point);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, Contours &v) const
+    {
+        if (json.is_object() && json.as_object().contains("Contours"))
+        {
+            auto arr = json.as_object().at("Contours").as_array();
+            for (auto contour : arr)
+            {
+                Contour c;
+                if (operator()(contour, c))
+                {
+                    v.push_back(c);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, cv::KeyPoint &v) const
+    {
+        if (json.is_object() && json.as_object().contains("cv::KeyPoint"))
+        {
+            auto arr = json.as_object().at("cv::KeyPoint").as_array();
+            v.pt.x = arr[0].as_float();
+            v.pt.y = arr[1].as_float();
+            v.size = arr[2].as_float();
+            v.angle = arr[3].as_float();
+            v.response = arr[4].as_float();
+            v.octave = arr[5].as_integer();
+            v.class_id = arr[6].as_integer();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, KeyPoints &v) const
+    {
+        if (json.is_object() && json.as_object().contains("KeyPoints"))
+        {
+            auto arr = json.as_object().at("KeyPoints").as_array();
+            for (auto keypoint : arr)
+            {
+                cv::KeyPoint kp;
+                if (operator()(keypoint, kp))
+                {
+                    v.push_back(kp);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, Feature &v) const
+    {
+        if (json.is_object() && json.as_object().contains("Feature"))
+        {
+            auto arr = json.as_object().at("Feature").as_array();
+            KeyPoints keypoint;
+            if (operator()(arr[0], keypoint))
+            {
+                v.first = keypoint;
+            }
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, cv::DMatch &v) const
+    {
+        if (json.is_object() && json.as_object().contains("cv::DMatch"))
+        {
+            auto arr = json.as_object().at("cv::DMatch").as_array();
+            v.queryIdx = arr[0].as_integer();
+            v.trainIdx = arr[1].as_integer();
+            v.imgIdx = arr[2].as_integer();
+            v.distance = arr[3].as_float();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, Matches &v) const
+    {
+        if (json.is_object() && json.as_object().contains("Matches"))
+        {
+            auto arr = json.as_object().at("Matches").as_array();
+            for (auto match : arr)
+            {
+                cv::DMatch m;
+                if (operator()(match, m))
+                {
+                    v.push_back(m);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, Circles &v) const
+    {
+        if (json.is_object() && json.as_object().contains("Circles"))
+        {
+            auto arr = json.as_object().at("Circles").as_array();
+            for (auto circle : arr)
+            {
+                v.push_back({circle[0].as_float(), circle[1].as_float(), circle[2].as_float()});
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool operator()(const json::value &json, port_value_t &v) const
+    {
+        if (json.is_object())
+        {
+            if (json.as_object().contains("int"))
+            {
+                v = json.as_object().at("int").as_integer();
+                return true;
+            }
+            if (json.as_object().contains("float"))
+            {
+                v = json.as_object().at("float").as_float();
+                return true;
+            }
+            if (json.as_object().contains("bool"))
+            {
+                v = json.as_object().at("bool").as_boolean();
+                return true;
+            }
+            if (json.as_object().contains("string"))
+            {
+                v = json.as_object().at("string").as_string();
+                return true;
+            }
+            if (json.as_object().contains("cv::Mat"))
+            {
+                v = cv::Mat();
+                return true;
+            }
+            if (json.as_object().contains("cv::Rect"))
+            {
+                cv::Rect rect;
+                if (operator()(json.as_object().at("cv::Rect"), rect))
+                {
+                    v = rect;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("cv::Size"))
+            {
+                cv::Size size;
+                if (operator()(json.as_object().at("cv::Size"), size))
+                {
+                    v = size;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("cv::Point"))
+            {
+                cv::Point point;
+                if (operator()(json.as_object().at("cv::Point"), point))
+                {
+                    v = point;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("cv::Scalar"))
+            {
+                cv::Scalar scalar;
+                if (operator()(json.as_object().at("cv::Scalar"), scalar))
+                {
+                    v = scalar;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("Contour"))
+            {
+                Contour contour;
+                if (operator()(json.as_object().at("Contour"), contour))
+                {
+                    v = contour;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("Contours"))
+            {
+                Contours contours;
+                if (operator()(json.as_object().at("Contours"), contours))
+                {
+                    v = contours;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("cv::KeyPoint"))
+            {
+                cv::KeyPoint keypoint;
+                if (operator()(json.as_object().at("cv::KeyPoint"), keypoint))
+                {
+                    v = keypoint;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("KeyPoints"))
+            {
+                KeyPoints keypoints;
+                if (operator()(json.as_object().at("KeyPoints"), keypoints))
+                {
+                    v = keypoints;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("Feature"))
+            {
+                Feature feature;
+                if (operator()(json.as_object().at("Feature"), feature))
+                {
+                    v = feature;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("cv::DMatch"))
+            {
+                cv::DMatch match;
+                if (operator()(json.as_object().at("cv::DMatch"), match))
+                {
+                    v = match;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("Matches"))
+            {
+                Matches matches;
+                if (operator()(json.as_object().at("Matches"), matches))
+                {
+                    v = matches;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("Circles"))
+            {
+                Circles circles;
+                if (operator()(json.as_object().at("Circles"), circles))
+                {
+                    v = circles;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    bool operator()(const json::value &json, Node &node) const
+    {
+        if (json.is_object() && json.as_object().contains("type") && json.as_object().at("type").as_string() == "node")
+        {
+            int id = json.as_object().at("node_id").as_integer();
+            node.ID = ed::NodeId(id);
+            node.Name = json.as_object().at("node_name").as_string();
+            node.Type = NodeType(json.as_object().at("node_type").as_integer());
+            json::deserialize(json.as_object().at("node_color"), node.Color, *this);
+            json::deserialize(json.as_object().at("node_size"), node.Size, *this);
+            json::deserialize(json.as_object().at("node_position"), node.Position, *this);
+            auto inputs = json.as_object().at("inputs").as_array();
+            for (auto input : inputs)
+            {
+                int input_id = input.as_object().at("input_id").as_integer();
+                std::string input_name = input.as_object().at("input_name").as_string();
+                PinType input_type = PinType(input.as_object().at("input_type").as_integer());
+                port_value_t input_value;
+                json::deserialize(input.as_object().at("input_value"), input_value, *this);
+                PinKind input_kind = PinKind(input.as_object().at("input_kind").as_integer());
+                Pin pin(input_id, input_name.c_str(), input_type, input_value);
+                pin.Kind = PinKind(input.as_object().at("input_kind").as_integer());
+                pin.Node = &node;
+                node.Inputs.push_back(pin);
+            }
+            auto outputs = json.as_object().at("outputs").as_array();
+            for (auto output : outputs)
+            {
+                int output_id = output.as_object().at("output_id").as_integer();
+                std::string output_name = output.as_object().at("output_name").as_string();
+                PinType output_type = PinType(output.as_object().at("output_type").as_integer());
+                port_value_t output_value;
+                json::deserialize(output.as_object().at("output_value"), output_value, *this);
+                PinKind output_kind = PinKind(output.as_object().at("output_kind").as_integer());
+                Pin pin(output_id, output_name.c_str(), output_type, output_value);
+                pin.Kind = PinKind(output.as_object().at("output_kind").as_integer());
+                pin.Node = &node;
+                node.Outputs.push_back(pin);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool operator()(const json::value &json, Link &link) const
+    {
+        if (json.is_object() && json.as_object().contains("type") && json.as_object().at("type").as_string() == "link")
+        {
+            int id = json.as_object().at("link_id").as_integer();
+            link.ID = ed::LinkId(id);
+            link.StartPinID = ed::PinId(json.as_object().at("link_start_pin_id").as_integer());
+            link.EndPinID = ed::PinId(json.as_object().at("link_end_pin_id").as_integer());
+            json::deserialize(json.as_object().at("link_color"), link.Color, *this);
+            return true;
+        }
+        return false;
+    }
+};
+
+inline bool Graph::serialize(std::string &json_buff)
+{
+    json::object obj;
+    json::array nodes;
+    for (auto &node : Nodes)
+    {
+        nodes.push_back(json::serialize(&node, Serialize()));
+    }
+    obj["nodes"] = nodes;
+    json::array links;
+    for (auto &link : Links)
+    {
+        links.push_back(json::serialize(&link, Serialize()));
+    }
+    obj["links"] = links;
+    json_buff = obj.dumps();
+    return true;
+}
+
+inline bool Graph::deserialize(const std::string &json_buff)
+{
+    auto json_opt = json::parse(json_buff);
+    if (!json_opt)
+        return false;
+    auto json = json_opt.value();
+    {
+        auto nodes = json.as_object().at("nodes").as_array();
+        for (auto node : nodes)
+        {
+            Node n(0, "");
+            if (json::deserialize(node, n, Deserializer()))
+            {
+                Nodes.push_back(n);
+            }
+        }
+        auto links = json.as_object().at("links").as_array();
+        for (auto link : links)
+        {
+            Link l(0, 0, 0);
+            if (json::deserialize(link, l, Deserializer()))
+            {
+                Links.push_back(l);
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 struct NodeIdLess
 {
     bool operator()(const ed::NodeId &lhs, const ed::NodeId &rhs) const

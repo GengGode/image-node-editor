@@ -529,10 +529,37 @@ struct Example : public Application
         {
             static int count = 0;
             printf("run count = %d\n", count++);
-
-            // Notifier::Add(Notif(Notif::Type::SUCCESS, "run"));
             ExecuteNodes();
         }
+        if (ImGui::Button("序列化"))
+        {
+            for (auto &node : m_Graph.Nodes)
+            {
+                node.Position = ed::GetNodePosition(node.ID);
+            }
+
+            std::string json;
+            m_Graph.serialize(json);
+            printf("json = %s\n", json.c_str());
+            std::ofstream out("data/project.json");
+            out << json;
+            out.close();
+        }
+        if (ImGui::Button("反序列化"))
+        {
+            std::ifstream in("data/project.json");
+            std::string json((std::istreambuf_iterator<char>(in)),
+                             std::istreambuf_iterator<char>());
+            in.close();
+
+            printf("json = %s\n", json.c_str());
+            m_Graph.deserialize(json);
+            for (auto &node : m_Graph.Nodes)
+            {
+                ed::SetNodePosition(node.ID, node.Position);
+            }
+        }
+
         ImGui::Spring();
         if (ImGui::Button("Edit Style"))
             showStyleEditor = true;
