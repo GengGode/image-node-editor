@@ -5,6 +5,7 @@ function(find_opencv opencv_dir_vaule target_version)
     set(install_dir ${base_dir}/opencv-lib)
     set(download_file ${download_dir}/LICENSE)
     set(extract_file ${extract_dir})
+    set(enable_contrib ON)
     set(build_shared_libs ON)
 
 
@@ -29,6 +30,33 @@ function(find_opencv opencv_dir_vaule target_version)
         endif()
     endif()
     string(REPLACE "." "" versoion_num ${target_version})
+
+    # 是否需要下载contrib
+    if (${enable_contrib})
+        set(contrib_download_dir ${base_dir}/opencv-contrib-download)
+        set(contrib_extract_dir ${base_dir}/opencv-contrib-extract)
+        set(contrib_download_file ${contrib_download_dir}/LICENSE)
+        set(contrib_extract_file ${contrib_extract_dir})
+        # 手动clone到下载目录
+        if(NOT EXISTS ${contrib_download_file})
+            message(STATUS "download opencv-contrib")
+            execute_process(COMMAND git clone -b ${target_version} --depth 2 https://github.com/opencv/opencv_contrib.git ${contrib_download_dir})
+            # check download
+            if(NOT EXISTS ${contrib_download_file})
+                message(FATAL_ERROR "download opencv-contrib failed")
+            endif()
+            # check version
+            execute_process(COMMAND git describe --tags WORKING_DIRECTORY ${contrib_download_dir} OUTPUT_VARIABLE opencv_contrib_version)
+            # string(STRIP ${opencv_contrib_version} opencv_contrib_version)
+            # string(REPLACE "v" "" opencv_contrib_version ${opencv_contrib_version})
+            # string(REPLACE "\n" "" opencv_contrib_version ${opencv_contrib_version})
+            # message(STATUS "opencv_contrib_version: ${opencv_contrib_version}")
+            # if(NOT ${opencv_contrib_version} STREQUAL ${target_version})
+            #     message(FATAL_ERROR "checkout opencv-contrib version failed")
+            # endif()
+        endif()
+    endif()
+
 
     # set(BUILD_SHARED_LIBS OFF)
     # set(OPENCV_CONFIG_FILE_INCLUDE_DIR ${CMAKE_BINARY_DIR}/.deps/opencv_gen_include)
@@ -130,9 +158,12 @@ function(find_opencv opencv_dir_vaule target_version)
         message(STATUS "build opencv static library CMAKE_MAKE_PROGRAM: ${CMAKE_MAKE_PROGRAM}")
         execute_process(COMMAND cmake -G "${CMAKE_MAKE_PROGRAM}" -DCMAKE_CONFIGURATION_TYPES=Debug -DCMAKE_INSTALL_PREFIX=${install_debug_dir} 
         -DBUILD_SHARED_LIBS=${build_shared_libs} 
-        -DBUILD_opencv_apps=OFF -DBUILD_opencv_aruco=OFF -DBUILD_opencv_bgsegm=OFF -DBUILD_opencv_bioinspired=OFF -DBUILD_opencv_calib3d=OFF 
+        -DBUILD_opencv_apps=OFF -DBUILD_opencv_aruco=OFF -DBUILD_opencv_bgsegm=OFF -DBUILD_opencv_bioinspired=OFF 
+        -DBUILD_opencv_calib3d=ON 
         -DBUILD_opencv_ccalib=OFF -DBUILD_opencv_core=ON -DBUILD_opencv_datasets=OFF -DBUILD_opencv_dnn=OFF -DBUILD_opencv_dnn_objdetect=OFF 
-        -DBUILD_opencv_dnn_superres=OFF -DBUILD_opencv_dpm=OFF -DBUILD_opencv_face=OFF -DBUILD_opencv_flann=OFF -DBUILD_opencv_features2d=OFF 
+        -DBUILD_opencv_dnn_superres=OFF -DBUILD_opencv_dpm=OFF -DBUILD_opencv_face=OFF 
+        -DBUILD_opencv_flann=ON 
+        -DBUILD_opencv_features2d=ON
         -DBUILD_opencv_fuzzy=OFF -DBUILD_opencv_gapi=OFF -DBUILD_opencv_hfs=OFF -DBUILD_opencv_highgui=OFF -DBUILD_opencv_imgcodecs=ON 
         -DBUILD_opencv_imgproc=ON -DBUILD_opencv_intensity_transform=OFF -DBUILD_opencv_line_descriptor=OFF -DBUILD_opencv_mcc=OFF -DBUILD_opencv_ml=OFF 
         -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_optflow=OFF -DBUILD_opencv_phase_unwrapping=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_plot=OFF 
@@ -144,7 +175,14 @@ function(find_opencv opencv_dir_vaule target_version)
         -DBUILD_opencv_python_bindings_generator=OFF -DBUILD_opencv_python_tests=OFF -DBUILD_JAVA=OFF -DBUILD_opencv_java_bindings_generator=OFF 
         -DBUILD_opencv_js=OFF -DBUILD_opencv_js_bindings_generator=OFF -DBUILD_opencv_objc_bindings_generator=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF 
         -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_ITT=OFF -DBUILD_ITT=OFF -Dccitt=OFF 
-        -DBUILD_WITH_STATIC_CRT=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON ${download_dir} WORKING_DIRECTORY ${opencv_build_dir})
+        -DBUILD_WITH_STATIC_CRT=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON ${download_dir} 
+        # contrib about
+        -DOPENCV_ENABLE_NONFREE=${enable_contrib}
+        -DOPENCV_EXTRA_MODULES_PATH=${contrib_download_dir}/modules
+        -DBUILD_opencv_xfeatures2d=ON 
+
+        WORKING_DIRECTORY ${opencv_build_dir})
+        
         execute_process(COMMAND cmake --build . --config Debug WORKING_DIRECTORY ${opencv_build_dir})
         execute_process(COMMAND cmake --build . --target install --config Debug WORKING_DIRECTORY ${opencv_build_dir})
         
@@ -167,10 +205,12 @@ function(find_opencv opencv_dir_vaule target_version)
         endif()
         message(STATUS "build opencv static library CMAKE_MAKE_PROGRAM: ${CMAKE_MAKE_PROGRAM}")
         execute_process(COMMAND cmake -G "${CMAKE_MAKE_PROGRAM}" -DCMAKE_CONFIGURATION_TYPES=Release -DCMAKE_INSTALL_PREFIX=${install_release_dir} 
-        -DBUILD_SHARED_LIBS=${build_shared_libs} 
-        -DBUILD_opencv_apps=OFF -DBUILD_opencv_aruco=OFF -DBUILD_opencv_bgsegm=OFF -DBUILD_opencv_bioinspired=OFF -DBUILD_opencv_calib3d=OFF 
+        -DBUILD_opencv_apps=OFF -DBUILD_opencv_aruco=OFF -DBUILD_opencv_bgsegm=OFF -DBUILD_opencv_bioinspired=OFF 
+        -DBUILD_opencv_calib3d=ON 
         -DBUILD_opencv_ccalib=OFF -DBUILD_opencv_core=ON -DBUILD_opencv_datasets=OFF -DBUILD_opencv_dnn=OFF -DBUILD_opencv_dnn_objdetect=OFF 
-        -DBUILD_opencv_dnn_superres=OFF -DBUILD_opencv_dpm=OFF -DBUILD_opencv_face=OFF -DBUILD_opencv_flann=OFF -DBUILD_opencv_features2d=OFF 
+        -DBUILD_opencv_dnn_superres=OFF -DBUILD_opencv_dpm=OFF -DBUILD_opencv_face=OFF 
+        -DBUILD_opencv_flann=ON 
+        -DBUILD_opencv_features2d=ON
         -DBUILD_opencv_fuzzy=OFF -DBUILD_opencv_gapi=OFF -DBUILD_opencv_hfs=OFF -DBUILD_opencv_highgui=OFF -DBUILD_opencv_imgcodecs=ON 
         -DBUILD_opencv_imgproc=ON -DBUILD_opencv_intensity_transform=OFF -DBUILD_opencv_line_descriptor=OFF -DBUILD_opencv_mcc=OFF -DBUILD_opencv_ml=OFF 
         -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_optflow=OFF -DBUILD_opencv_phase_unwrapping=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_plot=OFF 
@@ -182,7 +222,14 @@ function(find_opencv opencv_dir_vaule target_version)
         -DBUILD_opencv_python_bindings_generator=OFF -DBUILD_opencv_python_tests=OFF -DBUILD_JAVA=OFF -DBUILD_opencv_java_bindings_generator=OFF 
         -DBUILD_opencv_js=OFF -DBUILD_opencv_js_bindings_generator=OFF -DBUILD_opencv_objc_bindings_generator=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF 
         -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_ITT=OFF -DBUILD_ITT=OFF -Dccitt=OFF 
-        -DBUILD_WITH_STATIC_CRT=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON ${download_dir} WORKING_DIRECTORY ${opencv_build_dir})
+        -DBUILD_WITH_STATIC_CRT=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON ${download_dir} 
+        # contrib about
+        -DOPENCV_ENABLE_NONFREE=${enable_contrib}
+        -DOPENCV_EXTRA_MODULES_PATH=${contrib_download_dir}/modules
+        -DBUILD_opencv_xfeatures2d=ON 
+
+        WORKING_DIRECTORY ${opencv_build_dir})
+        
         execute_process(COMMAND cmake --build . --config Release WORKING_DIRECTORY ${opencv_build_dir})
         execute_process(COMMAND cmake --build . --target install --config Release WORKING_DIRECTORY ${opencv_build_dir})
         
