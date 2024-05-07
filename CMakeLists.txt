@@ -72,7 +72,16 @@ else()
     set(OpenCV_BIN_DIR "${Opencv_DIR}/bin")
 endif()
 
-#message(STATUS "OpenCV_LIB_DIR = ${OpenCV_LIB_DIR}")
+# meojson
+include(FetchContent)
+set(BUILD_SAMPLE OFF)
+set(BUILD_TESTING OFF)
+FetchContent_Declare(
+    meojson
+    GIT_REPOSITORY https://github.com/MistEO/meojson.git GIT_TAG master)
+FetchContent_MakeAvailable(meojson)
+
+
 
 # Macro that will configure an example application
 macro(add_example_executable name)
@@ -125,6 +134,7 @@ macro(add_example_executable name)
     find_package(imgui REQUIRED)
     find_package(imgui_node_editor REQUIRED)
     target_link_libraries(${name} PRIVATE imgui imgui_node_editor application)
+    target_link_libraries(${name} PRIVATE meojson)
     target_link_libraries(${name} PRIVATE ${OpenCV_LIBS})
     target_link_directories(${name} PRIVATE ${OpenCV_LIB_DIR})
     target_include_directories(${name} PRIVATE ${OpenCV_INCLUDE_DIRS})
