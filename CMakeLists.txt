@@ -32,6 +32,11 @@ endif()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -finput-charset=UTF-8")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -finput-charset=UTF-8")
 
+# 如果不是windows系统，启用编译opencv
+if(NOT WIN32)
+    set(IMAGE_NODE_EDITOR_BUILD_OPENCV ON)
+endif()
+
 if(IMAGE_NODE_EDITOR_BUILD_OPENCV)
     set(opencv_dir "${CMAKE_SOURCE_DIR}/deps/opencv" CACHE STRING "opencv dir")
     if(NOT EXISTS ${opencv_dir})
