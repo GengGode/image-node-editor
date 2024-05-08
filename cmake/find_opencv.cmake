@@ -50,7 +50,7 @@ function(find_opencv opencv_dir_vaule target_version)
     if (WIN32)
         set(CMAKE_MAKE_PROGRAM "Visual Studio 17 2022")
     else()
-        set(CMAKE_MAKE_PROGRAM "Ninja")
+        set(CMAKE_MAKE_PROGRAM "Unix Makefiles")
     endif()
 
     # 手动cmake build到解压目录
