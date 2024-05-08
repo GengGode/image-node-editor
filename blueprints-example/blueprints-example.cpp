@@ -787,6 +787,8 @@ struct Example : public Application
                 const auto isSimple = node.Type == NodeType::Simple;
 
                 bool has_error = node.LastExecuteResult.has_error();
+                bool has_error_and_hovered_on_port = false;
+                bool has_error_and_hovered_on_node = false;
                 if (has_error)
                 {
                     ImGui::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -807,13 +809,12 @@ struct Example : public Application
                         builder.Header(node.Color);
                     ImGui::Spring(0);
                     ImGui::TextUnformatted(node.Name.c_str());
-                    if (ImGui::IsItemHovered())
+                    if (has_error && ImGui::IsItemHovered())
                     {
-                        // printf("hovered\n");
-                        ed::Suspend(); // If not done here, the Tooltip spawns somewhat far away from the mouse
-                        if (node.LastExecuteResult.has_node_error())
-                            ImGui::SetTooltip("错误: %s", node.LastExecuteResult.Error.value().Message.c_str());
-                        ed::Resume();
+
+                        auto error_source = contextError_opt.value().Source;
+                        if (std::holds_alternative<ed::NodeId>(error_source))
+                            has_error_and_hovered_on_node = true;
                     }
                     ImGui::Spring(1);
                     ImGui::Dummy(ImVec2(0, 28));
@@ -957,13 +958,11 @@ struct Example : public Application
 
                     ImGui::PopStyleVar();
                     builder.EndInput();
-                    if (ImGui::IsItemHovered())
+                    if (has_error && ImGui::IsItemHovered())
                     {
-                        // printf("hovered\n");
-                        ed::Suspend(); // If not done here, the Tooltip spawns somewhat far away from the mouse
-                        if (node.LastExecuteResult.has_pin_error())
-                            ImGui::SetTooltip("错误: %s", node.LastExecuteResult.Error.value().Message.c_str());
-                        ed::Resume();
+                        auto error_source = contextError_opt.value().Source;
+                        if (std::holds_alternative<ed::PinId>(error_source))
+                            has_error_and_hovered_on_port = true;
                     }
                     ed::PopStyleColor();
                 }
@@ -1097,6 +1096,26 @@ struct Example : public Application
                 if (has_error)
                 {
                     ImGui::PopStyleColor();
+                    ed::Suspend();
+                    if (has_error_and_hovered_on_node || has_error_and_hovered_on_port)
+                    {
+                        // ImGui::SetTooltip("错误: %s", contextError_opt.value().Message.c_str());
+                        auto error_message = contextError_opt.value().Message;
+                        if (error_message.size() < 64)
+                        {
+                            ImGui::SetTooltip("错误: \n%s", error_message.c_str());
+                        }
+                        else
+                        {
+                            ImGui::BeginTooltip();
+                            ImGui::BeginChild("error", ImVec2(240, 300));
+                            ImGui::TextWrapped("错误: \n%s", error_message.c_str());
+                            ImGui::SetScrollHereY(1.0f);
+                            ImGui::EndChild();
+                            ImGui::EndTooltip();
+                        }
+                    }
+                    ed::Resume();
                 }
             }
             // Comment nodes
