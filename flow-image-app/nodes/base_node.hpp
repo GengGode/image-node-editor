@@ -26,7 +26,12 @@ struct base_node;
 
 struct global_env : std::enable_shared_from_this<global_env>
 {
-    using port_value_t = std::variant<int, float, bool, std::string, cv::Mat>;
+    using port_value_t =
+        std::variant<int, float, bool, std::string,
+                     cv::Mat,
+                     cv::Size, cv::Size2d,
+                     cv::Point, cv::Point2d,
+                     cv::Rect, cv::Rect2d>;
 
     template <typename T>
     static bool is_equal(const T &lft, const T &rht)
@@ -77,6 +82,12 @@ struct global_env : std::enable_shared_from_this<global_env>
         inout_bool,
         inout_string,
         inout_image,
+        inout_size,
+        inout_size_float,
+        inout_point,
+        inout_point_float,
+        inout_rect,
+        inout_rect_float,
 
         inout_delegate
     };
@@ -86,6 +97,12 @@ struct global_env : std::enable_shared_from_this<global_env>
         {typeid(bool).hash_code(), value_type::inout_bool},
         {typeid(std::string).hash_code(), value_type::inout_string},
         {typeid(cv::Mat).hash_code(), value_type::inout_image},
+        {typeid(cv::Size).hash_code(), value_type::inout_size},
+        {typeid(cv::Size2d).hash_code(), value_type::inout_size_float},
+        {typeid(cv::Point).hash_code(), value_type::inout_point},
+        {typeid(cv::Point2d).hash_code(), value_type::inout_point_float},
+        {typeid(cv::Rect).hash_code(), value_type::inout_rect},
+        {typeid(cv::Rect2d).hash_code(), value_type::inout_rect_float},
     };
     std::string enum_to_string(value_type type)
     {
@@ -101,6 +118,18 @@ struct global_env : std::enable_shared_from_this<global_env>
             return "string";
         case value_type::inout_image:
             return "image";
+        case value_type::inout_size:
+            return "size";
+        case value_type::inout_size_float:
+            return "size_float";
+        case value_type::inout_point:
+            return "point";
+        case value_type::inout_point_float:
+            return "point_float";
+        case value_type::inout_rect:
+            return "rect";
+        case value_type::inout_rect_float:
+            return "rect_float";
         default:
             return "unknown";
         }
@@ -252,6 +281,8 @@ struct port
     global_env::port_ui ui;
 
     virtual bool has_value() { return false; }
+
+    virtual global_env::port_value_t &value_ref() { throw std::runtime_error("not implemented"); }
 };
 
 struct in_port : port
@@ -304,15 +335,15 @@ struct in_port : port
         return false;
     }
 
-    /// @brief
+    /// @brief 如果端口源是仅外部节点，则返回假
     /// @return
     bool has_self()
     {
-        // 如果端口源是仅外部节点，则返回假
+
         return default_source == source_type::only_other_node_no_self ? false : true;
     }
 
-    auto &value_ref()
+    global_env::port_value_t &value_ref() override
     {
         if (default_source == source_type::self_define_or_other_node)
             if (link_value_opt.has_value())
@@ -398,6 +429,11 @@ struct out_port : port, std::enable_shared_from_this<out_port>
     bool has_value() override
     {
         return value.valueless_by_exception();
+    }
+
+    global_env::port_value_t &value_ref() override
+    {
+        return value;
     }
 
     /// @brief 获取端口值。
@@ -500,14 +536,31 @@ struct base_node
     std::optional<std::future<void>> async_worker;
     // 节点错误信息
     std::optional<base_error> last_error_opt;
-    // 输出节点变更事件
-    std::function<void(std::shared_ptr<out_port> &out_port)> event_on_output_changed = [&](std::shared_ptr<out_port> &out_port)
+
+    // 异步启动工作线程
+    void async_execute()
     {
-        for (auto &link : out_port->which_links)
-            if (auto link_ptr = link.lock(); link_ptr)
-                ; // link_ptr->which_to_in_port.lock()->as_node_ptr.lock()->event.on_update(env);
-    };
-    // 输入节点变更事件
+        if (async_worker.has_value())
+            if (async_worker->valid())
+                async_worker->get();
+        async_worker = std::async(std::launch::async, [&]()
+                                  { event.on_execute(env); });
+    }
+
+    // 检测全部输入可用性
+    bool check_available()
+    {
+        for (auto &in : in_ports)
+            if (!in->has_value())
+                return false;
+        return true;
+    }
+
+    void event_check_available_and_execute()
+    {
+        if (check_available())
+            async_execute();
+    }
 
     global_env::base_node_ui ui;
     global_env::node_event event;

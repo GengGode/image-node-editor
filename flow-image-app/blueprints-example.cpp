@@ -7,6 +7,12 @@
 #include <imgui_node_editor.h>
 #include <imgui_internal.h>
 
+namespace ed = ax::NodeEditor;
+namespace util = ax::NodeEditor::Utilities;
+
+using namespace ax;
+using ax::Widgets::IconType;
+
 #include <string>
 #include <vector>
 #include <map>
@@ -18,20 +24,6 @@
 
 #include "nodes/base_node.hpp"
 
-static inline ImRect ImGui_GetItemRect()
-{
-    return ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
-}
-
-static inline ImRect ImRect_Expanded(const ImRect &rect, float x, float y)
-{
-    auto result = rect;
-    result.Min.x -= x;
-    result.Min.y -= y;
-    result.Max.x += x;
-    result.Max.y += y;
-    return result;
-}
 struct NodeIdLess
 {
     bool operator()(const ed::NodeId &lhs, const ed::NodeId &rhs) const
@@ -39,13 +31,6 @@ struct NodeIdLess
         return lhs.AsPointer() < rhs.AsPointer();
     }
 };
-
-namespace ed = ax::NodeEditor;
-namespace util = ax::NodeEditor::Utilities;
-
-using namespace ax;
-
-using ax::Widgets::IconType;
 
 static ed::EditorContext *m_Editor = nullptr;
 

@@ -5,7 +5,6 @@ std::map<global_env::node_type_group, std::vector<std::pair<std::string, std::fu
     {global_env::node_type_group::image_source,
      {
          {"Image Source", create_image_source_node},
-         {"Image Source 2", create_image_source_node},
      }},
     {global_env::node_type_group::arithmetic,
      {{"empty", create_image_source_node}}},
