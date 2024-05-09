@@ -71,12 +71,13 @@ function(find_opencv opencv_dir_vaule target_version)
         -DBUILD_opencv_features2d=ON
         -DBUILD_opencv_fuzzy=OFF -DBUILD_opencv_gapi=OFF -DBUILD_opencv_hfs=OFF -DBUILD_opencv_highgui=OFF -DBUILD_opencv_imgcodecs=ON 
         -DBUILD_opencv_imgproc=ON -DBUILD_opencv_intensity_transform=OFF -DBUILD_opencv_line_descriptor=OFF -DBUILD_opencv_mcc=OFF -DBUILD_opencv_ml=OFF 
-        -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_optflow=OFF -DBUILD_opencv_phase_unwrapping=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_plot=OFF 
+        -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_optflow=OFF -DBUILD_opencv_phase_unwrapping=OFF 
+        -DBUILD_opencv_photo=ON -DBUILD_opencv_plot=ON 
         -DBUILD_opencv_quality=OFF -DBUILD_opencv_rapid=OFF -DBUILD_opencv_reg=OFF -DBUILD_opencv_rgbd=OFF -DBUILD_opencv_saliency=OFF 
         -DBUILD_opencv_shape=OFF -DBUILD_opencv_stereo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_structured_light=OFF -DBUILD_opencv_superres=OFF 
         -DBUILD_opencv_surface_matching=OFF -DBUILD_opencv_text=OFF -DBUILD_opencv_tracking=OFF -DBUILD_opencv_ts=OFF -DBUILD_opencv_video=OFF 
         -DBUILD_opencv_videoio=OFF -DBUILD_opencv_videostab=OFF -DBUILD_opencv_world=ON 
-        -DBUILD_opencv_wechat_qrcode=OFF -DBUILD_opencv_xfeatures2d=OFF -DBUILD_opencv_ximgproc=OFF -DBUILD_opencv_xobjdetect=OFF -DBUILD_opencv_xphoto=OFF 
+        -DBUILD_opencv_wechat_qrcode=OFF 
         -DBUILD_opencv_python_bindings_generator=OFF -DBUILD_opencv_python_tests=OFF -DBUILD_JAVA=OFF -DBUILD_opencv_java_bindings_generator=OFF 
         -DBUILD_opencv_js=OFF -DBUILD_opencv_js_bindings_generator=OFF -DBUILD_opencv_objc_bindings_generator=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF 
         -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_ITT=OFF -DBUILD_ITT=OFF -Dccitt=OFF 
@@ -85,15 +86,24 @@ function(find_opencv opencv_dir_vaule target_version)
         -DOPENCV_ENABLE_NONFREE=${enable_contrib}
         -DOPENCV_EXTRA_MODULES_PATH=${contrib_download_dir}/modules
         -DBUILD_opencv_xfeatures2d=ON 
+        -DBUILD_opencv_ximgproc=ON 
+        -DBUILD_opencv_xobjdetect=ON 
+        -DBUILD_opencv_xphoto=ON 
 
         WORKING_DIRECTORY ${opencv_build_dir})
         
         execute_process(COMMAND cmake --build . --config Debug WORKING_DIRECTORY ${opencv_build_dir})
         execute_process(COMMAND cmake --build . --target install --config Debug WORKING_DIRECTORY ${opencv_build_dir})
         
-        if(NOT EXISTS ${install_debug_dir}/x64/vc17/staticlib/OpenCVConfig.cmake AND 
-            NOT EXISTS ${install_debug_dir}/x64/vc17/lib/OpenCVConfig.cmake)
-            message(FATAL_ERROR "opencv build failed")
+        if(WIN32)
+            if(NOT EXISTS ${install_debug_dir}/x64/vc17/staticlib/OpenCVConfig.cmake AND 
+                NOT EXISTS ${install_debug_dir}/x64/vc17/lib/OpenCVConfig.cmake)
+                message(FATAL_ERROR "opencv build failed")
+            endif()
+        else()
+            if(NOT EXISTS ${install_debug_dir}/lib/libopencv_world.so)
+                message(FATAL_ERROR "opencv build failed")
+            endif()
         endif()
     endif()
 
@@ -114,12 +124,13 @@ function(find_opencv opencv_dir_vaule target_version)
         -DBUILD_opencv_features2d=ON
         -DBUILD_opencv_fuzzy=OFF -DBUILD_opencv_gapi=OFF -DBUILD_opencv_hfs=OFF -DBUILD_opencv_highgui=OFF -DBUILD_opencv_imgcodecs=ON 
         -DBUILD_opencv_imgproc=ON -DBUILD_opencv_intensity_transform=OFF -DBUILD_opencv_line_descriptor=OFF -DBUILD_opencv_mcc=OFF -DBUILD_opencv_ml=OFF 
-        -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_optflow=OFF -DBUILD_opencv_phase_unwrapping=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_plot=OFF 
+        -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_optflow=OFF -DBUILD_opencv_phase_unwrapping=OFF 
+        -DBUILD_opencv_photo=ON -DBUILD_opencv_plot=ON 
         -DBUILD_opencv_quality=OFF -DBUILD_opencv_rapid=OFF -DBUILD_opencv_reg=OFF -DBUILD_opencv_rgbd=OFF -DBUILD_opencv_saliency=OFF 
         -DBUILD_opencv_shape=OFF -DBUILD_opencv_stereo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_structured_light=OFF -DBUILD_opencv_superres=OFF 
         -DBUILD_opencv_surface_matching=OFF -DBUILD_opencv_text=OFF -DBUILD_opencv_tracking=OFF -DBUILD_opencv_ts=OFF -DBUILD_opencv_video=OFF 
         -DBUILD_opencv_videoio=OFF -DBUILD_opencv_videostab=OFF -DBUILD_opencv_world=ON 
-        -DBUILD_opencv_wechat_qrcode=OFF -DBUILD_opencv_xfeatures2d=OFF -DBUILD_opencv_ximgproc=OFF -DBUILD_opencv_xobjdetect=OFF -DBUILD_opencv_xphoto=OFF 
+        -DBUILD_opencv_wechat_qrcode=OFF 
         -DBUILD_opencv_python_bindings_generator=OFF -DBUILD_opencv_python_tests=OFF -DBUILD_JAVA=OFF -DBUILD_opencv_java_bindings_generator=OFF 
         -DBUILD_opencv_js=OFF -DBUILD_opencv_js_bindings_generator=OFF -DBUILD_opencv_objc_bindings_generator=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF 
         -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_ITT=OFF -DBUILD_ITT=OFF -Dccitt=OFF 
@@ -128,15 +139,24 @@ function(find_opencv opencv_dir_vaule target_version)
         -DOPENCV_ENABLE_NONFREE=${enable_contrib}
         -DOPENCV_EXTRA_MODULES_PATH=${contrib_download_dir}/modules
         -DBUILD_opencv_xfeatures2d=ON 
+        -DBUILD_opencv_ximgproc=ON 
+        -DBUILD_opencv_xobjdetect=ON 
+        -DBUILD_opencv_xphoto=ON 
 
         WORKING_DIRECTORY ${opencv_build_dir})
         
         execute_process(COMMAND cmake --build . --config Release WORKING_DIRECTORY ${opencv_build_dir})
         execute_process(COMMAND cmake --build . --target install --config Release WORKING_DIRECTORY ${opencv_build_dir})
         
-        if(NOT EXISTS ${install_release_dir}/x64/vc17/staticlib/OpenCVConfig.cmake AND 
-            NOT EXISTS ${install_release_dir}/x64/vc17/lib/OpenCVConfig.cmake)
-            message(FATAL_ERROR "opencv build failed")
+        if(WIN32)
+            if(NOT EXISTS ${install_debug_dir}/x64/vc17/staticlib/OpenCVConfig.cmake AND 
+                NOT EXISTS ${install_debug_dir}/x64/vc17/lib/OpenCVConfig.cmake)
+                message(FATAL_ERROR "opencv build failed")
+            endif()
+        else()
+            if(NOT EXISTS ${install_debug_dir}/lib/libopencv_world.so)
+                message(FATAL_ERROR "opencv build failed")
+            endif()
         endif()
     endif()
 
