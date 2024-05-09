@@ -804,8 +804,13 @@ struct Example : public Application
                 builder.Begin(node.ID);
                 if (!isSimple)
                 {
-                    if (has_error && node.LastExecuteResult.has_node_error())
-                        builder.Header(ImColor(255, 0, 0));
+                    if (has_error)
+                    {
+                        if (node.LastExecuteResult.has_node_error())
+                            builder.Header(ImColor(255, 0, 0));
+                        else
+                            builder.Header(ImColor(200, 100, 100));
+                    }
                     else
                         builder.Header(node.Color);
                     ImGui::Spring(0);
