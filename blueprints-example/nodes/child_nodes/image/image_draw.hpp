@@ -55,8 +55,9 @@ Node *Spawn_ImageOperator_DrawLine(const std::function<int()> &GetNextId, const 
 
         try_catch_block
         {
-            cv::line(image, start, end, color, thickness, lineType, shift);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result = image.clone();
+            cv::line(result, start, end, color, thickness, lineType, shift);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -111,8 +112,9 @@ Node *Spawn_ImageOperator_DrawRectangle(const std::function<int()> &GetNextId, c
 
         try_catch_block
         {
-            cv::rectangle(image, rect, color, thickness, lineType, shift);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result = image.clone();
+            cv::rectangle(result, rect, color, thickness, lineType, shift);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -173,8 +175,9 @@ Node *Spawn_ImageOperator_DrawCircle(const std::function<int()> &GetNextId, cons
 
         try_catch_block
         {
-            cv::circle(image, center, radius, color, thickness, lineType, shift);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result = image.clone();
+            cv::circle(result, center, radius, color, thickness, lineType, shift);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -252,8 +255,9 @@ Node *Spawn_ImageOperator_DrawEllipse(const std::function<int()> &GetNextId, con
 
         try_catch_block
         {
-            cv::ellipse(image, center, axes, angle, startAngle, endAngle, color, thickness, lineType, shift);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result = image.clone();
+            cv::ellipse(result, center, axes, angle, startAngle, endAngle, color, thickness, lineType, shift);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -326,8 +330,9 @@ Node *Spawn_ImageOperator_DrawText(const std::function<int()> &GetNextId, const 
 
         try_catch_block
         {
-            cv::putText(image, text, org, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result = image.clone();
+            cv::putText(result, text, org, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };

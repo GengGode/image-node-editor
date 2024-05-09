@@ -1337,9 +1337,9 @@ Node *Spawn_ImageOperator_ImageAddImage(const std::function<int()> &GetNextId, c
 
         try_catch_block
         {
-            cv::Mat image;
-            cv::add(image_right, image_left, image);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::add(image_right, image_left, result);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -1382,9 +1382,9 @@ Node *Spawn_ImageOperator_ImageSubImage(const std::function<int()> &GetNextId, c
             return ExecuteResult::ErrorNode(node->ID, "Images must have the same number of channels");
 
         try_catch_block;
-        cv::Mat image;
-        cv::subtract(image_right, image_left, image);
-        node->Outputs[0].SetValue(image);
+        cv::Mat result;
+        cv::subtract(image_right, image_left, result);
+        node->Outputs[0].SetValue(result);
         catch_block_and_return;
     };
 
@@ -1426,9 +1426,9 @@ Node *Spawn_ImageOperator_ImageMulImage(const std::function<int()> &GetNextId, c
             return ExecuteResult::ErrorNode(node->ID, "Images must have the same number of channels");
 
         try_catch_block;
-        cv::Mat image;
-        cv::multiply(image_right, image_left, image);
-        node->Outputs[0].SetValue(image);
+        cv::Mat result;
+        cv::multiply(image_right, image_left, result);
+        node->Outputs[0].SetValue(result);
         catch_block_and_return;
     };
 
@@ -1469,9 +1469,9 @@ Node *Spawn_ImageOperator_ImageDivImage(const std::function<int()> &GetNextId, c
             return ExecuteResult::ErrorNode(node->ID, "Images must have the same number of channels");
 
         try_catch_block;
-        cv::Mat image;
-        cv::divide(image_right, image_left, image);
-        node->Outputs[0].SetValue(image);
+        cv::Mat result;
+        cv::divide(image_right, image_left, result);
+        node->Outputs[0].SetValue(result);
         catch_block_and_return;
     };
 
@@ -1514,9 +1514,9 @@ Node *Spawn_ImageOperator_ImageAndImage(const std::function<int()> &GetNextId, c
             return ExecuteResult::ErrorNode(node->ID, "Images must have the same number of channels");
 
         try_catch_block;
-        cv::Mat image;
-        cv::bitwise_and(image_right, image_left, image);
-        node->Outputs[0].SetValue(image);
+        cv::Mat result;
+        cv::bitwise_and(image_right, image_left, result);
+        node->Outputs[0].SetValue(result);
         catch_block_and_return;
     };
 
@@ -1558,9 +1558,9 @@ Node *Spawn_ImageOperator_ImageOrImage(const std::function<int()> &GetNextId, co
             return ExecuteResult::ErrorNode(node->ID, "Images must have the same number of channels");
 
         try_catch_block;
-        cv::Mat image;
-        cv::bitwise_or(image_right, image_left, image);
-        node->Outputs[0].SetValue(image);
+        cv::Mat result;
+        cv::bitwise_or(image_right, image_left, result);
+        node->Outputs[0].SetValue(result);
         catch_block_and_return;
     };
 
@@ -1602,9 +1602,9 @@ Node *Spawn_ImageOperator_ImageXorImage(const std::function<int()> &GetNextId, c
             return ExecuteResult::ErrorNode(node->ID, "Images must have the same number of channels");
 
         try_catch_block;
-        cv::Mat image;
-        cv::bitwise_xor(image_right, image_left, image);
-        node->Outputs[0].SetValue(image);
+        cv::Mat result;
+        cv::bitwise_xor(image_right, image_left, result);
+        node->Outputs[0].SetValue(result);
         catch_block_and_return;
     };
 

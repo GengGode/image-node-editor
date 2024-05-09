@@ -283,9 +283,10 @@ Node *Spawn_ImageFeature_DrawFeaturePoints(const std::function<int()> &GetNextId
 
         try_catch_block
         {
-            cv::drawKeypoints(image, feature.first, image, color, cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+            cv::Mat result = image.clone();
+            cv::drawKeypoints(image, feature.first, result, color, cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
-            node->Outputs[0].SetValue(image);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -399,10 +400,10 @@ Node *Spawn_ImageFeature_DrawMatchedFeaturePoints(const std::function<int()> &Ge
 
         try_catch_block
         {
-            cv::Mat output;
-            cv::drawMatches(image1, feature1.first, image2, feature2.first, matches, output);
+            cv::Mat result;
+            cv::drawMatches(image1, feature1.first, image2, feature2.first, matches, result);
 
-            node->Outputs[0].SetValue(output);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };

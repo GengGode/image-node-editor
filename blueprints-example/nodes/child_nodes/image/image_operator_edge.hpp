@@ -33,9 +33,9 @@ Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std
         {
             if (size % 2 == 0)
                 return ExecuteResult::ErrorNode(node->ID, "Size must be odd");
-            cv::Mat canny;
-            cv::Canny(image, canny, threshold_1, threshold_2, size);
-            node->Outputs[0].SetValue(canny);
+            cv::Mat result;
+            cv::Canny(image, result, threshold_1, threshold_2, size);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -69,18 +69,16 @@ Node *Spawn_ImageOperator_SobelEdgeDetection(const std::function<int()> &GetNext
 
         try_catch_block
         {
-            cv::Mat gray, edge;
-            cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-
+            cv::Mat result;
             cv::Mat grad_x, grad_y;
             cv::Mat abs_grad_x, abs_grad_y;
-            cv::Sobel(gray, grad_x, CV_16S, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
-            cv::Sobel(gray, grad_y, CV_16S, 0, 1, 3, 1, 0, cv::BORDER_DEFAULT);
+            cv::Sobel(image, grad_x, CV_16S, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
+            cv::Sobel(image, grad_y, CV_16S, 0, 1, 3, 1, 0, cv::BORDER_DEFAULT);
             cv::convertScaleAbs(grad_x, abs_grad_x);
             cv::convertScaleAbs(grad_y, abs_grad_y);
-            cv::addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, edge);
+            cv::addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, result);
 
-            node->Outputs[0].SetValue(edge);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -112,12 +110,11 @@ Node *Spawn_ImageOperator_LaplacianEdgeDetection(const std::function<int()> &Get
 
         try_catch_block
         {
-            cv::Mat gray, edge;
-            cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-            cv::Laplacian(gray, edge, CV_16S, 3, 1, 0, cv::BORDER_DEFAULT);
-            cv::convertScaleAbs(edge, edge);
+            cv::Mat result;
+            cv::Laplacian(image, result, CV_16S, 3, 1, 0, cv::BORDER_DEFAULT);
+            cv::convertScaleAbs(result, result);
 
-            node->Outputs[0].SetValue(edge);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -149,18 +146,16 @@ Node *Spawn_ImageOperator_ScharrEdgeDetection(const std::function<int()> &GetNex
 
         try_catch_block
         {
-            cv::Mat gray, edge;
-            cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-
+            cv::Mat result;
             cv::Mat grad_x, grad_y;
             cv::Mat abs_grad_x, abs_grad_y;
-            cv::Scharr(gray, grad_x, CV_16S, 1, 0, 1, 0, cv::BORDER_DEFAULT);
-            cv::Scharr(gray, grad_y, CV_16S, 0, 1, 1, 0, cv::BORDER_DEFAULT);
+            cv::Scharr(image, grad_x, CV_16S, 1, 0, 1, 0, cv::BORDER_DEFAULT);
+            cv::Scharr(image, grad_y, CV_16S, 0, 1, 1, 0, cv::BORDER_DEFAULT);
             cv::convertScaleAbs(grad_x, abs_grad_x);
             cv::convertScaleAbs(grad_y, abs_grad_y);
-            cv::addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, edge);
+            cv::addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, result);
 
-            node->Outputs[0].SetValue(edge);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -249,19 +244,20 @@ Node *Spawn_ImageOperator_DrawContours(const std::function<int()> &GetNextId, co
 
         try_catch_block
         {
+            cv::Mat result = image.clone();
             if (random_color)
             {
                 for (size_t i = 0; i < contours.size(); i++)
                 {
                     cv::Scalar color(rand() & 255, rand() & 255, rand() & 255);
-                    cv::drawContours(image, contours, static_cast<int>(i), color, thickness);
+                    cv::drawContours(result, contours, static_cast<int>(i), color, thickness);
                 }
             }
             else
             {
-                cv::drawContours(image, contours, -1, color, thickness);
+                cv::drawContours(result, contours, -1, color, thickness);
             }
-            node->Outputs[0].SetValue(image);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
