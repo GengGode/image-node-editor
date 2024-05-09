@@ -116,27 +116,6 @@ struct Example : public Application
             color, rounding);
     };
 
-    void BuildNode(Node *node)
-    {
-        for (auto &input : node->Inputs)
-        {
-            input.Node = node;
-            input.Kind = PinKind::Input;
-        }
-
-        for (auto &output : node->Outputs)
-        {
-            output.Node = node;
-            output.Kind = PinKind::Output;
-        }
-    }
-
-    void BuildNodes()
-    {
-        for (auto &node : m_Graph.Nodes)
-            BuildNode(&node);
-    }
-
     void ExecuteNode(ed::NodeId id)
     {
         auto node = m_Graph.FindNode(id);
@@ -281,12 +260,14 @@ struct Example : public Application
         ed::SetCurrentEditor(m_Editor);
         ed::NavigateToContent();
 
-        BuildNodes();
+        m_Graph.build_nodes();
+
         m_HeaderBackground = LoadTexture("data/BlueprintBackground.png");
         m_SaveIcon = LoadTexture("data/ic_save_white_24dp.png");
         m_RestoreIcon = LoadTexture("data/ic_restore_white_24dp.png");
 
         // graph env init
+        m_Graph.env.app = this;
         m_Graph.env.graph = &m_Graph;
         m_Graph.env.executeFunc = [this](Graph *graph)
         {
@@ -556,13 +537,13 @@ struct Example : public Application
                              std::istreambuf_iterator<char>());
             in.close();
 
-            printf("json = %s\n", json.c_str());
+            // printf("json = %s\n", json.c_str());
             m_Graph.deserialize(json);
             for (auto &node : m_Graph.Nodes)
             {
                 ed::SetNodePosition(node.ID, node.Position);
             }
-            BuildNodes();
+            m_Graph.build_nodes();
         }
 
         ImGui::Spring();
@@ -1418,7 +1399,7 @@ struct Example : public Application
                             node = func([&]()
                                         { return GetNextId(); },
                                         [&](Node *node)
-                                        { BuildNode(node); },
+                                        { m_Graph.build_node(node); },
                                         m_Graph.Nodes, this);
                         }
                     }
@@ -1428,7 +1409,7 @@ struct Example : public Application
 
             if (node)
             {
-                BuildNodes();
+                m_Graph.build_nodes();
 
                 createNewNode = false;
 

@@ -293,6 +293,13 @@ static std::vector<std::pair<std::string, NodeType>> nodeTypes = {
 struct Node;
 struct Link;
 
+struct NodeWorldGlobal
+{
+    using NodeFactory_t = std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>;
+    using FactoryGroupFunc_t = std::vector<std::pair<std::string, NodeFactory_t>>;
+    static std::map<NodeType, FactoryGroupFunc_t> nodeFactories;
+};
+
 struct Pin
 {
     ed::PinId ID;
@@ -538,6 +545,34 @@ struct Graph
 {
     std::vector<Node> Nodes;
     std::vector<Link> Links;
+
+    int next_id = 1;
+    int get_next_id()
+    {
+        return next_id++;
+    }
+
+    void build_node(Node *node)
+    {
+        for (auto &input : node->Inputs)
+        {
+            input.Node = node;
+            input.Kind = PinKind::Input;
+        }
+
+        for (auto &output : node->Outputs)
+        {
+            output.Node = node;
+            output.Kind = PinKind::Output;
+        }
+    }
+
+    void build_nodes()
+    {
+        for (auto &node : this->Nodes)
+            build_node(&node);
+    }
+
     struct ExectureEnv
     {
 
@@ -1338,10 +1373,60 @@ inline bool Graph::deserialize(const std::string &json_buff)
         auto nodes = json.as_object().at("nodes").as_array();
         for (auto node : nodes)
         {
-            Node n(0, "");
+            Node n(0, "null");
             if (json::deserialize(node, n, Deserializer()))
             {
+                Graph g;
+                static auto get_factory = [](const std::string &name) -> NodeWorldGlobal::NodeFactory_t
+                {
+                    for (auto &factories : NodeWorldGlobal::nodeFactories)
+                    {
+                        auto it = std::find_if(factories.second.begin(), factories.second.end(), [&name](const auto &factory)
+                                               { return factory.first == name; });
+                        if (it != factories.second.end())
+                        {
+                            return it->second;
+                        }
+                    }
+                    return nullptr;
+                };
+                auto node_factory = get_factory(n.Name);
+                if (node_factory)
+                {
+                    auto tmp_node = node_factory([&]()
+                                                 { return g.get_next_id(); },
+                                                 [&](Node *node)
+                                                 { g.build_node(node); },
+                                                 g.Nodes, this->env.app);
+                    n.OnExecute = tmp_node->OnExecute;
+                    for (auto &input : n.Inputs)
+                    {
+                        input.app = this->env.app;
+                    }
+                    for (auto &output : n.Outputs)
+                    {
+                        output.app = this->env.app;
+                    }
+                }
                 Nodes.push_back(n);
+                if (reinterpret_cast<int64>(n.ID.AsPointer()) > next_id)
+                {
+                    next_id = static_cast<int>(reinterpret_cast<int64>(n.ID.AsPointer()));
+                }
+                for (auto &input : n.Inputs)
+                {
+                    if (reinterpret_cast<int64>(input.ID.AsPointer()) > next_id)
+                    {
+                        next_id = static_cast<int>(reinterpret_cast<int64>(input.ID.AsPointer()));
+                    }
+                }
+                for (auto &output : n.Outputs)
+                {
+                    if (reinterpret_cast<int64>(output.ID.AsPointer()) > next_id)
+                    {
+                        next_id = static_cast<int>(reinterpret_cast<int64>(output.ID.AsPointer()));
+                    }
+                }
             }
         }
         auto links = json.as_object().at("links").as_array();
@@ -1351,6 +1436,11 @@ inline bool Graph::deserialize(const std::string &json_buff)
             if (json::deserialize(link, l, Deserializer()))
             {
                 Links.push_back(l);
+            }
+
+            if (reinterpret_cast<int64>(l.ID.AsPointer()) > next_id)
+            {
+                next_id = static_cast<int>(reinterpret_cast<int64>(l.ID.AsPointer()));
             }
         }
         return true;
@@ -1364,12 +1454,6 @@ struct NodeIdLess
     {
         return lhs.AsPointer() < rhs.AsPointer();
     }
-};
-
-struct NodeWorldGlobal
-{
-    using FactoryGroupFunc_t = std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>>;
-    static std::map<NodeType, FactoryGroupFunc_t> nodeFactories;
 };
 
 #define try_catch_block                                        \
