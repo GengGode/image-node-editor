@@ -529,7 +529,11 @@ struct Example : public Application
         {
             static int count = 0;
             printf("run count = %d\n", count++);
+
+            BeginExecuteTime = std::chrono::steady_clock::now();
             ExecuteNodes();
+            EndExecuteTime = std::chrono::steady_clock::now();
+            ExecuteTime = std::chrono::duration_cast<std::chrono::milliseconds>(*EndExecuteTime - *BeginExecuteTime);
         }
         if (ImGui::Button("序列化"))
         {
@@ -739,7 +743,7 @@ struct Example : public Application
 
         auto &io = ImGui::GetIO();
 
-        ImGui::Text("帧率测试: %.2f (%.2gms)", io.Framerate, io.Framerate ? 1000.0f / io.Framerate : 0.0f);
+        ImGui::Text("帧率测试: %.2f (%.2gms) 上次执行全体耗时: %.2f ms", io.Framerate, io.Framerate ? 1000.0f / io.Framerate : 0.0f, ExecuteTime.has_value() ? ExecuteTime.value().count() / 1000000.0 : 0.0f);
 
         ed::SetCurrentEditor(m_Editor);
 
@@ -750,7 +754,7 @@ struct Example : public Application
             for (auto x = -io.DisplaySize.y; x < io.DisplaySize.x; x += 10.0f)
             {
                 ImGui::GetWindowDrawList()->AddLine(ImVec2(x, 0), ImVec2(x + io.DisplaySize.y, io.DisplaySize.y),
-                    IM_COL32(255, 255, 0, 255));
+                                                    IM_COL32(255, 255, 0, 255));
             }
         }
 #endif
@@ -1543,6 +1547,10 @@ struct Example : public Application
     const float m_TouchTime = 1.0f;
     std::map<ed::NodeId, float, NodeIdLess> m_NodeTouchTime;
     bool m_ShowOrdinals = false;
+
+    std::optional<std::chrono::steady_clock::time_point> BeginExecuteTime;
+    std::optional<std::chrono::steady_clock::time_point> EndExecuteTime;
+    std::optional<std::chrono::steady_clock::duration> ExecuteTime;
 };
 
 #include "Windows.h"
