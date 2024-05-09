@@ -786,6 +786,7 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
                                        {"Image Get Rect Image", Spawn_ImageOperator_ImageGetRectImage},
                                    }},
         {NodeType::ImageOperation_Threshold, ImageOperatorThresholdNodes},
+        {NodeType::ImageOperation_Filter, ImageOperatorFilterNodes},
         {NodeType::ImageOperation_Edge, ImageOperatorEdgeNodes},
         {NodeType::ImageOperation_Feature, ImageFeatureNodes},
         {NodeType::ImageOther, ImageColorConvertNodes},
