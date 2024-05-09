@@ -770,6 +770,7 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
         {NodeType::ImageType, ImageTypeNodes},
         {NodeType::ImageValue, ImageMathNodes},
         {NodeType::ImageDraw, ImageDrawNodes},
+        {NodeType::ImageSource, ImageSourceNodes},
         {NodeType::ImageOperation, {
                                        {"Dilate", Spawn_ImageOperator_Dilate},
                                        {"Erode", Spawn_ImageOperator_Erode},

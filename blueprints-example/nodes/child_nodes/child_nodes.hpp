@@ -7,6 +7,7 @@
 #include "base/base_type.hpp"
 #include "base/base_convert.hpp"
 #include "base/base_operation.hpp"
+#include "image/image_source.hpp"
 #include "image/image_type.hpp"
 #include "image/image_math.hpp"
 #include "image/image_color_convert.hpp"
