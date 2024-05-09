@@ -437,7 +437,7 @@ struct Graph;
 
 struct ErrorInfo
 {
-    using SourceId = std::variant<ed::NodeId, ed::PinId, ed::LinkId, std::string>;
+    using SourceId = std::variant<ed::NodeId, ed::PinId, ed::LinkId /*, std::string*/>;
     SourceId Source;
     std::string Message;
     ErrorInfo(SourceId source, const std::string &message) : Source(source), Message(message) {}
@@ -461,7 +461,7 @@ struct ExecuteResult
     static ExecuteResult ErrorNode(ed::NodeId nodeId, const std::string &message) { return ExecuteResult(ErrorInfo(nodeId, message)); }
     static ExecuteResult ErrorPin(ed::PinId pinId, const std::string &message) { return ExecuteResult(ErrorInfo(pinId, message)); }
     static ExecuteResult ErrorLink(ed::LinkId linkId, const std::string &message) { return ExecuteResult(ErrorInfo(linkId, message)); }
-    static ExecuteResult ErrorCustom(const std::string &message) { return ExecuteResult(ErrorInfo(std::string(), message)); }
+    // static ExecuteResult ErrorCustom(const std::string &message) { return ExecuteResult(ErrorInfo(std::string(), message)); }
 };
 struct Node
 {
@@ -485,9 +485,9 @@ struct Node
     Node(int id, const char *name, ImColor color = ImColor(255, 255, 255)) : ID(id), Name(name), Color(color), Type(NodeType::Blueprint), Size(0, 0)
     {
     }
-    std::function<ExecuteResult(Graph *, Node *)> OnExecute = [](Graph *, Node *)
+    std::function<ExecuteResult(Graph *, Node *)> OnExecute = [](Graph *, Node *node)
     {
-        return ExecuteResult::ErrorCustom("Null Impl");
+        return ExecuteResult::ErrorNode(node->ID, "Null Impl");
     };
 
     bool can_execute()
