@@ -149,12 +149,12 @@ function(find_opencv opencv_dir_vaule target_version)
         execute_process(COMMAND cmake --build . --target install --config Release WORKING_DIRECTORY ${opencv_build_dir})
         
         if(WIN32)
-            if(NOT EXISTS ${install_debug_dir}/x64/vc17/staticlib/OpenCVConfig.cmake AND 
-                NOT EXISTS ${install_debug_dir}/x64/vc17/lib/OpenCVConfig.cmake)
+            if(NOT EXISTS ${install_release_dir}/x64/vc17/staticlib/OpenCVConfig.cmake AND 
+                NOT EXISTS ${install_release_dir}/x64/vc17/lib/OpenCVConfig.cmake)
                 message(FATAL_ERROR "opencv build failed")
             endif()
         else()
-            if(NOT EXISTS ${install_debug_dir}/lib/libopencv_world.so)
+            if(NOT EXISTS ${install_release_dir}/lib/libopencv_world.so)
                 message(FATAL_ERROR "opencv build failed")
             endif()
         endif()
