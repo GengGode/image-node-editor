@@ -44,9 +44,10 @@ Node *Spawn_ImageOperator_LowPassFilter(const std::function<int()> &GetNextId, c
 
         try_catch_block
         {
+            cv::Mat result;
             cv::Mat kernel = cv::Mat::ones(kernel_size, kernel_size, CV_32F) / (float)(kernel_size * kernel_size);
-            cv::filter2D(image, image, -1, kernel, cv::Point(-1, -1), 0, border_type);
-            node->Outputs[0].SetValue(image);
+            cv::filter2D(image, result, -1, kernel, cv::Point(-1, -1), 0, border_type);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -95,10 +96,10 @@ Node *Spawn_ImageOperator_HighPassFilter(const std::function<int()> &GetNextId, 
         try_catch_block
         {
             cv::Mat kernel = cv::Mat::ones(kernel_size, kernel_size, CV_32F) / (float)(kernel_size * kernel_size);
-            cv::Mat dst;
-            cv::filter2D(image, dst, -1, kernel, cv::Point(-1, -1), 0, border_type);
-            cv::subtract(image, dst, image);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::filter2D(image, result, -1, kernel, cv::Point(-1, -1), 0, border_type);
+            cv::subtract(image, result, result);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -141,8 +142,9 @@ Node *Spawn_ImageOperator_BoxFilter(const std::function<int()> &GetNextId, const
 
         try_catch_block
         {
-            cv::boxFilter(image, image, -1, cv::Size(kernel_size, kernel_size), cv::Point(-1, -1), true, border_type);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::boxFilter(image, result, -1, cv::Size(kernel_size, kernel_size), cv::Point(-1, -1), true, border_type);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -185,8 +187,9 @@ Node *Spawn_ImageOperator_BlurFilter(const std::function<int()> &GetNextId, cons
 
         try_catch_block
         {
-            cv::blur(image, image, cv::Size(kernel_size, kernel_size), cv::Point(-1, -1), border_type);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::blur(image, result, cv::Size(kernel_size, kernel_size), cv::Point(-1, -1), border_type);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -234,8 +237,9 @@ Node *Spawn_ImageOperator_GaussianFilter(const std::function<int()> &GetNextId, 
 
         try_catch_block
         {
-            cv::GaussianBlur(image, image, cv::Size(kernel_size, kernel_size), sigma, sigma, border_type);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::GaussianBlur(image, result, cv::Size(kernel_size, kernel_size), sigma, sigma, border_type);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -273,8 +277,9 @@ Node *Spawn_ImageOperator_MedianFilter(const std::function<int()> &GetNextId, co
 
         try_catch_block
         {
-            cv::medianBlur(image, image, kernel_size);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::medianBlur(image, result, kernel_size);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -327,8 +332,9 @@ Node *Spawn_ImageOperator_BilateralFilter(const std::function<int()> &GetNextId,
 
         try_catch_block
         {
-            cv::bilateralFilter(image, image, kernel_size, sigma_color, sigma_space, border_type);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::bilateralFilter(image, result, kernel_size, sigma_color, sigma_space, border_type);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -380,8 +386,9 @@ Node *Spawn_ImageOperator_NonLocalMeansFilter(const std::function<int()> &GetNex
 
         try_catch_block
         {
-            cv::fastNlMeansDenoisingColored(image, image, h, hColor, templateWindowSize, searchWindowSize);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::fastNlMeansDenoisingColored(image, result, h, hColor, templateWindowSize, searchWindowSize);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
@@ -472,8 +479,9 @@ Node *Spawn_ImageOperator_AdaptiveMeanFilter(const std::function<int()> &GetNext
 
         try_catch_block
         {
-            cv::xphoto::bm3dDenoising(image, image, h, templateWindowSize, searchWindowSize, blockMatchingStep1, blockMatchingStep2, groupSize, slidingStep, beta, normType, step, transformType);
-            node->Outputs[0].SetValue(image);
+            cv::Mat result;
+            cv::xphoto::bm3dDenoising(image, result, h, templateWindowSize, searchWindowSize, blockMatchingStep1, blockMatchingStep2, groupSize, slidingStep, beta, normType, step, transformType);
+            node->Outputs[0].SetValue(result);
         }
         catch_block_and_return;
     };
