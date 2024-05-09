@@ -558,6 +558,7 @@ struct Example : public Application
             {
                 ed::SetNodePosition(node.ID, node.Position);
             }
+            BuildNodes();
         }
 
         ImGui::Spring();
