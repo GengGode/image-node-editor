@@ -858,10 +858,10 @@ struct Serialize
     {
         json::object obj;
         obj["type"] = "node";
-        obj["node_id"] = (int)node->ID.AsPointer();
+        obj["node_id"] = reinterpret_cast<int64>(node->ID.AsPointer());
         obj["node_name"] = node->Name;
-        obj["node_type"] = (int)node->Type;
-        obj["node_type_name"] = nodeTypes.at((int)node->Type).first;
+        obj["node_type"] = static_cast<int>(node->Type);
+        obj["node_type_name"] = nodeTypes.at(static_cast<int>(node->Type)).first;
         obj["node_color"] = json::serialize(node->Color, *this);
         obj["node_size"] = json::serialize(node->Size, *this);
         obj["node_position"] = json::serialize(node->Position, *this);
@@ -870,12 +870,12 @@ struct Serialize
         {
             json::object input_obj;
             input_obj["type"] = "input";
-            input_obj["input_id"] = (int)input.ID.AsPointer();
+            input_obj["input_id"] = reinterpret_cast<int64>(input.ID.AsPointer());
             input_obj["input_name"] = input.Name;
-            input_obj["input_type"] = (int)input.Type;
+            input_obj["input_type"] = static_cast<int>(input.Type);
             input_obj["input_type_label"] = typeLabelNames.at(input.Type);
             input_obj["input_value"] = json::serialize(input.Value, *this);
-            input_obj["input_kind"] = (int)input.Kind;
+            input_obj["input_kind"] = static_cast<int>(input.Kind);
             inputs.push_back(input_obj);
         }
         obj["inputs"] = inputs;
@@ -884,12 +884,12 @@ struct Serialize
         {
             json::object output_obj;
             output_obj["type"] = "output";
-            output_obj["output_id"] = (int)output.ID.AsPointer();
+            output_obj["output_id"] = reinterpret_cast<int64>(output.ID.AsPointer());
             output_obj["output_name"] = output.Name;
-            output_obj["output_type"] = (int)output.Type;
+            output_obj["output_type"] = static_cast<int>(output.Type);
             output_obj["output_type_label"] = typeLabelNames.at(output.Type);
             output_obj["output_value"] = json::serialize(output.Value, *this);
-            output_obj["output_kind"] = (int)output.Kind;
+            output_obj["output_kind"] = static_cast<int>(output.Kind);
             outputs.push_back(output_obj);
         }
         obj["outputs"] = outputs;
@@ -900,9 +900,9 @@ struct Serialize
     {
         json::object obj;
         obj["type"] = "link";
-        obj["link_id"] = (int)link->ID.AsPointer();
-        obj["link_start_pin_id"] = (int)link->StartPinID.AsPointer();
-        obj["link_end_pin_id"] = (int)link->EndPinID.AsPointer();
+        obj["link_id"] = reinterpret_cast<int64>(link->ID.AsPointer());
+        obj["link_start_pin_id"] = reinterpret_cast<int64>(link->StartPinID.AsPointer());
+        obj["link_end_pin_id"] = reinterpret_cast<int64>(link->EndPinID.AsPointer());
         obj["link_color"] = json::serialize(link->Color, *this);
         return obj;
     }
