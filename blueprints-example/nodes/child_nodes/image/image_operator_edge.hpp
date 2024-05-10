@@ -123,6 +123,49 @@ Node *Spawn_ImageOperator_LaplacianEdgeDetection(const std::function<int()> &Get
     return &node;
 }
 
+// Laplacian边缘增强
+Node *Spawn_ImageOperator_LaplacianEdgeEnhancement(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "Laplacian边缘增强");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageOperation_Edge;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "增强系数", 1.0f);
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        float alpha = 1.0f;
+        get_value(graph, node->Inputs[1], alpha);
+
+        // Display image
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = alpha;
+
+        try_catch_block
+        {
+            cv::Mat result;
+            cv::Mat laplacian;
+            cv::Laplacian(image, laplacian, CV_16S, 3, 1, 0, cv::BORDER_DEFAULT);
+            cv::convertScaleAbs(laplacian, laplacian);
+            cv::addWeighted(image, 1.0, laplacian, alpha, 0, result);
+
+            node->Outputs[0].SetValue(result);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 // ScharrEdgeDetection
 Node *Spawn_ImageOperator_ScharrEdgeDetection(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -521,6 +564,7 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorEdgeNodes = {
     {"Canny轮廓检测", Spawn_ImageOperator_Canny},
     {"Sobel轮廓检测", Spawn_ImageOperator_SobelEdgeDetection},
     {"Laplacian轮廓检测", Spawn_ImageOperator_LaplacianEdgeDetection},
+    {"Laplacian边缘增强", Spawn_ImageOperator_LaplacianEdgeEnhancement},
     {"Scharr轮廓检测", Spawn_ImageOperator_ScharrEdgeDetection},
     {"查找轮廓", Spawn_ImageOperator_FindContours},
     {"绘制轮廓", Spawn_ImageOperator_DrawContours},
