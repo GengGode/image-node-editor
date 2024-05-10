@@ -470,6 +470,13 @@ struct ExecuteResult
     static ExecuteResult ErrorLink(ed::LinkId linkId, const std::string &message) { return ExecuteResult(ErrorInfo(linkId, message)); }
     // static ExecuteResult ErrorCustom(const std::string &message) { return ExecuteResult(ErrorInfo(std::string(), message)); }
 };
+
+struct node_ui
+{
+    // 节点是否折叠为小图标
+    bool is_expanded = true;
+};
+
 struct Node
 {
     ed::NodeId ID;
@@ -488,6 +495,8 @@ struct Node
     std::optional<std::chrono::steady_clock::time_point> BeginExecuteTime;
     std::optional<std::chrono::steady_clock::time_point> EndExecuteTime;
     std::optional<std::chrono::steady_clock::duration> ExecuteTime;
+
+    node_ui ui;
 
     Node(int id, const char *name, ImColor color = ImColor(255, 255, 255)) : ID(id), Name(name), Color(color), Type(NodeType::Blueprint), Size(0, 0)
     {
