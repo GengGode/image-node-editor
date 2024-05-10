@@ -1462,14 +1462,12 @@ struct Example : public Application
                         auto image_size = std::get<cv::Mat>(input->Value).size();
                         ImVec2 size = ImVec2(static_cast<float>(image_size.width), static_cast<float>(image_size.height));
                         ImGuiTexInspect::BeginInspectorPanel("Inspector", input->ImageTexture, size);
-                        ImGuiTexInspect::DrawAnnotations(ImGuiTexInspect::ValueText(ImGuiTexInspect::ValueText::Floats));
+                        ImGuiTexInspect::DrawAnnotations(ImGuiTexInspect::ValueText(ImGuiTexInspect::ValueText::BytesDec));
                         ImGuiTexInspect::EndInspectorPanel();
                     }
                 }
                 ImGui::End();
             }
-
-        // ImGui::Image(reinterpret_cast<void *>(static_cast<intptr_t>(texture)), size);
 
         auto editorMin = ImGui::GetItemRectMin();
         auto editorMax = ImGui::GetItemRectMax();
