@@ -61,7 +61,7 @@ struct Example : public Application
 
     int GetNextId()
     {
-        return m_NextId++;
+        return m_Graph.next_id++;
     }
 
     ed::LinkId GetNextLinkId()
