@@ -11,10 +11,11 @@
 #     include <windows.h>
 # endif
 
-# include <imgui.h>
-# include "imgui_impl_dx11.h"
-# include <d3d11.h>
-
+#include <imgui.h>
+#include "imgui_tex_inspect.h"     //TEX_INSPECT_CHANGE
+#include "tex_inspect_directx11.h" //TEX_INSPECT_CHANGE
+#include "imgui_impl_dx11.h"
+#include <d3d11.h>
 
 struct RendererDX11 final
     : Renderer
@@ -64,6 +65,10 @@ bool RendererDX11::Create(Platform& platform)
         return false;
     }
 
+    ImGuiTexInspect::ImplDX11_Init(m_device, m_deviceContext); // TEX_INSPECT_CHANGE
+    ImGuiTexInspect::Init();
+    ImGuiTexInspect::CreateContext();
+
     m_Platform->SetRenderer(this);
 
     return true;
@@ -75,6 +80,8 @@ void RendererDX11::Destroy()
         return;
 
     m_Platform->SetRenderer(nullptr);
+
+    ImGuiTexInspect::ImplDX11_Shutdown(); // TEX_INSPECT_CHANGE
 
     ImGui_ImplDX11_Shutdown();
 

@@ -21,10 +21,12 @@ add_library(application STATIC)
 target_include_directories(application PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 find_package(imgui REQUIRED)
+find_package(imgui_tex_inspect REQUIRED)
 find_package(stb_image REQUIRED)
 find_package(ScopeGuard REQUIRED)
 target_link_libraries(application PUBLIC imgui)
 target_link_libraries(application PRIVATE stb_image ScopeGuard)
+target_link_libraries(application PUBLIC imgui_tex_inspect)
 
 if (WIN32)
     list(APPEND _Application_Sources
@@ -32,6 +34,8 @@ if (WIN32)
         source/imgui_impl_dx11.h
         source/imgui_impl_win32.cpp
         source/imgui_impl_win32.h
+        source/tex_inspect_directx11.cpp
+        source/tex_inspect_directx11.h
     )
 
     set(_DXSDK_Dir  ${IMGUI_NODE_EDITOR_ROOT_DIR}/external/DXSDK)
@@ -76,6 +80,8 @@ if (OpenGL_FOUND)
         source/imgui_impl_opengl3.cpp
         source/imgui_impl_opengl3.h
         source/imgui_impl_opengl3_loader.h
+        source/tex_inspect_opengl.cpp
+        source/tex_inspect_opengl.h
     )
 endif()
 

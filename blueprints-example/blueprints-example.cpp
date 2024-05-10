@@ -4,6 +4,7 @@
 #include "utilities/widgets.h"
 // #include "notifiers/Notifier.hpp"
 
+#include <imgui_tex_inspect.h>
 #include <imgui_node_editor.h>
 #include <imgui_internal.h>
 
@@ -1449,16 +1450,20 @@ struct Example : public Application
         for (auto &node : m_Graph.Nodes)
             if (node.Name == "图像查看器")
             {
+
                 std::string name = "output " + std::to_string((int)(size_t)node.ID);
                 ImGui::Begin(name.c_str());
-                const ImVec2 size = ImGui::GetContentRegionAvail();
                 output_node = &node;
                 if (output_node != nullptr)
                 {
                     auto input = &output_node->Inputs[0];
                     if (input->HasImage())
                     {
-                        ImGui::Image((void *)(intptr_t)input->ImageTexture, size);
+                        auto image_size = std::get<cv::Mat>(input->Value).size();
+                        ImVec2 size = ImVec2(static_cast<float>(image_size.width), static_cast<float>(image_size.height));
+                        ImGuiTexInspect::BeginInspectorPanel("Inspector", input->ImageTexture, size);
+                        ImGuiTexInspect::DrawAnnotations(ImGuiTexInspect::ValueText(ImGuiTexInspect::ValueText::Floats));
+                        ImGuiTexInspect::EndInspectorPanel();
                     }
                 }
                 ImGui::End();
