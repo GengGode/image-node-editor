@@ -1330,9 +1330,14 @@ struct Example : public Application
             auto node = m_Graph.FindNode(contextNodeId);
 
             ImGui::TextUnformatted("Node Context Menu");
-            ImGui::Separator();
             if (node)
             {
+                ImGui::Separator();
+                if (ImGui::MenuItem("折叠"))
+                {
+                    node->ui.is_expanded = !node->ui.is_expanded;
+                }
+                ImGui::Separator();
                 ImGui::Text("ID: %p", node->ID.AsPointer());
                 ImGui::Text("Type: %s", node->Type == NodeType::Blueprint ? "Blueprint" : (node->Type == NodeType::Simple ? "Simple" : "Comment"));
                 ImGui::Text("Inputs: %d", (int)node->Inputs.size());
