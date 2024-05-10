@@ -1324,7 +1324,6 @@ struct Example : public Application
         }
         if (isUpdateNewNodePositon)
         {
-            newNodeLinkPin = nullptr;
             createNodePosition = openPopupPosition;
             isUpdateNewNodePositon = false;
         }
