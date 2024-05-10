@@ -1228,11 +1228,11 @@ struct Example : public Application
                                 showLabel("x Incompatible Pin Kind", ImColor(45, 32, 32, 180));
                                 ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                             }
-                            // else if (endPin->Node == startPin->Node)
-                            //{
-                            //     showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
-                            //     ed::RejectNewItem(ImColor(255, 0, 0), 1.0f);
-                            // }
+                            else if (endPin->Node == startPin->Node)
+                            {
+                                showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
+                                ed::RejectNewItem(ImColor(255, 0, 0), 1.0f);
+                            }
                             else if (endPin->Type != startPin->Type)
                             {
                                 showLabel("x Incompatible Pin Type", ImColor(45, 32, 32, 180));
