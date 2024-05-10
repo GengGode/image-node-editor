@@ -850,225 +850,232 @@ struct Example : public Application
                     builder.EndHeader();
                 }
 
-                for (auto &input : node.Inputs)
+                if (node.ui.is_expanded)
                 {
-                    ed::PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(255, 0, 0, 255));
-                    auto alpha = ImGui::GetStyle().Alpha;
-                    if (newLinkPin && !CanCreateLink(newLinkPin, &input) && &input != newLinkPin)
-                        alpha = alpha * (48.0f / 255.0f);
-
-                    builder.Input(input.ID);
-
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
-                    DrawPinIcon(input, m_Graph.IsPinLinked(input.ID), (int)(alpha * 255));
-                    ImGui::Spring(0);
-                    if (!input.Name.empty())
+                    for (auto &input : node.Inputs)
                     {
-                        ImGui::TextUnformatted(input.Name.c_str());
+                        ed::PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(255, 0, 0, 255));
+                        auto alpha = ImGui::GetStyle().Alpha;
+                        if (newLinkPin && !CanCreateLink(newLinkPin, &input) && &input != newLinkPin)
+                            alpha = alpha * (48.0f / 255.0f);
+
+                        builder.Input(input.ID);
+
+                        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+                        DrawPinIcon(input, m_Graph.IsPinLinked(input.ID), (int)(alpha * 255));
                         ImGui::Spring(0);
-                    }
-                    if (node.Name == "Image Viewer")
-                    {
-                        if (input.HasImage())
+                        if (!input.Name.empty())
                         {
-                            if (ImGui::Button("show output"))
+                            ImGui::TextUnformatted(input.Name.c_str());
+                            ImGui::Spring(0);
+                        }
+                        if (node.Name == "Image Viewer")
+                        {
+                            if (input.HasImage())
                             {
-                                std::string name = "output " + std::to_string((int)(size_t)node.ID);
-                                auto window = ImGui::FindWindowByName(name.c_str());
-                                ImGui::FocusWindow(window);
+                                if (ImGui::Button("show output"))
+                                {
+                                    std::string name = "output " + std::to_string((int)(size_t)node.ID);
+                                    auto window = ImGui::FindWindowByName(name.c_str());
+                                    ImGui::FocusWindow(window);
+                                }
                             }
                         }
-                    }
-                    if (input.Type == PinType::Bool)
-                    {
-                        bool value = false;
-                        static bool last_value = false;
-                        input.GetValue(value);
-                        last_value = value;
-                        ImGui::Checkbox("##edit", &value);
-                        if (value != last_value)
+                        if (input.Type == PinType::Bool)
                         {
-                            input.SetValue(value, [this]()
-                                           { this->m_Graph.env.need_execute(); });
+                            bool value = false;
+                            static bool last_value = false;
+                            input.GetValue(value);
+                            last_value = value;
+                            ImGui::Checkbox("##edit", &value);
+                            if (value != last_value)
+                            {
+                                input.SetValue(value, [this]()
+                                               { this->m_Graph.env.need_execute(); });
+                            }
+                            ImGui::Spring(0);
                         }
-                        ImGui::Spring(0);
-                    }
-                    if (input.Type == PinType::Int)
-                    {
-                        int value = 0;
-                        static int last_value = 0;
-                        input.GetValue(value);
-                        last_value = value;
-                        // 限制宽度
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::DragInt("##edit", &value);
-                        ImGui::PopItemWidth();
-                        if (value != last_value)
+                        if (input.Type == PinType::Int)
                         {
-                            input.SetValue(value, [this]()
-                                           { this->m_Graph.env.need_execute(); });
+                            int value = 0;
+                            static int last_value = 0;
+                            input.GetValue(value);
+                            last_value = value;
+                            // 限制宽度
+                            ImGui::PushItemWidth(100.0f);
+                            ImGui::DragInt("##edit", &value);
+                            ImGui::PopItemWidth();
+                            if (value != last_value)
+                            {
+                                input.SetValue(value, [this]()
+                                               { this->m_Graph.env.need_execute(); });
+                            }
+                            ImGui::Spring(0);
                         }
-                        ImGui::Spring(0);
-                    }
-                    if (input.Type == PinType::Float)
-                    {
-                        float value = 0.0f;
-                        static float last_value = 0.0f;
-                        input.GetValue(value);
-                        last_value = value;
-                        // 限制宽度
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::DragFloat("##edit", &value, 0.5f);
-                        ImGui::PopItemWidth();
-                        if (value != last_value)
+                        if (input.Type == PinType::Float)
                         {
-                            input.SetValue(value, [this]()
-                                           { this->m_Graph.env.need_execute(); });
+                            float value = 0.0f;
+                            static float last_value = 0.0f;
+                            input.GetValue(value);
+                            last_value = value;
+                            // 限制宽度
+                            ImGui::PushItemWidth(100.0f);
+                            ImGui::DragFloat("##edit", &value, 0.5f);
+                            ImGui::PopItemWidth();
+                            if (value != last_value)
+                            {
+                                input.SetValue(value, [this]()
+                                               { this->m_Graph.env.need_execute(); });
+                            }
+                            ImGui::Spring(0);
                         }
-                        ImGui::Spring(0);
-                    }
-                    if (input.Type == PinType::String)
-                    {
-                        std::string inputStr;
-                        bool res = input.GetValue(inputStr);
-                        if (!res)
-                            printf("Error: %s\n", inputStr.c_str());
-                        char buffer[128] = {0};
-                        std::copy(inputStr.begin(), inputStr.end(), buffer);
-
-                        ImGui::PushItemWidth(100.0f);
-                        ImGui::InputText("##edit", buffer, 127);
-                        ImGui::PopItemWidth();
-                        if (buffer != inputStr)
+                        if (input.Type == PinType::String)
                         {
-                            input.SetValue(std::string(buffer), [this]()
-                                           { this->m_Graph.env.need_execute(); });
-                        }
-
-                        ImGui::Spring(0);
-                    }
-
-                    ImGui::PopStyleVar();
-                    builder.EndInput();
-                    if (has_error && ImGui::IsItemHovered())
-                    {
-                        auto error_source = contextError_opt.value().Source;
-                        if (std::holds_alternative<ed::PinId>(error_source))
-                            has_error_and_hovered_on_port = true;
-                    }
-                    ed::PopStyleColor();
-                }
-
-                for (auto &output : node.Outputs)
-                {
-                    if (!isSimple && output.Type == PinType::Delegate)
-                        continue;
-
-                    auto alpha = ImGui::GetStyle().Alpha;
-                    if (newLinkPin && !CanCreateLink(newLinkPin, &output) && &output != newLinkPin)
-                        alpha = alpha * (48.0f / 255.0f);
-
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
-                    builder.Output(output.ID);
-
-                    if (output.Type == PinType::String)
-                    {
-                        std::string outputStr;
-                        bool res = output.GetValue(outputStr);
-                        if (res)
-                        {
+                            std::string inputStr;
+                            bool res = input.GetValue(inputStr);
+                            if (!res)
+                                printf("Error: %s\n", inputStr.c_str());
                             char buffer[128] = {0};
-                            std::copy(outputStr.begin(), outputStr.end(), buffer);
+                            std::copy(inputStr.begin(), inputStr.end(), buffer);
 
                             ImGui::PushItemWidth(100.0f);
                             ImGui::InputText("##edit", buffer, 127);
                             ImGui::PopItemWidth();
-                            if (buffer != outputStr)
+                            if (buffer != inputStr)
                             {
-                                output.SetValue(std::string(buffer), [this]()
-                                                { this->m_Graph.env.need_execute(); });
+                                input.SetValue(std::string(buffer), [this]()
+                                               { this->m_Graph.env.need_execute(); });
                             }
+
                             ImGui::Spring(0);
                         }
-                    }
-                    if (output.Type == PinType::KeyPoints)
-                    {
-                        KeyPoints keyPoints;
-                        bool res = output.GetValue(keyPoints);
-                        if (res)
+
+                        ImGui::PopStyleVar();
+                        builder.EndInput();
+                        if (has_error && ImGui::IsItemHovered())
                         {
-                            auto size = keyPoints.size();
-
-                            ImGui::PushItemWidth(100.0f);
-                            ImGui::Text("数量: %d", size);
-                            ImGui::PopItemWidth();
-
-                            ImGui::Spring(0);
+                            auto error_source = contextError_opt.value().Source;
+                            if (std::holds_alternative<ed::PinId>(error_source))
+                                has_error_and_hovered_on_port = true;
                         }
+                        ed::PopStyleColor();
                     }
-                    if (output.Type == PinType::Feature)
+
+                    for (auto &output : node.Outputs)
                     {
-                        Feature feature;
-                        bool res = output.GetValue(feature);
-                        if (res)
+                        if (!isSimple && output.Type == PinType::Delegate)
+                            continue;
+
+                        auto alpha = ImGui::GetStyle().Alpha;
+                        if (newLinkPin && !CanCreateLink(newLinkPin, &output) && &output != newLinkPin)
+                            alpha = alpha * (48.0f / 255.0f);
+
+                        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+                        builder.Output(output.ID);
+
+                        if (output.Type == PinType::String)
                         {
-                            auto size = feature.first.size();
+                            std::string outputStr;
+                            bool res = output.GetValue(outputStr);
+                            if (res)
+                            {
+                                char buffer[128] = {0};
+                                std::copy(outputStr.begin(), outputStr.end(), buffer);
 
-                            ImGui::PushItemWidth(100.0f);
-                            ImGui::Text("数量: %d", size);
-                            ImGui::PopItemWidth();
-
-                            ImGui::Spring(0);
+                                ImGui::PushItemWidth(100.0f);
+                                ImGui::InputText("##edit", buffer, 127);
+                                ImGui::PopItemWidth();
+                                if (buffer != outputStr)
+                                {
+                                    output.SetValue(std::string(buffer), [this]()
+                                                    { this->m_Graph.env.need_execute(); });
+                                }
+                                ImGui::Spring(0);
+                            }
                         }
-                    }
-                    if (output.Type == PinType::Matches)
-                    {
-                        std::vector<cv::DMatch> matches;
-                        bool res = output.GetValue(matches);
-                        if (res)
+                        if (output.Type == PinType::KeyPoints)
                         {
-                            auto size = matches.size();
+                            KeyPoints keyPoints;
+                            bool res = output.GetValue(keyPoints);
+                            if (res)
+                            {
+                                auto size = keyPoints.size();
 
-                            ImGui::PushItemWidth(100.0f);
-                            ImGui::Text("数量: %d", size);
-                            ImGui::PopItemWidth();
+                                ImGui::PushItemWidth(100.0f);
+                                ImGui::Text("数量: %d", size);
+                                ImGui::PopItemWidth();
 
-                            ImGui::Spring(0);
+                                ImGui::Spring(0);
+                            }
                         }
-                    }
-                    if (output.Type == PinType::Circles)
-                    {
-                        Circles circles;
-                        bool res = output.GetValue(circles);
-                        if (res)
+                        if (output.Type == PinType::Feature)
                         {
-                            auto size = circles.size();
+                            Feature feature;
+                            bool res = output.GetValue(feature);
+                            if (res)
+                            {
+                                auto size = feature.first.size();
 
-                            ImGui::PushItemWidth(100.0f);
-                            ImGui::Text("数量: %d", size);
-                            ImGui::PopItemWidth();
+                                ImGui::PushItemWidth(100.0f);
+                                ImGui::Text("数量: %d", size);
+                                ImGui::PopItemWidth();
 
-                            ImGui::Spring(0);
+                                ImGui::Spring(0);
+                            }
                         }
-                    }
-
-                    if (output.Type == PinType::Image)
-                    {
-                        if (output.HasImage())
+                        if (output.Type == PinType::Matches)
                         {
-                            ImGui::Image((void *)(intptr_t)output.ImageTexture, ImVec2(100, 100));
-                            ImGui::Spring(0);
+                            std::vector<cv::DMatch> matches;
+                            bool res = output.GetValue(matches);
+                            if (res)
+                            {
+                                auto size = matches.size();
+
+                                ImGui::PushItemWidth(100.0f);
+                                ImGui::Text("数量: %d", size);
+                                ImGui::PopItemWidth();
+
+                                ImGui::Spring(0);
+                            }
                         }
-                    }
-                    if (!output.Name.empty())
-                    {
+                        if (output.Type == PinType::Circles)
+                        {
+                            Circles circles;
+                            bool res = output.GetValue(circles);
+                            if (res)
+                            {
+                                auto size = circles.size();
+
+                                ImGui::PushItemWidth(100.0f);
+                                ImGui::Text("数量: %d", size);
+                                ImGui::PopItemWidth();
+
+                                ImGui::Spring(0);
+                            }
+                        }
+
+                        if (output.Type == PinType::Image)
+                        {
+                            if (output.HasImage())
+                            {
+                                ImGui::Image((void *)(intptr_t)output.ImageTexture, ImVec2(100, 100));
+                                ImGui::Spring(0);
+                            }
+                        }
+                        if (!output.Name.empty())
+                        {
+                            ImGui::Spring(0);
+                            ImGui::TextUnformatted(output.Name.c_str());
+                        }
                         ImGui::Spring(0);
-                        ImGui::TextUnformatted(output.Name.c_str());
+                        DrawPinIcon(output, m_Graph.IsPinLinked(output.ID), (int)(alpha * 255));
+                        ImGui::PopStyleVar();
+                        builder.EndOutput();
                     }
-                    ImGui::Spring(0);
-                    DrawPinIcon(output, m_Graph.IsPinLinked(output.ID), (int)(alpha * 255));
-                    ImGui::PopStyleVar();
-                    builder.EndOutput();
+                }
+                else
+                {
+                    // 所有连线都汇总到一个输入和输出上
                 }
 
                 // footer
