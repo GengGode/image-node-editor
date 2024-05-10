@@ -6,7 +6,7 @@ Node *Spawn_ImageOperator_DrawLine(const std::function<int()> &GetNextId, const 
 {
     m_Nodes.emplace_back(GetNextId(), "画线");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageDraw;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "起点", PinType::Point, cv::Point(0, 0));
     node.Inputs.emplace_back(GetNextId(), "终点", PinType::Point, cv::Point(1024, 1024));
@@ -70,7 +70,7 @@ Node *Spawn_ImageOperator_DrawRectangle(const std::function<int()> &GetNextId, c
 {
     m_Nodes.emplace_back(GetNextId(), "画矩形");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageDraw;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "矩形", PinType::Rect, cv::Rect(0, 0, 1024, 1024));
     node.Inputs.emplace_back(GetNextId(), "颜色", PinType::Color, cv::Scalar(0, 0, 0, 0));
@@ -128,7 +128,7 @@ Node *Spawn_ImageOperator_DrawCircle(const std::function<int()> &GetNextId, cons
 {
     m_Nodes.emplace_back(GetNextId(), "画圆");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageDraw;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "圆心", PinType::Point, cv::Point(512, 512));
     node.Inputs.emplace_back(GetNextId(), "半径", PinType::Int, 512);
@@ -191,7 +191,7 @@ Node *Spawn_ImageOperator_DrawEllipse(const std::function<int()> &GetNextId, con
 {
     m_Nodes.emplace_back(GetNextId(), "画椭圆");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageDraw;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "中心", PinType::Point, cv::Point(512, 512));
     node.Inputs.emplace_back(GetNextId(), "轴长", PinType::Size, cv::Size(512, 256));
@@ -271,7 +271,7 @@ Node *Spawn_ImageOperator_DrawText(const std::function<int()> &GetNextId, const 
 {
     m_Nodes.emplace_back(GetNextId(), "画文本");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageDraw;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "文本", PinType::String, "Hello, World!");
     node.Inputs.emplace_back(GetNextId(), "位置", PinType::Point, cv::Point(512, 512));

@@ -7,7 +7,7 @@ Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std
 {
     m_Nodes.emplace_back(GetNextId(), "Canny轮廓检测");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Threshold 1", PinType::Float, 50.0f);
     node.Inputs.emplace_back(GetNextId(), "Threshold 2", PinType::Float, 150.0f);
@@ -50,7 +50,7 @@ Node *Spawn_ImageOperator_SobelEdgeDetection(const std::function<int()> &GetNext
 {
     m_Nodes.emplace_back(GetNextId(), "Sobel轮廓检测");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
@@ -92,7 +92,7 @@ Node *Spawn_ImageOperator_LaplacianEdgeDetection(const std::function<int()> &Get
 {
     m_Nodes.emplace_back(GetNextId(), "Laplacian轮廓检测");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
@@ -128,7 +128,7 @@ Node *Spawn_ImageOperator_ScharrEdgeDetection(const std::function<int()> &GetNex
 {
     m_Nodes.emplace_back(GetNextId(), "Scharr轮廓检测");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
@@ -169,7 +169,7 @@ Node *Spawn_ImageOperator_FindContours(const std::function<int()> &GetNextId, co
 {
     m_Nodes.emplace_back(GetNextId(), "查找轮廓");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "轮廓数组", PinType::Contours);
 
@@ -205,7 +205,7 @@ Node *Spawn_ImageOperator_DrawContours(const std::function<int()> &GetNextId, co
 {
     m_Nodes.emplace_back(GetNextId(), "绘制轮廓");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "轮廓数组", PinType::Contours);
     node.Inputs.emplace_back(GetNextId(), "绘制颜色", PinType::Color);
@@ -271,7 +271,7 @@ Node *Spawn_ImageOperator_SortContoursByArea(const std::function<int()> &GetNext
 {
     m_Nodes.emplace_back(GetNextId(), "排序轮廓-基于面具");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "轮廓数组", PinType::Contours);
     node.Outputs.emplace_back(GetNextId(), "轮廓数组", PinType::Contours);
 
@@ -306,7 +306,7 @@ Node *Spawn_ImageOperator_FilterContoursByAreaRange(const std::function<int()> &
 {
     m_Nodes.emplace_back(GetNextId(), "过滤轮廓-基于面积");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Contours", PinType::Contours);
     node.Inputs.emplace_back(GetNextId(), "Min Area", PinType::Int);
     node.Inputs.emplace_back(GetNextId(), "Max Area", PinType::Int);
@@ -359,7 +359,7 @@ Node *Spawn_ImageOperator_SelectContourByIndex(const std::function<int()> &GetNe
 {
     m_Nodes.emplace_back(GetNextId(), "选择轮廓-基于索引");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Contours", PinType::Contours);
     node.Inputs.emplace_back(GetNextId(), "Index", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Contour", PinType::Contours);
@@ -403,7 +403,7 @@ Node *Spawn_ImageOperator_HoughCircleDetection(const std::function<int()> &GetNe
 {
     m_Nodes.emplace_back(GetNextId(), "霍夫圆查找");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "模式", PinType::Int, cv::HOUGH_GRADIENT);
     node.Inputs.emplace_back(GetNextId(), "dp", PinType::Float, 1.0f);
@@ -466,7 +466,7 @@ Node *Spawn_ImageOperator_DrawHoughCircles(const std::function<int()> &GetNextId
 {
     m_Nodes.emplace_back(GetNextId(), "绘制霍夫圆");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Circles", PinType::Circles);
     node.Inputs.emplace_back(GetNextId(), "绘制颜色", PinType::Color);

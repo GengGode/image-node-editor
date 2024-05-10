@@ -6,7 +6,7 @@ Node *Spawn_ImageOperator_Threshold(const std::function<int()> &GetNextId, const
 {
     m_Nodes.emplace_back(GetNextId(), "阈值");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Threshold;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Threshold", PinType::Int, 128);
     node.Inputs.emplace_back(GetNextId(), "Max Value", PinType::Int, 255);
@@ -57,7 +57,7 @@ Node *Spawn_ImageOperator_AdaptiveThreshold(const std::function<int()> &GetNextI
 {
     m_Nodes.emplace_back(GetNextId(), "高级阈值");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Threshold;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Max Value", PinType::Int, 255);
     node.Inputs.emplace_back(GetNextId(), "Type", PinType::Int, cv::ADAPTIVE_THRESH_MEAN_C);

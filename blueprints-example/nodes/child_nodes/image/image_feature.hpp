@@ -9,7 +9,7 @@ Node *Spawn_ImageFeature_GenerateSIFTFeature(const std::function<int()> &GetNext
 {
     m_Nodes.emplace_back(GetNextId(), "SIFT特征点提取");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Feature;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     // int nfeatures = 0, int nOctaveLayers = 3,
     //     double contrastThreshold = 0.04, double edgeThreshold = 10,
@@ -80,7 +80,7 @@ Node *Spawn_ImageFeature_GenerateSURFFeature(const std::function<int()> &GetNext
 {
     m_Nodes.emplace_back(GetNextId(), "SURF特征点提取");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Feature;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     // double hessianThreshold = 100, int nOctaves = 4, int nOctaveLayers = 3,
     //     bool extended = false, bool upright = false
@@ -146,7 +146,7 @@ Node *Spawn_ImageFeature_GenerateORBFeature(const std::function<int()> &GetNextI
 {
     m_Nodes.emplace_back(GetNextId(), "ORB特征点提取");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Feature;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     // int nfeatures=500, float scaleFactor=1.2f, int nlevels=8, int edgeThreshold=31,
     // int firstLevel = 0, int WTA_K = 2, ORB::ScoreType scoreType = ORB::HARRIS_SCORE, int patchSize = 31, int fastThreshold = 20
@@ -246,7 +246,7 @@ Node *Spawn_ImageFeature_DrawFeaturePoints(const std::function<int()> &GetNextId
 {
     m_Nodes.emplace_back(GetNextId(), "绘制特征点");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Feature;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "特征数据", PinType::Feature);
     node.Inputs.emplace_back(GetNextId(), "颜色", PinType::Color, cv::Scalar(0, 255, 0));
@@ -300,7 +300,7 @@ Node *Spawn_ImageFeature_MatchFeaturePoints(const std::function<int()> &GetNextI
 {
     m_Nodes.emplace_back(GetNextId(), "匹配特征点");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Feature;
     node.Inputs.emplace_back(GetNextId(), "特征数据1", PinType::Feature);
     node.Inputs.emplace_back(GetNextId(), "特征数据2", PinType::Feature);
     node.Inputs.emplace_back(GetNextId(), "匹配阈值", PinType::Float, 0.7f);
@@ -359,7 +359,7 @@ Node *Spawn_ImageFeature_DrawMatchedFeaturePoints(const std::function<int()> &Ge
 {
     m_Nodes.emplace_back(GetNextId(), "绘制匹配特征点");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Feature;
     node.Inputs.emplace_back(GetNextId(), "图像1", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "图像2", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "特征数据1", PinType::Feature);

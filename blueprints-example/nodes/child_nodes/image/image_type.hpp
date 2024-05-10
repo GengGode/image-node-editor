@@ -5,7 +5,7 @@ Node *Spawn_ImageOperator_IntToPoint(const std::function<int()> &GetNextId, cons
 {
     m_Nodes.emplace_back(GetNextId(), "Int to Point");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "X", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "Y", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Point", PinType::Point);
@@ -44,7 +44,7 @@ Node *Spawn_ImageOperator_IntToSize(const std::function<int()> &GetNextId, const
 {
     m_Nodes.emplace_back(GetNextId(), "Int to Size");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Width", PinType::Int, 1024);
     node.Inputs.emplace_back(GetNextId(), "Height", PinType::Int, 1024);
     node.Outputs.emplace_back(GetNextId(), "Size", PinType::Size);
@@ -83,7 +83,7 @@ Node *Spawn_ImageOperator_IntToRect(const std::function<int()> &GetNextId, const
 {
     m_Nodes.emplace_back(GetNextId(), "Int to Rect");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "X", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "Y", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "Width", PinType::Int, 0);
@@ -136,7 +136,7 @@ Node *Spawn_ImageOperator_PointToInt(const std::function<int()> &GetNextId, cons
 {
     m_Nodes.emplace_back(GetNextId(), "Point to Int");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Point", PinType::Point);
     node.Outputs.emplace_back(GetNextId(), "X", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Y", PinType::Int);
@@ -170,7 +170,7 @@ Node *Spawn_ImageOperator_PointToSize(const std::function<int()> &GetNextId, con
 {
     m_Nodes.emplace_back(GetNextId(), "Point to Size");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Point", PinType::Point);
     node.Outputs.emplace_back(GetNextId(), "Size", PinType::Size);
 
@@ -202,7 +202,7 @@ Node *Spawn_ImageOperator_SizeToInt(const std::function<int()> &GetNextId, const
 {
     m_Nodes.emplace_back(GetNextId(), "Size to Int");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Size", PinType::Size);
     node.Outputs.emplace_back(GetNextId(), "Width", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Height", PinType::Int);
@@ -236,7 +236,7 @@ Node *Spawn_ImageOperator_SizeToPoint(const std::function<int()> &GetNextId, con
 {
     m_Nodes.emplace_back(GetNextId(), "Size to Point");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Size", PinType::Size);
     node.Outputs.emplace_back(GetNextId(), "Point", PinType::Point);
 
@@ -268,7 +268,7 @@ Node *Spawn_ImageOperator_RectToInt(const std::function<int()> &GetNextId, const
 {
     m_Nodes.emplace_back(GetNextId(), "Rect to Int");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Rect", PinType::Rect);
     node.Outputs.emplace_back(GetNextId(), "X", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Y", PinType::Int);
@@ -308,7 +308,7 @@ Node *Spawn_ImageOperator_RectToPointAndSize(const std::function<int()> &GetNext
 {
     m_Nodes.emplace_back(GetNextId(), "Rect to Point and Size");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Rect", PinType::Rect);
     node.Outputs.emplace_back(GetNextId(), "Point", PinType::Point);
     node.Outputs.emplace_back(GetNextId(), "Size", PinType::Size);
@@ -344,7 +344,7 @@ Node *Spawn_ImageOperator_PointAndSizeToRect(const std::function<int()> &GetNext
 {
     m_Nodes.emplace_back(GetNextId(), "Point and Size to Rect");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Point", PinType::Point);
     node.Inputs.emplace_back(GetNextId(), "Size", PinType::Size);
     node.Outputs.emplace_back(GetNextId(), "Rect", PinType::Rect);
@@ -384,7 +384,7 @@ Node *Spawn_ImageOperator_RandomColor(const std::function<int()> &GetNextId, con
 {
     m_Nodes.emplace_back(GetNextId(), "随机颜色");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Outputs.emplace_back(GetNextId(), "颜色", PinType::Color);
 
     node.Outputs[0].app = app;
@@ -410,7 +410,7 @@ Node *Spawn_ImageOperator_IntToColor(const std::function<int()> &GetNextId, cons
 {
     m_Nodes.emplace_back(GetNextId(), "Int to Color");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "R", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "G", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Int, 0);
@@ -464,7 +464,7 @@ Node *Spawn_ImageOperator_CreateImage(const std::function<int()> &GetNextId, con
 {
     m_Nodes.emplace_back(GetNextId(), "创建图片");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "Rows", PinType::Int, 1024);
     node.Inputs.emplace_back(GetNextId(), "Cols", PinType::Int, 1024);
     node.Inputs.emplace_back(GetNextId(), "通道数", PinType::Int, 3);

@@ -10,7 +10,7 @@ Node *Spawn_ImageOperator_LowPassFilter(const std::function<int()> &GetNextId, c
 {
     m_Nodes.emplace_back(GetNextId(), "低通滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "卷积核大小", PinType::Int, 3);
     node.Inputs.emplace_back(GetNextId(), "卷积核类型", PinType::Int, 0);
@@ -61,7 +61,7 @@ Node *Spawn_ImageOperator_HighPassFilter(const std::function<int()> &GetNextId, 
 {
     m_Nodes.emplace_back(GetNextId(), "高通滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "卷积核大小", PinType::Int, 3);
     node.Inputs.emplace_back(GetNextId(), "卷积核类型", PinType::Int, 0);
@@ -113,7 +113,7 @@ Node *Spawn_ImageOperator_BoxFilter(const std::function<int()> &GetNextId, const
 {
     m_Nodes.emplace_back(GetNextId(), "方框滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "卷积核大小", PinType::Int, 3);
     node.Inputs.emplace_back(GetNextId(), "边界填充类型", PinType::Int, cv::BORDER_DEFAULT);
@@ -158,7 +158,7 @@ Node *Spawn_ImageOperator_BlurFilter(const std::function<int()> &GetNextId, cons
 {
     m_Nodes.emplace_back(GetNextId(), "均值滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "卷积核大小", PinType::Int, 3);
     node.Inputs.emplace_back(GetNextId(), "边界填充类型", PinType::Int, cv::BORDER_DEFAULT);
@@ -203,7 +203,7 @@ Node *Spawn_ImageOperator_GaussianFilter(const std::function<int()> &GetNextId, 
 {
     m_Nodes.emplace_back(GetNextId(), "高斯滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "卷积核大小", PinType::Int, 3);
     node.Inputs.emplace_back(GetNextId(), "标准差", PinType::Float, 0.0f);
@@ -253,7 +253,7 @@ Node *Spawn_ImageOperator_MedianFilter(const std::function<int()> &GetNextId, co
 {
     m_Nodes.emplace_back(GetNextId(), "中值滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "卷积核大小", PinType::Int, 3);
 
@@ -293,7 +293,7 @@ Node *Spawn_ImageOperator_BilateralFilter(const std::function<int()> &GetNextId,
 {
     m_Nodes.emplace_back(GetNextId(), "双边滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "卷积核大小", PinType::Int, 3);
     node.Inputs.emplace_back(GetNextId(), "颜色空间标准差", PinType::Float, 0.0f);
@@ -348,7 +348,7 @@ Node *Spawn_ImageOperator_NonLocalMeansFilter(const std::function<int()> &GetNex
 {
     m_Nodes.emplace_back(GetNextId(), "非局部均值滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     /*float h = 3, float hColor = 3,
         int templateWindowSize = 7, int searchWindowSize = 21*/
@@ -402,7 +402,7 @@ Node *Spawn_ImageOperator_AdaptiveMeanFilter(const std::function<int()> &GetNext
 {
     m_Nodes.emplace_back(GetNextId(), "自适应均值滤波");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageOperation_Filter;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     /*
             float h = 1,

@@ -87,7 +87,7 @@ Node *Spawn_ImageWindowBitbltCapture(const std::function<int()> &GetNextId, cons
 {
     m_Nodes.emplace_back(GetNextId(), "窗口原生截图");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageSource;
     node.Inputs.emplace_back(GetNextId(), "窗口名称", PinType::String, std::string());
     node.Inputs.emplace_back(GetNextId(), "窗口类名", PinType::String, std::string());
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
@@ -153,7 +153,7 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
 {
     m_Nodes.emplace_back(GetNextId(), "本地图片列表");
     auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
+    node.Type = NodeType::ImageSource;
     node.Inputs.emplace_back(GetNextId(), "目录", PinType::String, std::string("."));
     node.Inputs.emplace_back(GetNextId(), "下次输出索引", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "是否锁定图片", PinType::Bool, false);
