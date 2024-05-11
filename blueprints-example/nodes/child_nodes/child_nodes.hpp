@@ -14,6 +14,7 @@
 #include "image/image_filter.hpp"
 #include "image/image_draw.hpp"
 #include "image/image_feature.hpp"
+#include "image/image_operator_morphology.hpp"
 #include "image/image_operator_edge.hpp"
 #include "image/image_operator_threshold.hpp"
 
