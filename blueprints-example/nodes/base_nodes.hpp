@@ -490,20 +490,128 @@ struct Node
     std::string State;
     std::string SavedState;
 
+    std::function<ExecuteResult(Graph *, Node *)> OnExecute = [](Graph *, Node *node)
+    {
+        return ExecuteResult::ErrorNode(node->ID, "Null Impl");
+    };
+
+    std::function<ExecuteResult(Graph *, Node *)> OnExecuteEx = [](Graph *graph, Node *node)
+    {
+        node->RunningThreadId = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        node->BeginExecuteTime = std::chrono::steady_clock::now();
+        node->IsRunning = true;
+        auto result = node->OnExecute(graph, node);
+        node->IsRunning = false;
+        node->EndExecuteTime = std::chrono::steady_clock::now();
+        node->ExecuteTime = std::chrono::duration_cast<std::chrono::steady_clock::duration>(*node->EndExecuteTime - *node->BeginExecuteTime);
+        return result;
+    };
+
     ExecuteResult LastExecuteResult;
     std::optional<std::chrono::steady_clock::time_point> BeginExecuteTime;
     std::optional<std::chrono::steady_clock::time_point> EndExecuteTime;
     std::optional<std::chrono::steady_clock::duration> ExecuteTime;
+    std::atomic<bool> IsRunning = false;
+    std::atomic<size_t> RunningThreadId = 0;
 
     node_ui ui;
 
     Node(int id, const char *name, ImColor color = ImColor(255, 255, 255)) : ID(id), Name(name), Color(color), Type(NodeType::Blueprint), Size(0, 0)
     {
     }
-    std::function<ExecuteResult(Graph *, Node *)> OnExecute = [](Graph *, Node *node)
+    // 三五法则
+    Node(const Node &node)
     {
-        return ExecuteResult::ErrorNode(node->ID, "Null Impl");
-    };
+        ID = node.ID;
+        Name = node.Name;
+        Inputs = node.Inputs;
+        Outputs = node.Outputs;
+        Color = node.Color;
+        Type = node.Type;
+        Size = node.Size;
+        Position = node.Position;
+        State = node.State;
+        SavedState = node.SavedState;
+        OnExecute = node.OnExecute;
+        LastExecuteResult = node.LastExecuteResult;
+        BeginExecuteTime = node.BeginExecuteTime;
+        EndExecuteTime = node.EndExecuteTime;
+        ExecuteTime = node.ExecuteTime;
+        IsRunning.store(node.IsRunning.load());
+        RunningThreadId.store(node.RunningThreadId.load());
+        ui = node.ui;
+    }
+    Node &operator=(const Node &node)
+    {
+        if (this != &node)
+        {
+            ID = node.ID;
+            Name = node.Name;
+            Inputs = node.Inputs;
+            Outputs = node.Outputs;
+            Color = node.Color;
+            Type = node.Type;
+            Size = node.Size;
+            Position = node.Position;
+            State = node.State;
+            SavedState = node.SavedState;
+            OnExecute = node.OnExecute;
+            LastExecuteResult = node.LastExecuteResult;
+            BeginExecuteTime = node.BeginExecuteTime;
+            EndExecuteTime = node.EndExecuteTime;
+            ExecuteTime = node.ExecuteTime;
+            IsRunning.store(node.IsRunning.load());
+            RunningThreadId.store(node.RunningThreadId.load());
+            ui = node.ui;
+        }
+        return *this;
+    }
+    Node(Node &&node)
+    {
+        ID = node.ID;
+        Name = std::move(node.Name);
+        Inputs = std::move(node.Inputs);
+        Outputs = std::move(node.Outputs);
+        Color = node.Color;
+        Type = node.Type;
+        Size = node.Size;
+        Position = node.Position;
+        State = std::move(node.State);
+        SavedState = std::move(node.SavedState);
+        OnExecute = node.OnExecute;
+        LastExecuteResult = node.LastExecuteResult;
+        BeginExecuteTime = node.BeginExecuteTime;
+        EndExecuteTime = node.EndExecuteTime;
+        ExecuteTime = node.ExecuteTime;
+        IsRunning.store(node.IsRunning.load());
+        RunningThreadId.store(node.RunningThreadId.load());
+        ui = node.ui;
+    }
+    Node &operator=(Node &&node)
+    {
+        if (this != &node)
+        {
+            ID = node.ID;
+            Name = std::move(node.Name);
+            Inputs = std::move(node.Inputs);
+            Outputs = std::move(node.Outputs);
+            Color = node.Color;
+            Type = node.Type;
+            Size = node.Size;
+            Position = node.Position;
+            State = std::move(node.State);
+            SavedState = std::move(node.SavedState);
+            OnExecute = node.OnExecute;
+            LastExecuteResult = node.LastExecuteResult;
+            BeginExecuteTime = node.BeginExecuteTime;
+            EndExecuteTime = node.EndExecuteTime;
+            ExecuteTime = node.ExecuteTime;
+            IsRunning.store(node.IsRunning.load());
+            RunningThreadId.store(node.RunningThreadId.load());
+            ui = node.ui;
+        }
+        return *this;
+    }
 
     bool can_execute()
     {
@@ -532,6 +640,30 @@ struct Node
             return std::to_string(duration.count()) + " ms";
         }
         return "0 ms";
+    }
+
+    bool has_execute_mothod()
+    {
+        return OnExecute != nullptr;
+    }
+
+    auto execute(Graph *graph)
+    {
+        return OnExecuteEx(graph, this);
+    }
+
+    bool is_running()
+    {
+        return IsRunning.load();
+    }
+
+    size_t get_running_thread_id()
+    {
+        if (IsRunning.load())
+        {
+            return RunningThreadId.load();
+        }
+        return 0;
     }
 };
 

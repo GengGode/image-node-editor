@@ -118,14 +118,10 @@ struct Example : public Application
             color, rounding);
     };
 
-    void ExecuteNode(ed::NodeId id)
+    void ExecuteNode(Node *node)
     {
-        auto node = m_Graph.FindNode(id);
-        if (!node)
-            return;
-
-        if (node->OnExecute)
-            node->OnExecute(&m_Graph, node);
+        if (node->has_execute_mothod())
+            node->execute(&m_Graph);
     }
 
     void ExecuteNodes()
@@ -167,10 +163,10 @@ struct Example : public Application
                 if (m_Graph.env.is_stoped())
                     return;
                 // 没有OnExecute函数，终止执行链
-                if (!current_node->OnExecute)
+                if (!current_node->has_execute_mothod())
                     break;
                 // 执行当前节点
-                auto node_res = current_node->OnExecute(&m_Graph, current_node);
+                auto node_res = current_node->execute(&m_Graph);
                 current_node->LastExecuteResult = node_res;
                 // 执行失败，终止执行链
                 if (node_res.has_error())
@@ -269,6 +265,7 @@ struct Example : public Application
         m_HeaderBackground = LoadTexture("data/BlueprintBackground.png");
         m_SaveIcon = LoadTexture("data/ic_save_white_24dp.png");
         m_RestoreIcon = LoadTexture("data/ic_restore_white_24dp.png");
+        m_PlayIcon = LoadTexture("data/ic_play_arrow_white_24dp.png");
 
         // graph env init
         m_Graph.env.app = this;
@@ -302,6 +299,7 @@ struct Example : public Application
         releaseTexture(m_RestoreIcon);
         releaseTexture(m_SaveIcon);
         releaseTexture(m_HeaderBackground);
+        releaseTexture(m_PlayIcon);
 
         if (m_Editor)
         {
@@ -1256,6 +1254,11 @@ struct Example : public Application
             if (node)
             {
                 ImGui::Separator();
+                if (ImGui::MenuItem("执行"))
+                {
+                    async_execute_node(node);
+                }
+                ImGui::Separator();
                 if (ImGui::MenuItem("折叠"))
                 {
                     node->ui.is_expanded = !node->ui.is_expanded;
@@ -1448,6 +1451,35 @@ struct Example : public Application
         // ImGui::PopFont();
 
         // ImGui::ShowMetricsWindow();
+
+        //---------------------------
+        // 循环清理异步任务
+        try_clear_futures();
+    }
+
+    std::list<std::future<void>> node_execute_futures;
+
+    void async_execute_node(Node *node)
+    {
+        node_execute_futures.emplace_back(std::async(std::launch::async, [node, this]()
+                                                     { node->execute(&m_Graph); }));
+    }
+
+    void try_clear_futures()
+    {
+        for (auto &future : node_execute_futures)
+            if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                future.get();
+
+        node_execute_futures.erase(
+            std::remove_if(node_execute_futures.begin(), node_execute_futures.end(),
+                           [](std::future<void> &future)
+                           {
+                               if (future.valid())
+                                   return future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+                               return true;
+                           }),
+            node_execute_futures.end());
     }
 
     Graph m_Graph;
