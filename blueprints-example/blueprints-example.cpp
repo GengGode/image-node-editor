@@ -129,14 +129,24 @@ struct Example : public Application
     {
         // 每个节点有一个依赖表，记录依赖的节点
         std::map<Node *, std::vector<Node *>> depend_map;
+        // 每个节点都有一个关联表，记录依赖它的节点
+        std::map<Node *, std::set<Node *>> relate_map;
         // 每一个节点有一个是否成功运行完毕的标志
         std::map<Node *, bool> node_run_map;
+        // 如果节点运行错误，记录错误节点和它的关联节点
+        std::set<Node *> error_and_relate_nodes;
+        // 需要运行的所有节点
+        std::list<Node *> need_run_nodes;
         // 运行结束标志
         bool is_end = false;
         // 理论上运行的循环次数不会超过节点数
         size_t max_loop_limit = m_Graph.Nodes.size();
         // 运行循环次数
         int loop_count = 0;
+
+        // 需要运行所有节点
+        std::transform(m_Graph.Nodes.begin(), m_Graph.Nodes.end(), std::back_inserter(need_run_nodes), [](auto &node)
+                       { return &node; });
 
         // 生成依赖表
         {
@@ -162,13 +172,35 @@ struct Example : public Application
                     }
                 }
             }
+            // 根据输出连接生成关联表
+            for (auto &node : m_Graph.Nodes)
+            {
+                for (auto &output : node.Outputs)
+                {
+                    if (m_Graph.IsPinLinked(output.ID) == false)
+                        continue;
+                    auto links = m_Graph.FindPinLinks(output.ID);
+                    for (auto &link : links)
+                    {
+                        auto endpin = m_Graph.FindPin(link->EndPinID);
+                        if (endpin == nullptr)
+                            continue;
+                        if (endpin->Kind != PinKind::Input)
+                            continue;
+                        auto endnode = endpin->Node;
+                        if (endnode == nullptr)
+                            continue;
+                        relate_map[&node].insert(endnode);
+                    }
+                }
+            }
             // debug 打印依赖表
             for (auto &node : m_Graph.Nodes)
             {
-                printf("node %s depend on: ", node.Name.c_str());
+                printf("node [%s] %d depend on: ", node.Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node.ID.AsPointer())));
                 for (auto &depend : depend_map[&node])
                 {
-                    printf("%d ", static_cast<int>(reinterpret_cast<int64>(node.ID.AsPointer())));
+                    printf("%d ", static_cast<int>(reinterpret_cast<int64>(depend->ID.AsPointer())));
                 }
                 printf("\n");
             }
@@ -176,15 +208,19 @@ struct Example : public Application
 
         while (!is_end)
         {
-            static const auto get_depend_over_nodes = [&depend_map, &node_run_map]() -> std::vector<Node *>
+            const auto get_depend_over_nodes = [&need_run_nodes, &depend_map, &node_run_map, error_and_relate_nodes]()
             {
                 std::vector<Node *> nodes;
-                for (auto &[node, depend_nodes] : depend_map)
+                for (auto &node : need_run_nodes)
                 {
                     // 跳过已经运行过的节点
                     if (node_run_map[node] == true)
                         continue;
+                    // 跳过在[错误和关联节点]中的节点
+                    if (error_and_relate_nodes.find(node) != error_and_relate_nodes.end())
+                        continue;
 
+                    auto &depend_nodes = depend_map[node];
                     // 如果没有依赖或者依赖节点都已经运行完毕
                     if (depend_nodes.size() == 0)
                     {
@@ -201,8 +237,11 @@ struct Example : public Application
                         }
                     }
                     if (is_all_depend_over)
+                    {
                         nodes.push_back(node);
+                    }
                 }
+
                 return nodes;
             };
             // 获取依赖节点都已经运行完毕的节点
@@ -220,6 +259,13 @@ struct Example : public Application
                 futures.push_back(std::async(std::launch::async, [this, node]
                                              { ExecuteNode(node); }));
             }
+            // debug 打印本次循环执行的节点
+            printf("本%d次循环执行的节点: %zd个", loop_count, can_run_nodes.size());
+            for (auto &node : can_run_nodes)
+            {
+                printf("%d ", static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())));
+            }
+            printf("\n");
 
             // 等待所有节点运行完毕
             for (auto &future : futures)
@@ -229,6 +275,30 @@ struct Example : public Application
             for (auto &node : can_run_nodes)
                 node_run_map[node] = true;
 
+            // 如果节点运行错误，记录错误节点
+            std::set<Node *> error_nodes;
+            for (auto &node : can_run_nodes)
+            {
+                if (node->LastExecuteResult.has_error())
+                    error_nodes.insert(node);
+            }
+
+            // 从【需要运行的节点】中删除已经运行完成的
+            for (auto &node : can_run_nodes)
+            {
+                need_run_nodes.remove(node);
+            }
+
+            // 将[错误节点]和[关联节点]加入到[错误和关联节点]中
+            for (auto &error_node : error_nodes)
+            {
+                error_and_relate_nodes.insert(error_node);
+                for (auto &relate_node : relate_map[error_node])
+                {
+                    error_and_relate_nodes.insert(relate_node);
+                }
+            }
+
             // 循环次数超过限制，终止循环
             if (loop_count++ > max_loop_limit)
             {
@@ -236,6 +306,8 @@ struct Example : public Application
                 break;
             }
         }
+
+        printf("执行结束\n");
     }
 
     void OnStart() override

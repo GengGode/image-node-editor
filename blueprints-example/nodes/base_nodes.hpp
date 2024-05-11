@@ -435,9 +435,9 @@ struct Node
         return OnExecute != nullptr;
     }
 
-    auto execute(Graph *graph)
+    void execute(Graph *graph)
     {
-        return OnExecuteEx(graph, this);
+        LastExecuteResult = OnExecuteEx(graph, this);
     }
 
     bool is_running()
