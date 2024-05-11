@@ -488,9 +488,7 @@ struct Example : public Application
             }
 
             bool isSelected = std::find(selectedNodes.begin(), selectedNodes.end(), node.ID) != selectedNodes.end();
-#if IMGUI_VERSION_NUM >= 18967
-            ImGui::SetNextItemAllowOverlap();
-#endif
+
             if (ImGui::Selectable((node.Name + "##" + std::to_string(reinterpret_cast<uintptr_t>(node.ID.AsPointer()))).c_str(), &isSelected))
             {
                 if (io.KeyCtrl)
@@ -540,11 +538,8 @@ struct Example : public Application
 
             auto drawList = ImGui::GetWindowDrawList();
             ImGui::SetCursorScreenPos(iconPanelPos);
-#if IMGUI_VERSION_NUM < 18967
+
             ImGui::SetItemAllowOverlap();
-#else
-            ImGui::SetNextItemAllowOverlap();
-#endif
             if (node.SavedState.empty())
             {
                 if (ImGui::InvisibleButton("save", ImVec2((float)saveIconWidth, (float)saveIconHeight)))
@@ -564,11 +559,8 @@ struct Example : public Application
             }
 
             ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
-#if IMGUI_VERSION_NUM < 18967
+
             ImGui::SetItemAllowOverlap();
-#else
-            ImGui::SetNextItemAllowOverlap();
-#endif
             if (!node.SavedState.empty())
             {
                 if (ImGui::InvisibleButton("restore", ImVec2((float)restoreIconWidth, (float)restoreIconHeight)))
@@ -592,9 +584,8 @@ struct Example : public Application
             }
 
             ImGui::SameLine(0, 0);
-#if IMGUI_VERSION_NUM < 18967
+
             ImGui::SetItemAllowOverlap();
-#endif
             ImGui::Dummy(ImVec2(0, (float)restoreIconHeight));
 
             ImGui::PopID();
