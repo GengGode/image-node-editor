@@ -273,7 +273,12 @@ struct Example : public Application
         m_Graph.env.executeFunc = [this](Graph *graph)
         {
             std::vector<ExecuteResult> results;
+            // ExecuteNodes();
+            BeginExecuteTime = std::chrono::steady_clock::now();
             ExecuteNodes();
+            EndExecuteTime = std::chrono::steady_clock::now();
+            ExecuteTime = std::chrono::duration_cast<std::chrono::milliseconds>(*EndExecuteTime - *BeginExecuteTime);
+
             return results;
         };
     }
@@ -511,12 +516,9 @@ struct Example : public Application
         if (ImGui::Button("运行"))
         {
             static int count = 0;
-            printf("run count = %d\n", count++);
 
-            BeginExecuteTime = std::chrono::steady_clock::now();
-            ExecuteNodes();
-            EndExecuteTime = std::chrono::steady_clock::now();
-            ExecuteTime = std::chrono::duration_cast<std::chrono::milliseconds>(*EndExecuteTime - *BeginExecuteTime);
+            m_Graph.env.need_execute();
+            printf("执行次数: %d\n", count++);
         }
         if (ImGui::Button("序列化"))
         {
