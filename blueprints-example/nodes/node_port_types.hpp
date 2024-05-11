@@ -42,11 +42,6 @@ typedef std::variant<int, float, bool, std::string,
                      Circles>
     port_value_t;
 
-struct MainThread
-{
-    inline static std::thread::id id = std::this_thread::get_id();
-};
-
 enum class PinType
 {
     Flow,

@@ -1498,7 +1498,6 @@ int main(int argc, char **argv)
 {
     // 加入崩溃dump文件功能
     SetUnhandledExceptionFilter(ExceptionFilter);
-    MainThread::id = std::this_thread::get_id();
 
     Example exampe("Blueprints", argc, argv);
 

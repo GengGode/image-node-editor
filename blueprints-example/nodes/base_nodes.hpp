@@ -84,6 +84,7 @@ struct NodeWorldGlobal
     using NodeFactory_t = std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>;
     using FactoryGroupFunc_t = std::vector<std::pair<std::string, NodeFactory_t>>;
     static std::map<NodeType, FactoryGroupFunc_t> nodeFactories;
+    inline static std::thread::id main_thread_id = std::this_thread::get_id();
 };
 
 struct Pin
@@ -102,7 +103,7 @@ struct Pin
     Application *app;
     void event_value_changed()
     {
-        if (std::this_thread::get_id() != MainThread::id)
+        if (std::this_thread::get_id() != NodeWorldGlobal::main_thread_id)
             return;
         if (Type == PinType::Image && app)
         {
