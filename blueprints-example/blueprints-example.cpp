@@ -994,7 +994,7 @@ struct Example : public Application
                     bool is_running = node.is_running();
                     if (is_running)
                     {
-                        ImColor color = get_color_from_thread_id(node.get_running_thread_id());
+                        ImColor color = ui::get_color_from_thread_id(node.get_running_thread_id());
                         ImGui::Image(m_PlayIcon, ImVec2(16, 16), ImVec2(0, 0), ImVec2(1, 1), color.Value);
                     }
 

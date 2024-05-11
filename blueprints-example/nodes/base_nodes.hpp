@@ -1771,6 +1771,21 @@ namespace ui
 
         ax::Widgets::Icon(ImVec2(static_cast<float>(PinIconSize), static_cast<float>(PinIconSize)), iconType, connected, color, ImColor(32, 32, 32, alpha));
     };
+
+    static ImColor rand_color_base_saturation(float base, float saturation)
+    {
+        return ImColor::HSV(rand() % 255 / 255.0f, saturation, base);
+    }
+
+    static ImColor get_color_from_thread_id(size_t thread_id)
+    {
+        static std::map<size_t, ImColor> colors;
+        if (colors.find(thread_id) == colors.end())
+        {
+            colors[thread_id] = rand_color_base_saturation(0.6f, 0.6f);
+        }
+        return colors[thread_id];
+    }
 }
 
 #endif // BASE_NODE_HPP
