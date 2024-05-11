@@ -587,6 +587,7 @@ struct Graph
 
         std::atomic<bool> isRunning = false;
         std::atomic<bool> needRunning = false; // 在下一次循环中是否需要执行
+        std::atomic<bool> isStoped = false;    // 是否已经销毁
         std::map<ed::NodeId, std::chrono::steady_clock::time_point> nodeBeginExecuteTime;
         std::map<ed::NodeId, std::chrono::steady_clock::time_point> nodeEndExecuteTime;
         std::map<ed::NodeId, std::chrono::steady_clock::duration> nodeExecuteTime;
@@ -596,6 +597,16 @@ struct Graph
         std::function<std::vector<ExecuteResult>(Graph *)> executeFunc;
         Graph *graph;
         Application *app;
+
+        bool is_stoped()
+        {
+            return isStoped.load();
+        }
+
+        void need_stop()
+        {
+            isStoped.store(true);
+        }
 
         void need_execute()
         {

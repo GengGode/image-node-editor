@@ -163,6 +163,8 @@ struct Example : public Application
             // 直到没有下一个节点
             while (current_node)
             {
+                if (m_Graph.env.is_stoped())
+                    return;
                 // 没有OnExecute函数，终止执行链
                 if (!current_node->OnExecute)
                     break;
@@ -293,6 +295,8 @@ struct Example : public Application
                 id = nullptr;
             }
         };
+
+        m_Graph.env.need_stop();
 
         releaseTexture(m_RestoreIcon);
         releaseTexture(m_SaveIcon);
