@@ -127,96 +127,106 @@ struct Example : public Application
 
     void ExecuteNodes()
     {
-        auto check_is_begin_node = [&](Node *node) -> bool
-        {
-            // 没有输入，即起始节点
-            if (node->Inputs.size() == 0)
-                return true;
-            // 所有输入都有值
-            for (auto &input : node->Inputs)
-            {
-                if (m_Graph.IsPinLinked(input.ID) == false)
-                    return true;
-            }
-            return false;
-        };
-        // Notifier::Add(Notif(Notif::Type::INFO, "ExecuteNodes"));
-        std::list<Node *> begin_nodes;
-        std::set<Node *> deduplication;
-        // 获取运行链的起始节点
-        for (auto &node : m_Graph.Nodes)
-        {
-            auto is_begin = check_is_begin_node(&node);
-            if (is_begin == false)
-                continue;
-            if (deduplication.find(&node) != deduplication.end())
-                continue;
-            begin_nodes.push_back(&node);
-        }
+        // 每个节点有一个依赖表，记录依赖的节点
+        std::map<Node *, std::vector<Node *>> depend_map;
+        // 每一个节点有一个是否成功运行完毕的标志
+        std::map<Node *, bool> node_run_map;
+        // 运行结束标志
+        bool is_end = false;
+        // 理论上运行的循环次数不会超过节点数
+        int max_loop_limit = m_Graph.Nodes.size();
+        // 运行循环次数
+        int loop_count = 0;
 
-        // 挨个执行链的起始节点
-        for (auto &node : begin_nodes)
+        // 生成依赖表
         {
-            auto current_node = node;
-            // 直到没有下一个节点
-            while (current_node)
+            // 根据输入连接生成依赖表
+            for (auto &node : m_Graph.Nodes)
             {
-                if (m_Graph.env.is_stoped())
-                    return;
-                // 没有OnExecute函数，终止执行链
-                if (!current_node->has_execute_mothod())
-                    break;
-                // 执行当前节点
-                auto node_res = current_node->execute(&m_Graph);
-                current_node->LastExecuteResult = node_res;
-                // 执行失败，终止执行链
-                if (node_res.has_error())
-                    break;
-                // 执行成功，继续执行链
-
-                // 没有输出，即最终节点，终止执行链
-                if (current_node->Outputs.size() == 0)
-                    break;
-                // 输出有连接，遍历执行所有输出连接的节点
-                int i = 0;
-                for (auto &output : current_node->Outputs)
+                for (auto &input : node.Inputs)
                 {
-                    // 输出没有连接，继续遍历下一个输出
-                    if (m_Graph.IsPinLinked(output.ID) == false)
-                    {
-                        current_node = nullptr;
+                    if (m_Graph.IsPinLinked(input.ID) == false)
                         continue;
-                    }
-
-                    // 获取输出连接
-                    auto links = m_Graph.FindPinLinks(output.ID);
+                    auto links = m_Graph.FindPinLinks(input.ID);
                     for (auto &link : links)
                     {
-                        if (link == nullptr)
-                        {
-                            current_node = nullptr;
+                        auto beginpin = m_Graph.FindPin(link->StartPinID);
+                        if (beginpin == nullptr)
                             continue;
-                        }
-                        auto endpin = m_Graph.FindPin(link->EndPinID);
-                        if (endpin == nullptr)
-                        {
-                            current_node = nullptr;
+                        if (beginpin->Kind != PinKind::Output)
                             continue;
-                        }
-                        if (endpin->Kind != PinKind::Input)
-                        {
-                            current_node = nullptr;
+                        auto beginnode = beginpin->Node;
+                        if (beginnode == nullptr)
                             continue;
-                        }
-
-                        // 仅直接执行第一个连接，其他连接添加到起始节点列表
-                        if (i == 0)
-                            current_node = endpin->Node;
-                        else
-                            begin_nodes.push_back(endpin->Node);
-                        i++;
+                        depend_map[&node].push_back(beginnode);
                     }
                 }
+            }
+            // debug 打印依赖表
+            for (auto &node : m_Graph.Nodes)
+            {
+                printf("node %s depend on: ", node.Name.c_str());
+                for (auto &depend : depend_map[&node])
+                {
+                    printf("%s ", depend->Name.c_str());
+                }
+                printf("\n");
+            }
+        }
+
+        while (!is_end)
+        {
+            static const auto get_depend_over_nodes = [&depend_map, &node_run_map]() -> std::vector<Node *>
+            {
+                std::vector<Node *> nodes;
+                for (auto &[node, depend_nodes] : depend_map)
+                {
+                    // 跳过已经运行过的节点
+                    if (node_run_map[node] == true)
+                        continue;
+
+                    // 如果没有依赖或者依赖节点都已经运行完毕
+                    if (depend_nodes.size() == 0)
+                    {
+                        nodes.push_back(node);
+                        continue;
+                    }
+                    bool is_all_depend_over = true;
+                    for (auto &depend : depend_nodes)
+                    {
+                        if (node_run_map[depend] == false)
+                        {
+                            is_all_depend_over = false;
+                            break;
+                        }
+                    }
+                    if (is_all_depend_over)
+                        nodes.push_back(node);
+                }
+                return nodes;
+            };
+            // 获取依赖节点都已经运行完毕的节点
+            auto can_run_nodes = get_depend_over_nodes();
+            // 没有可以运行的节点，终止循环
+            if (can_run_nodes.size() == 0)
+            {
+                is_end = true;
+                break;
+            }
+            // 挨个执行节点
+            for (auto &node : can_run_nodes)
+            {
+                // 执行节点
+                ExecuteNode(node);
+                // 标记节点已经运行完毕
+                node_run_map[node] = true;
+            }
+
+            // 循环次数超过限制，终止循环
+            if (loop_count++ > max_loop_limit)
+            {
+                is_end = true;
+                break;
             }
         }
     }
