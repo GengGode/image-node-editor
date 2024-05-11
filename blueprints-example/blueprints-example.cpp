@@ -991,6 +991,13 @@ struct Example : public Application
                     ImGui::Spring(1);
                     std::string footer = "耗时：" + node.get_last_execute_time();
                     ImGui::TextUnformatted(footer.c_str());
+                    bool is_running = node.is_running();
+                    if (is_running)
+                    {
+                        ImColor color = get_color_from_thread_id(node.get_running_thread_id());
+                        ImGui::Image(m_PlayIcon, ImVec2(16, 16), ImVec2(0, 0), ImVec2(1, 1), color.Value);
+                    }
+
                     ImGui::Spring(1);
 
                     // builder.EndHeader();
