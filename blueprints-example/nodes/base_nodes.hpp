@@ -538,8 +538,16 @@ struct Graph
             // 如果没有执行过，或者需要执行，且没有正在执行
             if (needRunning && !isRunning)
             {
+                const auto execute_and_release = [this](Graph *graph)
+                {
+                    std::vector<ExecuteResult> results;
+                    results = executeFunc(graph);
+                    isRunning = false;
+                    needRunning = false;
+                    return results;
+                };
                 isRunning = true;
-                future = std::async(std::launch::async, executeFunc, graph);
+                future = std::async(std::launch::async, execute_and_release, graph);
             }
             if (future.valid() && future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
@@ -578,8 +586,6 @@ struct Graph
                         }
                     }
                 }
-                isRunning = false;
-                needRunning = false;
             }
         }
     };
