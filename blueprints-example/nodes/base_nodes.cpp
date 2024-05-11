@@ -606,7 +606,7 @@ Node *Spawn_ImageOperator_MaskImage(const std::function<int()> &GetNextId, const
 // ImageChannelSplit
 Node *Spawn_ImageOperator_ImageChannelSplit(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image Channel Split");
+    m_Nodes.emplace_back(GetNextId(), "图像通道拆分");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
@@ -633,7 +633,8 @@ Node *Spawn_ImageOperator_ImageChannelSplit(const std::function<int()> &GetNextI
         {
             std::vector<cv::Mat> channels;
             cv::split(image, channels);
-            node->Outputs[0].SetValue(channels[0]);
+            if (channels.size() > 0)
+                node->Outputs[0].SetValue(channels[0]);
             if (channels.size() > 1)
                 node->Outputs[1].SetValue(channels[1]);
             if (channels.size() > 2)
@@ -780,7 +781,7 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
                                        {"Morphology Top Hat", Spawn_ImageOperator_MorphologyTopHat},
                                        {"Morphology Black Hat", Spawn_ImageOperator_MorphologyBlackHat},
                                        {"Mask Image", Spawn_ImageOperator_MaskImage},
-                                       {"Image Channel Split", Spawn_ImageOperator_ImageChannelSplit},
+                                       {"图像通道拆分", Spawn_ImageOperator_ImageChannelSplit},
                                        {"Image Channel Merge", Spawn_ImageOperator_ImageChannelMerge},
                                        {"Image And Mask Copy", Spawn_ImageOperator_ImageAndMaskCopy},
                                        {"Image ReSize", Spawn_ImageOperator_ImageReSize},
