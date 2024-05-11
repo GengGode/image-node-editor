@@ -203,6 +203,9 @@ function(find_opencv opencv_dir_vaule target_version)
             file(REMOVE_RECURSE ${clear_install_dir}/etc)
         endif()
     endforeach()
+    
+    # 清理编译目录
+    file(REMOVE_RECURSE ${extract_dir})
 
     set(${opencv_dir_vaule} ${install_dir} PARENT_SCOPE)
     message(STATUS "auto find opencv done")
