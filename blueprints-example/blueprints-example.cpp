@@ -483,17 +483,8 @@ struct Example : public Application
         paneWidth = ImGui::GetContentRegionAvail().x;
 
         static bool showStyleEditor = false;
-        ImGui::BeginHorizontal("Style Editor", ImVec2(paneWidth, 0));
+        ImGui::BeginHorizontal("Run", ImVec2(paneWidth, 0));
         ImGui::Spring(0.0f, 0.0f);
-        if (ImGui::Button("居中展示"))
-            ed::NavigateToContent();
-        ImGui::Spring(0.0f);
-        if (ImGui::Button("显示流"))
-        {
-            for (auto &link : m_Graph.Links)
-                ed::Flow(link.ID);
-        }
-        ImGui::Spring();
         if (ImGui::Button("运行"))
         {
             static int count = 0;
@@ -501,6 +492,22 @@ struct Example : public Application
             m_Graph.env.need_execute();
             printf("执行次数: %d\n", count++);
         }
+        ImGui::Spring(0.0f);
+        if (ImGui::Button("清空"))
+        {
+            m_Graph.Nodes.clear();
+            m_Graph.Links.clear();
+            m_Graph.next_id = 0;
+        }
+        static bool loop_execute = false;
+        ImGui::Checkbox("循环执行", &loop_execute);
+        if (loop_execute)
+        {
+            static int count = 0;
+            m_Graph.env.need_execute();
+            printf("循环执行次数: %d\n", count++);
+        }
+        ImGui::Spring();
         if (ImGui::Button("序列化"))
         {
             for (auto &node : m_Graph.Nodes)
@@ -522,7 +529,6 @@ struct Example : public Application
                              std::istreambuf_iterator<char>());
             in.close();
 
-            // printf("json = %s\n", json.c_str());
             m_Graph.deserialize(json);
             for (auto &node : m_Graph.Nodes)
             {
@@ -530,7 +536,18 @@ struct Example : public Application
             }
             m_Graph.build_nodes();
         }
+        ImGui::EndHorizontal();
 
+        ImGui::BeginHorizontal("Style Editor", ImVec2(paneWidth, 0));
+        ImGui::Spring(0.0f, 0.0f);
+        if (ImGui::Button("居中展示"))
+            ed::NavigateToContent();
+        ImGui::Spring(0.0f);
+        if (ImGui::Button("显示流"))
+        {
+            for (auto &link : m_Graph.Links)
+                ed::Flow(link.ID);
+        }
         ImGui::Spring();
         if (ImGui::Button("Edit Style"))
             showStyleEditor = true;
