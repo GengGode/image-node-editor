@@ -624,6 +624,27 @@ struct Example : public Application
                 ImVec2(iconPanelPos.x - textSize.x - ImGui::GetStyle().ItemInnerSpacing.x, start.y),
                 IM_COL32(255, 255, 255, 255), id.c_str(), nullptr);
 
+            std::string node_run_time = "";
+            if (node.LastExecuteResult.has_error())
+            {
+                node_run_time = "error";
+            }
+            else
+            {
+                if (node.ExecuteTime.has_value())
+                {
+                    node_run_time = std::to_string(node.ExecuteTime.value().count() / 1000000.0);
+                    node_run_time = node_run_time.substr(0, node_run_time.find(".") + 3) + "ms";
+                }
+            }
+            if (node_run_time.empty() == false)
+            {
+                auto run_time_text_size = ImGui::CalcTextSize(node_run_time.c_str(), nullptr);
+                ImGui::GetWindowDrawList()->AddText(
+                    ImVec2(iconPanelPos.x - run_time_text_size.x - ImGui::GetStyle().ItemInnerSpacing.x - textSize.x - ImGui::GetStyle().ItemInnerSpacing.x, start.y),
+                    IM_COL32(255, 255, 255, 255), node_run_time.c_str(), nullptr);
+            }
+
             auto drawList = ImGui::GetWindowDrawList();
             ImGui::SetCursorScreenPos(iconPanelPos);
 #if IMGUI_VERSION_NUM < 18967
