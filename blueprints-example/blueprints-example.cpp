@@ -1445,7 +1445,6 @@ struct Example : public Application
         // ImGui::ShowMetricsWindow();
     }
 
-    int m_NextId = 1;
     Graph m_Graph;
     ImTextureID m_HeaderBackground = nullptr;
     ImTextureID m_SaveIcon = nullptr;
