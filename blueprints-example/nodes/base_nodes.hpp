@@ -3,7 +3,6 @@
 
 #include "../utilities/builders.h"
 #include "../utilities/widgets.h"
-#include "../notifiers/Notifier.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>
