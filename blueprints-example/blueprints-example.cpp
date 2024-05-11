@@ -1484,6 +1484,7 @@ struct Example : public Application
     ImTextureID m_HeaderBackground = nullptr;
     ImTextureID m_SaveIcon = nullptr;
     ImTextureID m_RestoreIcon = nullptr;
+    ImTextureID m_PlayIcon = nullptr;
     const float m_TouchTime = 1.0f;
     std::map<ed::NodeId, float, NodeIdLess> m_NodeTouchTime;
     bool m_ShowOrdinals = false;
