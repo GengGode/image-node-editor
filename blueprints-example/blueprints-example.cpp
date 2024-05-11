@@ -19,6 +19,7 @@
 #include <set>
 
 #include "nodes/base_nodes.hpp"
+#include "nodes/node_ui_colors.hpp"
 
 static inline ImRect ImGui_GetItemRect()
 {
