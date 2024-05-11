@@ -134,7 +134,7 @@ struct Example : public Application
         // 运行结束标志
         bool is_end = false;
         // 理论上运行的循环次数不会超过节点数
-        int max_loop_limit = m_Graph.Nodes.size();
+        size_t max_loop_limit = m_Graph.Nodes.size();
         // 运行循环次数
         int loop_count = 0;
 
@@ -168,7 +168,7 @@ struct Example : public Application
                 printf("node %s depend on: ", node.Name.c_str());
                 for (auto &depend : depend_map[&node])
                 {
-                    printf("%s ", depend->Name.c_str());
+                    printf("%d ", static_cast<int>(reinterpret_cast<int64>(node.ID.AsPointer())));
                 }
                 printf("\n");
             }
@@ -213,14 +213,21 @@ struct Example : public Application
                 is_end = true;
                 break;
             }
-            // 挨个执行节点
+            // 并行执行节点
+            std::vector<std::future<void>> futures;
             for (auto &node : can_run_nodes)
-            {
-                // 执行节点
-                ExecuteNode(node);
-                // 标记节点已经运行完毕
-                node_run_map[node] = true;
+            { // 添加到运行节点列表
+                futures.push_back(std::async(std::launch::async, [this, node]
+                                             { ExecuteNode(node); }));
             }
+
+            // 等待所有节点运行完毕
+            for (auto &future : futures)
+                future.get();
+
+            // 标记节点已经运行完毕
+            for (auto &node : can_run_nodes)
+                node_run_map[node] = true;
 
             // 循环次数超过限制，终止循环
             if (loop_count++ > max_loop_limit)
