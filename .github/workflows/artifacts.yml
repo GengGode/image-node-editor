@@ -12,6 +12,8 @@ env:
 
 jobs:
   build:
+    # 跳过提交信息开头为doc:或者docs:的提交
+    if: "!startsWith(github.event.head_commit.message, 'Doc:') && !startsWith(github.event.head_commit.message, 'doc:')"
     runs-on: windows-latest
 
     steps:
