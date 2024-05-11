@@ -499,15 +499,16 @@ struct Example : public Application
         static bool showStyleEditor = false;
         ImGui::BeginHorizontal("Style Editor", ImVec2(paneWidth, 0));
         ImGui::Spring(0.0f, 0.0f);
-        if (ImGui::Button("Zoom to Content"))
+        if (ImGui::Button("居中展示"))
             ed::NavigateToContent();
         ImGui::Spring(0.0f);
-        if (ImGui::Button("Show Flow"))
+        if (ImGui::Button("显示流"))
         {
             for (auto &link : m_Graph.Links)
                 ed::Flow(link.ID);
         }
-        if (ImGui::Button("run"))
+        ImGui::Spring();
+        if (ImGui::Button("运行"))
         {
             static int count = 0;
             printf("run count = %d\n", count++);
