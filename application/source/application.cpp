@@ -2,7 +2,6 @@
 # include "setup.h"
 # include "platform.h"
 # include "renderer.h"
-#include "Notifier.hpp"
 #include "../addons/ImGuiNotify.hpp"
 #include "../addons/IconsFontAwesome6.h"
 
@@ -183,7 +182,6 @@ void Application::Frame()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
 
     OnFrame(io.DeltaTime);
-    Notifier::Draw();
 
     // Main rendering function
     ImGui::PushFont(icon_font);
