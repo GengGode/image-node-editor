@@ -84,7 +84,7 @@ jobs:
     
     - name: Package
       run: |
-        mkdir -p
+        ls ${{ github.workspace }}/build/
         mv ${{ github.workspace }}/build/ ${{ github.workspace }}/build-release/
         tar -czf ${{ github.workspace }}/build-release.tar.gz ${{ github.workspace }}/build-release/
    
