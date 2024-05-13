@@ -8,5 +8,6 @@ add_example_executable(blueprints-example
     utilities/widgets.cpp
     nodes/base_nodes.cpp
     notifiers/Notifier.cpp
+    addons/ImFileDialog.cpp
     #textures/image_to_texture.cpp
 )

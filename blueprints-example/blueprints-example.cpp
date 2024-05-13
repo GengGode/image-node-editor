@@ -3,6 +3,8 @@
 #include "utilities/builders.h"
 #include "utilities/widgets.h"
 #include "utilities/minidump.h"
+
+#include "addons/ImFileDialog.h"
 #include "addons/imspinner.h"
 #include "../application/addons/ImGuiNotify.hpp"
 // #include "notifiers/Notifier.hpp"
@@ -1556,6 +1558,19 @@ struct Example : public Application
         // ImGui::PopFont();
 
         // ImGui::ShowMetricsWindow();
+        ImGui::Begin("Test File Dialog");
+        if (ImGui::Button("Open a texture"))
+            ifd::FileDialog::Instance().Open("TextureOpenDialog", "Open a texture", "Image file (*.png;*.jpg;*.jpeg;*.bmp;*.tga){.png,.jpg,.jpeg,.bmp,.tga},.*");
+        if (ifd::FileDialog::Instance().IsDone("TextureOpenDialog"))
+        {
+            if (ifd::FileDialog::Instance().HasResult())
+            {
+                std::string res = ifd::FileDialog::Instance().GetResult().u8string();
+                printf("OPEN[%s]\n", res.c_str());
+            }
+            ifd::FileDialog::Instance().Close();
+        }
+        ImGui::End();
 
         //---------------------------
         // 循环清理异步任务
@@ -1607,6 +1622,14 @@ int main(int argc, char **argv)
     SetUnhandledExceptionFilter(ExceptionFilter);
 
     Example exampe("Blueprints", argc, argv);
+    ifd::FileDialog::Instance().CreateTexture = [&exampe](uint8_t *data, int w, int h, char fmt) -> void *
+    {
+        return exampe.CreateTexture(data, w, h);
+    };
+    ifd::FileDialog::Instance().DeleteTexture = [&exampe](void *tex)
+    {
+        exampe.DestroyTexture(tex);
+    };
 
     if (exampe.Create())
         return exampe.Run();
