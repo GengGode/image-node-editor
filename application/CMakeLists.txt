@@ -21,12 +21,13 @@ add_library(application STATIC)
 target_include_directories(application PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 find_package(imgui REQUIRED)
-find_package(imgui_tex_inspect REQUIRED)
 find_package(stb_image REQUIRED)
 find_package(ScopeGuard REQUIRED)
+find_package(imgui_tex_inspect REQUIRED)
+find_package(imgui_flame_graph REQUIRED)
 target_link_libraries(application PUBLIC imgui)
 target_link_libraries(application PUBLIC stb_image ScopeGuard)
-target_link_libraries(application PUBLIC imgui_tex_inspect)
+target_link_libraries(application PUBLIC imgui_tex_inspect imgui_flame_graph)
 
 if (WIN32)
     list(APPEND _Application_Sources
