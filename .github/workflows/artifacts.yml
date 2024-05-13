@@ -86,7 +86,7 @@ jobs:
         files: ${{ github.workspace }}/build/bin/*
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: nightly-${{ steps.build_number.outputs.build_number }}
-        release_name: "Nightly Build ${{ steps.build_number.outputs.build_number }}"
-        body: "Nightly Build \n Changes: \n - ${{ github.event.head_commit.message }}"
+        name: Nightly Build
+        body: "Changes: \n - ${{ github.event.head_commit.message }}"
         draft: false
         prerelease: true
