@@ -52,3 +52,41 @@ jobs:
         name: windows-build-${{env.BUILD_TYPE}}
         path: ${{ github.workspace }}/build/bin
         if-no-files-found: 'warn'
+
+  # nightly and pre-release
+  release-nightly:
+    # 跳过提交信息开头为doc:或者docs:的提交
+    if: "!startsWith(github.event.head_commit.message, 'Doc:') && !startsWith(github.event.head_commit.message, 'doc:')"
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Get the build number
+      id: build_number
+      run: echo "::set-output name=build_number::$(date +'%Y%m%d%H%M%S')"
+
+    - name: Get Build Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: windows-build-${{env.BUILD_TYPE}}
+        path: ${{ github.workspace }}/build/bin
+
+    - name: Upload to GitHub Releases
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ github.workspace }}/build/bin/*
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: nightly-${{ steps.build_number.outputs.build_number }}
+        release_name: "Nightly Build ${{ steps.build_number.outputs.build_number }}"
+        body: "Nightly Build \n Changes: \n - ${{ github.event.head_commit.message }}"
+        draft: false
+        prerelease: true
