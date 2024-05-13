@@ -24,6 +24,14 @@ using namespace ax;
 
 using ax::Widgets::IconType;
 
+struct NodeIdLess
+{
+    bool operator()(const ed::NodeId &lhs, const ed::NodeId &rhs) const
+    {
+        return lhs.AsPointer() < rhs.AsPointer();
+    }
+};
+
 enum class PinKind
 {
     Output,

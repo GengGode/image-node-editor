@@ -22,6 +22,21 @@
 
 #include <opencv2/opencv.hpp>
 
+static inline ImRect ImGui_GetItemRect()
+{
+    return ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+}
+
+static inline ImRect ImRect_Expanded(const ImRect &rect, float x, float y)
+{
+    auto result = rect;
+    result.Min.x -= x;
+    result.Min.y -= y;
+    result.Max.x += x;
+    result.Max.y += y;
+    return result;
+}
+
 namespace ed = ax::NodeEditor;
 namespace util = ax::NodeEditor::Utilities;
 
@@ -469,10 +484,18 @@ struct Link
     }
 };
 
+struct GraphUi
+{
+    Graph *graph;
+    void draw_comment_nodes();
+};
+
 struct Graph
 {
     std::vector<Node> Nodes;
     std::vector<Link> Links;
+
+    GraphUi ui;
 
     int next_id = 1;
     int get_next_id()
@@ -772,14 +795,6 @@ inline bool Graph::deserialize(const std::string &json_buff)
     }
     return false;
 }
-
-struct NodeIdLess
-{
-    bool operator()(const ed::NodeId &lhs, const ed::NodeId &rhs) const
-    {
-        return lhs.AsPointer() < rhs.AsPointer();
-    }
-};
 
 #define try_catch_block                                        \
     node->BeginExecuteTime = std::chrono::steady_clock::now(); \
