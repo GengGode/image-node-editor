@@ -14,7 +14,22 @@ inline void GraphUi::draw_links()
 
 inline void GraphUi::draw_virtual_links()
 {
-    
+
+    for (auto &node : graph->Nodes)
+    {
+        if (node.ui.is_expanded == false)
+        {
+            for (auto &link : node.ui.virtual_input_links)
+            {
+                ed::Link(link.ID, link.StartPinID, link.EndPinID, link.Color, 2.0f);
+            }
+
+            for (auto &link : node.ui.virtual_output_links)
+            {
+                ed::Link(link.ID, link.StartPinID, link.EndPinID, link.Color, 2.0f);
+            }
+        }
+    }
 }
 
 inline void GraphUi::draw_image_nodes()
@@ -330,6 +345,38 @@ inline void GraphUi::draw_image_nodes()
         else
         {
             // 所有连线都汇总到一个输入和输出上
+            {
+                auto &virtual_input = node.ui.get_virtual_input();
+
+                ed::PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(255, 0, 0, 255));
+                auto alpha = ImGui::GetStyle().Alpha;
+
+                builder->Input(virtual_input.ID);
+
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+                ui::DrawPinIcon(virtual_input, graph->IsPinLinked(virtual_input.ID), (int)(alpha * 255));
+                ImGui::PopStyleVar();
+
+                builder->EndInput();
+
+                ed::PopStyleColor();
+            }
+
+            {
+                auto &virtual_output = node.ui.get_virtual_output();
+
+                ed::PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(255, 0, 0, 255));
+                auto alpha = ImGui::GetStyle().Alpha;
+
+                builder->Output(virtual_output.ID);
+
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+                ui::DrawPinIcon(virtual_output, graph->IsPinLinked(virtual_output.ID), (int)(alpha * 255));
+                ImGui::PopStyleVar();
+
+                builder->EndOutput();
+                ed::PopStyleColor();
+            }
         }
 
         // footer

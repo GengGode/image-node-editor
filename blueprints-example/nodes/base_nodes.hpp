@@ -304,9 +304,9 @@ struct node_ui
     // 节点是否折叠为小图标
     bool is_expanded = true;
     // 折叠时汇总的输入连线
-    std::vector<ed::PinId> virtual_input_links;
+    std::vector<Link> virtual_input_links;
     // 折叠时汇总的输出连线
-    std::vector<ed::PinId> virtual_output_links;
+    std::vector<Link> virtual_output_links;
 
     std::shared_ptr<Pin> virtual_input = nullptr;
     std::shared_ptr<Pin> virtual_output = nullptr;
