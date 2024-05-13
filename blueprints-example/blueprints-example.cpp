@@ -1097,21 +1097,16 @@ struct Example : public Application
                 // footer
                 if (!isSimple)
                 {
-                    // builder.Header(ImColor(255, 0, 0));
-                    ImGui::Spring(1);
+                    builder.Footer();
                     std::string footer = "耗时：" + node.get_last_execute_time();
                     ImGui::TextUnformatted(footer.c_str());
-                    bool is_running = node.is_running();
-                    if (is_running)
+                    if (node.is_running())
                     {
                         ImColor color = ui::get_color_from_thread_id(node.get_running_thread_id());
                         ImGui::Image(m_PlayIcon, ImVec2(16, 16), ImVec2(0, 0), ImVec2(1, 1), color.Value);
                         ImSpinner::SpinnerHerbertBalls3D("wiat", 16, 3.f, ImSpinner::white, 2.0f);
                     }
-
-                    ImGui::Spring(1);
-
-                    // builder.EndHeader();
+                    builder.EndFooter();
                 }
 
                 builder.End();

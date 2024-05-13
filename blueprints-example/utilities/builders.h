@@ -39,6 +39,8 @@ struct BlueprintNodeBuilder
     void Output(PinId id);
     void EndOutput();
 
+    void Footer();
+    void EndFooter();
 
 private:
     enum class Stage
@@ -50,6 +52,7 @@ private:
         Input,
         Output,
         Middle,
+        Footer,
         End
     };
 

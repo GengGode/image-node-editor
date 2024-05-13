@@ -158,6 +158,16 @@ void util::BlueprintNodeBuilder::EndOutput()
     EndPin();
 }
 
+void util::BlueprintNodeBuilder::Footer()
+{
+    SetStage(Stage::Footer);
+}
+
+void util::BlueprintNodeBuilder::EndFooter()
+{
+    SetStage(Stage::End);
+}
+
 bool util::BlueprintNodeBuilder::SetStage(Stage stage)
 {
     if (stage == CurrentStage)
@@ -217,6 +227,9 @@ bool util::BlueprintNodeBuilder::SetStage(Stage stage)
             //     ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255));
 
             break;
+        
+        case Stage::Footer:
+            break;
 
         case Stage::End:
             break;
@@ -272,6 +285,11 @@ bool util::BlueprintNodeBuilder::SetStage(Stage stage)
 
             if (!HasHeader)
                 ImGui::Spring(1, 0);
+            break;
+
+        case Stage::Footer:
+            ImGui::Spring(1, 0);
+            //ImGui::EndHorizontal();
             break;
 
         case Stage::End:
