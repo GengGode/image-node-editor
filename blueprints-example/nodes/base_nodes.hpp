@@ -307,6 +307,9 @@ struct node_ui
     // 折叠时汇总的输出连线
     std::vector<ed::PinId> virtual_output_links;
 
+    Pin& get_virtual_input();
+
+    Pin& get_virtual_output();
 };
 
 struct Node
