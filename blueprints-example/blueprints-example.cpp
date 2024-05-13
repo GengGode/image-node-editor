@@ -3,6 +3,7 @@
 #include "utilities/builders.h"
 #include "utilities/widgets.h"
 #include "utilities/minidump.h"
+#include "addons/imspinner.h"
 #include "../application/addons/ImGuiNotify.hpp"
 // #include "notifiers/Notifier.hpp"
 
@@ -1105,6 +1106,7 @@ struct Example : public Application
                     {
                         ImColor color = ui::get_color_from_thread_id(node.get_running_thread_id());
                         ImGui::Image(m_PlayIcon, ImVec2(16, 16), ImVec2(0, 0), ImVec2(1, 1), color.Value);
+                        ImSpinner::SpinnerHerbertBalls3D("wiat", 16, 3.f, ImSpinner::white, 2.0f);
                     }
 
                     ImGui::Spring(1);
