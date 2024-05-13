@@ -1,12 +1,8 @@
 #ifndef BASE_NODE_HPP
 #define BASE_NODE_HPP
 
-#include "../utilities/builders.h"
-#include "../utilities/widgets.h"
-
-#include "node_port_types.hpp"
-
 #include <imgui.h>
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 #include <imgui_node_editor.h>
 #include <application.h>
@@ -22,6 +18,11 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "../utilities/builders.h"
+#include "../utilities/widgets.h"
+
+#include "node_port_types.hpp"
+
 static inline ImRect ImGui_GetItemRect()
 {
     return ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
@@ -36,6 +37,22 @@ static inline ImRect ImRect_Expanded(const ImRect &rect, float x, float y)
     result.Max.y += y;
     return result;
 }
+
+static inline void DrawItemRect(ImColor color, float expand = 0.0f)
+{
+    ImGui::GetWindowDrawList()->AddRect(
+        ImGui::GetItemRectMin() - ImVec2(expand, expand),
+        ImGui::GetItemRectMax() + ImVec2(expand, expand),
+        color);
+};
+
+static inline void FillItemRect(ImColor color, float expand = 0.0f, float rounding = 0.0f)
+{
+    ImGui::GetWindowDrawList()->AddRectFilled(
+        ImGui::GetItemRectMin() - ImVec2(expand, expand),
+        ImGui::GetItemRectMax() + ImVec2(expand, expand),
+        color, rounding);
+};
 
 namespace ed = ax::NodeEditor;
 namespace util = ax::NodeEditor::Utilities;
@@ -242,6 +259,14 @@ struct Pin
     }
 };
 
+static inline bool CanCreateLink(Pin *a, Pin *b)
+{
+    if (!a || !b || a == b || a->Kind == b->Kind || a->Type != b->Type || a->Node == b->Node)
+        return false;
+
+    return true;
+}
+
 struct Graph;
 
 struct ErrorInfo
@@ -277,6 +302,11 @@ struct node_ui
 {
     // 节点是否折叠为小图标
     bool is_expanded = true;
+    // 折叠时汇总的输入连线
+    std::vector<ed::PinId> virtual_input_links;
+    // 折叠时汇总的输出连线
+    std::vector<ed::PinId> virtual_output_links;
+
 };
 
 struct Node
@@ -487,6 +517,10 @@ struct Link
 struct GraphUi
 {
     Graph *graph;
+    util::BlueprintNodeBuilder *builder;
+    std::optional<ErrorInfo> context_error_opt;
+    Pin *new_link_pin;
+    void draw_image_nodes();
     void draw_comment_nodes();
 };
 
@@ -494,6 +528,9 @@ struct Graph
 {
     std::vector<Node> Nodes;
     std::vector<Link> Links;
+    // 折叠节点时节点的连线汇总为虚拟连线
+    //std::vector<std::pair<ed::PinId, ed::PinId>> virtualLinks;
+    //std::vector<Link> virtualLinks;
 
     GraphUi ui;
 
