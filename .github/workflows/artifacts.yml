@@ -79,15 +79,11 @@ jobs:
       with:
         name: windows-build-${{env.BUILD_TYPE}}
         path: ${{ github.workspace }}/build
-    - name: Zip the build
-      run: |
-        ls ${{ github.workspace }}/build
-        7z a -tzip ${{ github.workspace }}/build/windows-build-${{env.BUILD_TYPE}}.zip ${{ github.workspace }}/build/bin
-        
+   
     - name: Upload to GitHub Releases
       uses: softprops/action-gh-release@v1
       with:
-        files: ${{ github.workspace }}/build/bin/*
+        files: ${{ github.workspace }}/build/*
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: nightly-${{ steps.build_number.outputs.build_number }}
         name: Nightly Build
