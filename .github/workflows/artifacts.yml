@@ -61,7 +61,7 @@ jobs:
     needs: build
     permissions:
       contents: write
-      
+
     steps:
     - uses: actions/checkout@v3
 
@@ -74,18 +74,24 @@ jobs:
 
     - name: Get the build number
       id: build_number
-      run: echo "::set-output name=build_number::$(date +'%Y%m%d%H%M%S')"
+      run: echo "::set-output name=build_number::$(date +'%Y%m%d')"
 
     - name: Get Build Artifact
       uses: actions/download-artifact@v2
       with:
         name: windows-build-${{env.BUILD_TYPE}}
         path: ${{ github.workspace }}/build
+    
+    - name: Package
+      run: |
+        mkdir -p
+        mv ${{ github.workspace }}/build/ ${{ github.workspace }}/build-release/
+        tar -czf ${{ github.workspace }}/build-release.tar.gz ${{ github.workspace }}/build-release/
    
     - name: Upload to GitHub Releases
       uses: softprops/action-gh-release@v1
       with:
-        files: ${{ github.workspace }}/build/*
+        files: ${{ github.workspace }}/build-release.tar.gz
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: nightly-${{ steps.build_number.outputs.build_number }}
         name: Nightly Build
