@@ -15,7 +15,44 @@ Pin &node_ui::get_virtual_output()
     return *virtual_output;
 }
 
+void Node::expand()
+{
+    ui.is_expanded = true;
+    ui.virtual_input_links.clear();
+    ui.virtual_output_links.clear();
+}
 
+void Node::collapse()
+{
+    ui.is_expanded = false;
+    ui.virtual_input_links.clear();
+    ui.virtual_output_links.clear();
+    for (auto &input : Inputs)
+    {
+        auto exist_link = graph->FindPinLink(input.ID);
+        if (exist_link == nullptr)
+            continue;
+        auto start_pin = graph->FindPin(exist_link->StartPinID);
+        if (start_pin == nullptr)
+            continue;
+        if (start_pin->Node->ui.is_expanded == false)
+            start_pin = &start_pin->Node->ui.get_virtual_output();
+        ui.virtual_input_links.emplace_back(Link(graph->get_next_id(), start_pin->ID, ui.get_virtual_input().ID));
+    }
+    for (auto &output : Outputs)
+    {
+        auto exist_links = graph->FindPinLinks(output.ID);
+        for (auto &exist_link : exist_links)
+        {
+            auto end_pin = graph->FindPin(exist_link->EndPinID);
+            if (end_pin == nullptr)
+                continue;
+            if (end_pin->Node->ui.is_expanded == false)
+                end_pin = &end_pin->Node->ui.get_virtual_input();
+            ui.virtual_output_links.emplace_back(Link(graph->get_next_id(), ui.get_virtual_output().ID, end_pin->ID));
+        }
+    }
+}
 
 std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFactories =
     {

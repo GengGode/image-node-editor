@@ -918,7 +918,10 @@ struct Example : public Application
                 ImGui::Separator();
                 if (ImGui::MenuItem("折叠"))
                 {
-                    node->ui.is_expanded = !node->ui.is_expanded;
+                    if(node->ui.is_expanded)
+                        node->collapse();
+                    else
+                        node->expand();
                 }
                 ImGui::Separator();
                 ImGui::Text("ID: %p", node->ID.AsPointer());

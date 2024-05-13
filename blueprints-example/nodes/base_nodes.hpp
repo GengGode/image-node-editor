@@ -330,6 +330,8 @@ struct Node
     std::string State;
     std::string SavedState;
 
+    Graph *graph;
+
     std::function<ExecuteResult(Graph *, Node *)> OnExecute = [](Graph *, Node *node)
     {
         return ExecuteResult::ErrorNode(node->ID, "Null Impl");
@@ -505,6 +507,9 @@ struct Node
         }
         return 0;
     }
+
+    void expand();
+    void collapse();
 };
 
 struct Link
@@ -551,6 +556,7 @@ struct Graph
 
     void build_node(Node *node)
     {
+        node->graph = this;
         node->ui.graph = this;
         for (auto &input : node->Inputs)
         {
