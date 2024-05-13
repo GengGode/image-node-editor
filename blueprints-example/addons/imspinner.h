@@ -217,7 +217,7 @@ namespace ImSpinner
       }
       time += 0.01f;
       prtime += 0.01f;
-      height = initialHeight - 0.5 * 9.81f * time * time;
+      height = initialHeight - 0.5f * 9.81f * time * time;
       if (height < 0.0)
       {
         initialHeight = 0.0;
@@ -1396,7 +1396,7 @@ namespace ImSpinner
     }
   }
 
-  inline void SpinnerFadeTris(const char *label, float radius, const ImColor &color = white, float speed = 2.8f, size_t dim = 2, bool scale = false)
+  inline void SpinnerFadeTris(const char *label, float radius, const ImColor &color = white, float speed = 2.8f, int dim = 2, bool scale = false)
   {
     SPINNER_HEADER(pos, size, centre, num_segments);
 
@@ -1650,7 +1650,7 @@ namespace ImSpinner
       window->DrawList->PathStroke(color_alpha(c, 1.f), false, thickness);
     };
 
-    for (size_t arc_num = 0; arc_num < 2; ++arc_num)
+    for (int arc_num = 0; arc_num < 2; ++arc_num)
     {
       const float a = arc_angle * arc_num;
       ImColor c = color;
@@ -1682,8 +1682,8 @@ namespace ImSpinner
         c.Value.w = ImMax(0.05f, c.Value.w);
       }
 
-      draw_segment(arc_num, 0.f, c, 1.f + arc_num * 0.3f, arc_num > 0 ? -1 : 1);
-      draw_segment(arc_num, IM_PI, c, 1.f + arc_num * 0.3f, arc_num > 0 ? -1 : 1);
+      draw_segment(arc_num, 0.f, c, 1.f + arc_num * 0.3f, arc_num > 0 ? -1.0f : 1.0f);
+      draw_segment(arc_num, IM_PI, c, 1.f + arc_num * 0.3f, arc_num > 0 ? -1.0f : 1.0f);
     }
   }
 
@@ -1792,7 +1792,8 @@ namespace ImSpinner
 
     ImVec2 pp(centre.x - text_size.x / 2.f, centre.y - text_size.y / 2.f);
 
-    const int text_len = last_symbol - text;
+    // const int text_len = last_symbol - text;
+    const int text_len = static_cast<int>(last_symbol - text);
     float out_h, out_s, out_v;
     ImGui::ColorConvertRGBtoHSV(color.Value.x, color.Value.y, color.Value.z, out_h, out_s, out_v);
     for (int i = 0; text != last_symbol; ++text, ++i)
@@ -2383,7 +2384,7 @@ namespace ImSpinner
   {
     SPINNER_HEADER(pos, size, centre, num_segments);
 
-    const float start = (float)ImFmod(ImGui::GetTime() * speed, IM_PI * 2);
+    const float start = ImFmod(static_cast<float>(ImGui::GetTime()) * speed, IM_PI * 2);
     const int half_segments = num_segments / 2;
 
     for (int i = 0; i < arcs; ++i)
@@ -2739,7 +2740,7 @@ namespace ImSpinner
     {
       const float a = -rstart + (i * angle_offset / 2.f);
       const ImVec2 pos = ImVec2(centre.x + ImCos(a) * radius2, centre.y + ImSin(a) * radius2);
-      float t = sqrt(pow(pos.x - frontpos.x, 2) + pow(pos.y - frontpos.y, 2)) / (radius * 1.f) * thickness;
+      float t = static_cast<float>(sqrt(pow(pos.x - frontpos.x, 2) + pow(pos.y - frontpos.y, 2))) / (radius * 1.f) * thickness;
       window->DrawList->AddCircleFilled(pos, t, color_alpha(color, 1.f), num_segments);
       window->DrawList->AddLine(pos, backpos, color_alpha(color, 0.5f), ImMax(thickness / 2.f, 1.f));
       if (i > 0)
@@ -3584,7 +3585,7 @@ namespace ImSpinner
 
     const float nextItemKoeff = 1.5f;
     const float start = (float)ImGui::GetTime() * speed;
-    const int bars = radius * 2 / thickness;
+    const int bars = static_cast<int>(radius * 2 / thickness);
     const float offset = PI_DIV_2 / bars;
     for (int i = 0; i < bars; i++)
     {
@@ -3602,7 +3603,7 @@ namespace ImSpinner
     SPINNER_HEADER(pos, size, centre, num_segments);
 
     const float start = (float)ImGui::GetTime() * speed;
-    const int bars = radius * 2 / thickness;
+    const int bars = static_cast<int>(radius * 2 / thickness);
     const float offset = PI_DIV_2 / bars;
     for (int i = 0; i < bars; i++)
     {
@@ -3680,7 +3681,7 @@ namespace ImSpinner
     }
 
     lt = ImVec2{centre.x - radius + offset_block / 2.f, centre.y - radius + offset_block / 2.f};
-    ti = std::size(poses) - 1;
+    ti = static_cast<int>(std::size(poses) - 1);
     start = (int)ImFmod((float)ImGui::GetTime() * speed * 1.1f, 8.f);
     for (const auto &rpos : poses)
     {
