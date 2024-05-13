@@ -25,7 +25,7 @@ find_package(imgui_tex_inspect REQUIRED)
 find_package(stb_image REQUIRED)
 find_package(ScopeGuard REQUIRED)
 target_link_libraries(application PUBLIC imgui)
-target_link_libraries(application PRIVATE stb_image ScopeGuard)
+target_link_libraries(application PUBLIC stb_image ScopeGuard)
 target_link_libraries(application PUBLIC imgui_tex_inspect)
 
 if (WIN32)

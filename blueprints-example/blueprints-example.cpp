@@ -3,6 +3,7 @@
 #include "utilities/builders.h"
 #include "utilities/widgets.h"
 #include "utilities/minidump.h"
+#include "../application/addons/ImGuiNotify.hpp"
 // #include "notifiers/Notifier.hpp"
 
 #include <imgui_tex_inspect.h>
@@ -308,6 +309,7 @@ struct Example : public Application
         }
 
         printf("执行结束\n");
+        ImGui::InsertNotification({ImGuiToastType::Success, 3000, (std::string("执行结束，耗时: ") + std::to_string(ExecuteTime.value().count() / 1000000.0) + "ms").c_str()});
     }
 
     void OnStart() override

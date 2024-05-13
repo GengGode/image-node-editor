@@ -52,6 +52,7 @@ private:
     ImGuiContext*               m_Context = nullptr;
     ImFont*                     m_DefaultFont = nullptr;
     ImFont*                     m_HeaderFont = nullptr;
+    ImFont *icon_font = nullptr;
 };
 
 int Main(int argc, char** argv);

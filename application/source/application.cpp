@@ -3,6 +3,8 @@
 # include "platform.h"
 # include "renderer.h"
 #include "Notifier.hpp"
+#include "../addons/ImGuiNotify.hpp"
+#include "../addons/IconsFontAwesome6.h"
 
 extern "C" {
 #define STB_IMAGE_IMPLEMENTATION
@@ -115,6 +117,17 @@ void Application::RecreateFontAtlas()
     m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/YuanShenFont.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
     m_HeaderFont = io.Fonts->AddFontFromFileTTF("data/YuanShenFont.ttf", 20.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
 
+    // io.Fonts->AddFontDefault();
+    float baseFontSize = 16.0f;                      // Default font size
+    float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
+
+    static const ImWchar iconsRanges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+    ImFontConfig iconsConfig;
+    iconsConfig.MergeMode = true;
+    iconsConfig.PixelSnapH = true;
+    iconsConfig.GlyphMinAdvanceX = iconFontSize;
+    icon_font = io.Fonts->AddFontFromFileTTF("data/fa-solid-900.ttf", iconFontSize, &iconsConfig, iconsRanges);
+
     io.Fonts->Build();
 }
 
@@ -171,6 +184,11 @@ void Application::Frame()
 
     OnFrame(io.DeltaTime);
     Notifier::Draw();
+
+    // Main rendering function
+    ImGui::PushFont(icon_font);
+    ImGui::RenderNotifications();
+    ImGui::PopFont();
 
     ImGui::PopStyleVar(2);
     ImGui::End();
