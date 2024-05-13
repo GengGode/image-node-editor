@@ -3,14 +3,16 @@
 
 Pin &node_ui::get_virtual_input()
 {
-    static Pin virtual_input(graph->get_next_id(), "Virtual Input", PinType::Object);
-    return virtual_input;
+    if(virtual_input == nullptr)
+        virtual_input = std::make_shared<Pin>(graph->get_next_id(), "Virtual Input", PinType::Object);
+    return *virtual_input;
 }
 
 Pin &node_ui::get_virtual_output()
 {
-    static Pin virtual_output(graph->get_next_id(), "Virtual Output", PinType::Object);
-    return virtual_output;
+    if(virtual_output == nullptr)
+        virtual_output = std::make_shared<Pin>(graph->get_next_id(), "Virtual Output", PinType::Object);
+    return *virtual_output;
 }
 
 
