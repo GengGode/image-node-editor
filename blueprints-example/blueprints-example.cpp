@@ -491,6 +491,7 @@ struct Example : public Application
             m_Graph.Nodes.clear();
             m_Graph.Links.clear();
             m_Graph.next_id = 0;
+            ImGui::InsertNotification({ImGuiToastType::Info, 3000, "清空所有节点"});
         }
         static bool loop_execute = false;
         ImGui::Checkbox("循环执行", &loop_execute);
