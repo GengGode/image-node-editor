@@ -300,6 +300,7 @@ struct ExecuteResult
 
 struct node_ui
 {
+    Graph *graph;
     // 节点是否折叠为小图标
     bool is_expanded = true;
     // 折叠时汇总的输入连线
@@ -547,6 +548,7 @@ struct Graph
 
     void build_node(Node *node)
     {
+        node->ui.graph = this;
         for (auto &input : node->Inputs)
         {
             input.Node = node;
