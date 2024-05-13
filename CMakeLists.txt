@@ -206,5 +206,5 @@ endmacro()
 add_subdirectory(application)
 
 add_subdirectory(blueprints-example)
-add_subdirectory(flow-image-app)
+# add_subdirectory(flow-image-app)
 
