@@ -750,9 +750,8 @@ struct Example : public Application
             m_Graph.ui.builder = &builder;
             m_Graph.ui.draw_image_nodes();
             m_Graph.ui.draw_comment_nodes();
-
-            for (auto &link : m_Graph.Links)
-                ed::Link(link.ID, link.StartPinID, link.EndPinID, link.Color, 2.0f);
+            m_Graph.ui.draw_links();
+            m_Graph.ui.draw_virtual_links();
 
             if (!createNewNode)
             {

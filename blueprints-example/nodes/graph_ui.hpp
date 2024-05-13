@@ -6,6 +6,17 @@
 
 #include "base_nodes.hpp"
 
+inline void GraphUi::draw_links()
+{
+    for (auto &link : graph->Links)
+        ed::Link(link.ID, link.StartPinID, link.EndPinID, link.Color, 2.0f);
+}
+
+inline void GraphUi::draw_virtual_links()
+{
+    
+}
+
 inline void GraphUi::draw_image_nodes()
 {
     // 图片节点 绘制

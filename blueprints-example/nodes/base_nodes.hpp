@@ -522,6 +522,8 @@ struct GraphUi
     Pin *new_link_pin;
     void draw_image_nodes();
     void draw_comment_nodes();
+    void draw_links();
+    void draw_virtual_links();
 };
 
 struct Graph
