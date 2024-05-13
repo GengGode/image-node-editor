@@ -358,7 +358,6 @@ inline void GraphUi::draw_image_nodes()
                 ImGui::PopStyleVar();
 
                 builder->EndInput();
-
                 ed::PopStyleColor();
             }
 
@@ -382,7 +381,7 @@ inline void GraphUi::draw_image_nodes()
         // footer
         if (!isSimple)
         {
-            //builder->Footer();
+            ImGui::Spring(1);
             std::string footer = "耗时：" + node.get_last_execute_time();
             ImGui::TextUnformatted(footer.c_str());
             if (node.is_running())
