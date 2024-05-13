@@ -13,7 +13,7 @@ env:
 jobs:
   build:
     # 跳过提交信息开头为doc:或者docs:的提交
-    if: "!startsWith(github.event.head_commit.message, 'Doc:') && !startsWith(github.event.head_commit.message, 'doc:')"
+    #if: "!startsWith(github.event.head_commit.message, 'Doc:') && !startsWith(github.event.head_commit.message, 'doc:')"
     runs-on: windows-latest
 
     steps:
@@ -56,7 +56,7 @@ jobs:
   # nightly and pre-release
   release-nightly:
     # 跳过提交信息开头为doc:或者docs:的提交
-    if: "!startsWith(github.event.head_commit.message, 'Doc:') && !startsWith(github.event.head_commit.message, 'doc:')"
+    #if: "!startsWith(github.event.head_commit.message, 'Doc:') && !startsWith(github.event.head_commit.message, 'doc:')"
     runs-on: ubuntu-latest
     needs: build
 
@@ -78,12 +78,16 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: windows-build-${{env.BUILD_TYPE}}
-        path: ${{ github.workspace }}/build/bin
-
+        path: ${{ github.workspace }}/build
+    - name: Zip the build
+      run: |
+        ls ${{ github.workspace }}/build
+        7z a -tzip ${{ github.workspace }}/build/windows-build-${{env.BUILD_TYPE}}.zip ${{ github.workspace }}/build/bin
+        
     - name: Upload to GitHub Releases
       uses: softprops/action-gh-release@v1
       with:
-        files: ${{ github.workspace }}/build/bin/windows-build-${{env.BUILD_TYPE}}.zip
+        files: ${{ github.workspace }}/build/bin/*
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: nightly-${{ steps.build_number.outputs.build_number }}
         name: Nightly Build
