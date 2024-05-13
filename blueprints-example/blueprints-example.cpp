@@ -1,5 +1,6 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <application.h>
+#include "notifiers/Notifier.hpp"
 #include "utilities/builders.h"
 #include "utilities/widgets.h"
 #include "utilities/minidump.h"
@@ -7,7 +8,6 @@
 #include "addons/ImFileDialog.h"
 #include "addons/imspinner.h"
 #include "../application/addons/ImGuiNotify.hpp"
-// #include "notifiers/Notifier.hpp"
 
 #include <imgui_tex_inspect.h>
 #include <imgui_node_editor.h>
@@ -483,7 +483,7 @@ struct Example : public Application
             static int count = 0;
 
             m_Graph.env.need_execute();
-            printf("执行次数: %d\n", count++);
+            Notifier::Add(Notif(Notif::Type::INFO, "运行", "运行次数: " + std::to_string(count++),10));
         }
         ImGui::Spring(0.0f);
         if (ImGui::Button("清空"))
@@ -1500,6 +1500,10 @@ struct Example : public Application
             ifd::FileDialog::Instance().Close();
         }
         ImGui::End();
+
+        //--------------------------
+        // 右下角弹出通知
+        Notifier::Draw(); 
 
         //---------------------------
         // 循环清理异步任务
