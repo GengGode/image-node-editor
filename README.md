@@ -5,13 +5,13 @@ A pipeline like image algorithm editor, in order to adjust algorithm parameters 
 
 # Download
 
-从Actions中下载最新的构建文件
+[Nightly Build](https://github.com/GengGode/image-node-editor/releases/latest)
 
-from Actions download the latest build file
+[Pre-Release](https://github.com/GengGode/image-node-editor/releases)
 
 # Build
 
-~~ you need to release `\examples\imgui-node-editor\external\opencv-lib-Debug.zip` the opencv library in the `\examples\imgui-node-editor\external\opencv-lib-Debug\` directory, or you can download it from the official website and release it in the same directory.  ~~
+Because the opencv compilation script is already built-in, cmake can be directly launched, but the first build will consume a lot of time for opencv construction
 
 now, you only need cmake can build it.
 
