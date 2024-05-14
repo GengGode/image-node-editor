@@ -93,7 +93,13 @@ Node *Spawn_ImageOperator_LaplacianEdgeDetection(const std::function<int()> &Get
     m_Nodes.emplace_back(GetNextId(), "Laplacian轮廓检测");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageOperation_Edge;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "深度", CV_16S);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "K大小", 3);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "比例", 1.0f);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "增量", 0.0f);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "边缘填充", cv::BORDER_DEFAULT);
+
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
     node.Outputs[0].app = app;
@@ -104,15 +110,31 @@ Node *Spawn_ImageOperator_LaplacianEdgeDetection(const std::function<int()> &Get
         auto result = get_value(graph, node->Inputs[0], image);
         if (result.has_error())
             return result;
+        
+        int ddepth = CV_16S;
+        get_value(graph, node->Inputs[1], ddepth);
+        int ksize = 3;
+        get_value(graph, node->Inputs[2], ksize);
+        float scale = 1.0f;
+        get_value(graph, node->Inputs[3], scale);
+        float delta = 0.0f;
+        get_value(graph, node->Inputs[4], delta);
+        int borderType = cv::BORDER_DEFAULT;
+        get_value(graph, node->Inputs[5], borderType);
 
         // Display image
         node->Inputs[0].Value = image;
-
+        node->Inputs[1].Value = ddepth;
+        node->Inputs[2].Value = ksize;
+        node->Inputs[3].Value = scale;
+        node->Inputs[4].Value = delta;
+        node->Inputs[5].Value = borderType;
+        
         try_catch_block
         {
             cv::Mat result;
-            cv::Laplacian(image, result, CV_16S, 3, 1, 0, cv::BORDER_DEFAULT);
-            cv::convertScaleAbs(result, result);
+            cv::Laplacian(image, result, ddepth, ksize, scale, delta, borderType);
+            //cv::convertScaleAbs(result, result);
 
             node->Outputs[0].SetValue(result);
         }
@@ -130,6 +152,11 @@ Node *Spawn_ImageOperator_LaplacianEdgeEnhancement(const std::function<int()> &G
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageOperation_Edge;
     node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "深度", CV_16S);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "K大小", 3);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "比例", 1.0f);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "增量", 0.0f);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "边缘填充", cv::BORDER_DEFAULT);
     node.Inputs.emplace_back(GetNextId(), PinType::Float, "增强系数", 1.0f);
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
 
@@ -142,18 +169,33 @@ Node *Spawn_ImageOperator_LaplacianEdgeEnhancement(const std::function<int()> &G
         if (result.has_error())
             return result;
 
+        int ddepth = CV_16S;
+        get_value(graph, node->Inputs[1], ddepth);
+        int ksize = 3;
+        get_value(graph, node->Inputs[2], ksize);
+        float scale = 1.0f;
+        get_value(graph, node->Inputs[3], scale);
+        float delta = 0.0f;
+        get_value(graph, node->Inputs[4], delta);
+        int borderType = cv::BORDER_DEFAULT;
+        get_value(graph, node->Inputs[5], borderType);
         float alpha = 1.0f;
-        get_value(graph, node->Inputs[1], alpha);
+        get_value(graph, node->Inputs[6], alpha);
 
         // Display image
         node->Inputs[0].Value = image;
-        node->Inputs[1].Value = alpha;
+        node->Inputs[1].Value = ddepth;
+        node->Inputs[2].Value = ksize;
+        node->Inputs[3].Value = scale;
+        node->Inputs[4].Value = delta;
+        node->Inputs[5].Value = borderType;
+        node->Inputs[6].Value = alpha;
 
         try_catch_block
         {
             cv::Mat result;
             cv::Mat laplacian;
-            cv::Laplacian(image, laplacian, CV_16S, 3, 1, 0, cv::BORDER_DEFAULT);
+            cv::Laplacian(image, laplacian, ddepth, ksize, scale, delta, borderType);
             cv::convertScaleAbs(laplacian, laplacian);
             cv::addWeighted(image, 1.0, laplacian, alpha, 0, result);
 
