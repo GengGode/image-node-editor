@@ -1,6 +1,36 @@
 #include "base_nodes.hpp"
 #include "child_nodes/child_nodes.hpp"
 
+void Pin::event_value_changed()
+{
+    if (std::this_thread::get_id() != NodeWorldGlobal::main_thread_id)
+        return;
+    if (Type == PinType::Image && app)
+    {
+        cv::Mat image = std::get<cv::Mat>(Value);
+        if (image.empty())
+            return;
+        try
+        {
+            if (image.channels() == 1)
+                cv::cvtColor(image, image, cv::COLOR_GRAY2RGBA);
+            else if (image.channels() == 3)
+                cv::cvtColor(image, image, cv::COLOR_RGB2RGBA);
+        }
+        catch (const std::exception &e)
+        {
+            this->Node->LastExecuteResult = ExecuteResult::ErrorPin(ID, e.what());
+        }
+        int width = image.cols;
+        int height = image.rows;
+        if (ImageTexture)
+        {
+            app->DestroyTexture(ImageTexture);
+        }
+        ImageTexture = app->CreateTexture(image.data, width, height);
+    }
+}
+
 Pin &node_ui::get_virtual_input()
 {
     if(virtual_input == nullptr)
