@@ -388,16 +388,17 @@ inline void GraphUi::draw_image_nodes()
         // footer
         if (!isSimple)
         {
+            // builder->Footer();
             ImGui::Spring(1);
             std::string footer = "耗时：" + node.get_last_execute_time();
             ImGui::TextUnformatted(footer.c_str());
             if (node.is_running())
             {
                 ImColor color = ui::get_color_from_thread_id(node.get_running_thread_id());
-                //ImGui::Image(m_PlayIcon, ImVec2(16, 16), ImVec2(0, 0), ImVec2(1, 1), color.Value);
+                // ImGui::Image(m_PlayIcon, ImVec2(16, 16), ImVec2(0, 0), ImVec2(1, 1), color.Value);
                 ImSpinner::SpinnerHerbertBalls3D("wiat", 16, 3.f, color, 2.0f);
             }
-            //builder->EndFooter();
+            // builder->EndFooter();
         }
 
         builder->End();
