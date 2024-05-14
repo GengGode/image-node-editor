@@ -292,7 +292,7 @@ struct node_ui
 
     Pin &get_virtual_input();
 
-    Pin& get_virtual_output();
+    Pin &get_virtual_output();
 };
 
 struct Node
@@ -534,8 +534,8 @@ struct Graph
     std::vector<Node> Nodes;
     std::vector<Link> Links;
     // 折叠节点时节点的连线汇总为虚拟连线
-    //std::vector<std::pair<ed::PinId, ed::PinId>> virtualLinks;
-    //std::vector<Link> virtualLinks;
+    // std::vector<std::pair<ed::PinId, ed::PinId>> virtualLinks;
+    // std::vector<Link> virtualLinks;
 
     GraphUi ui;
 
