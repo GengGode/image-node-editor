@@ -20,7 +20,7 @@ now, you only need cmake can build it.
 
 # View
 
-![预览图](doc/image.png)
+![预览图](doc/image1.png)
 
 # features:
 
