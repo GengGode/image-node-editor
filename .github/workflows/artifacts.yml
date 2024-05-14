@@ -87,7 +87,14 @@ jobs:
         ls ${{ github.workspace }}/build/
         mv ${{ github.workspace }}/build/ ${{ github.workspace }}/build-release/
         tar -zczf ${{ github.workspace }}/build-release.tar.gz -C ${{ github.workspace }}/build-release/ .
-   
+
+    - name: Get today's commit messages
+      id: get_commit_messages
+      run: |
+        TODAY=$(date +%Y-%m-%d)
+        COMMIT_MESSAGES=$(git log --pretty=" - %s" --since="$TODAY 00:00:00")
+        echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
+
     - name: Upload to GitHub Releases
       uses: softprops/action-gh-release@v1
       with:
@@ -95,7 +102,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: nightly-${{ steps.build_number.outputs.build_number }}
         name: Nightly Build
-        body: "Changes: \n - ${{ github.event.head_commit.message }}"
+        body: "Changes: \n ${{ steps.get_commit_messages.outputs.commit_messages }}"
         draft: false
         prerelease: true
         
