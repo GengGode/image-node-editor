@@ -510,6 +510,12 @@ struct Node
 
     void expand();
     void collapse();
+
+    //
+    bool is_simple_node()
+    {
+        return Type == NodeType::Simple;
+    }
 };
 
 struct Link
@@ -532,6 +538,12 @@ struct GraphUi
     util::BlueprintNodeBuilder *builder;
     std::optional<ErrorInfo> context_error_opt;
     Pin *new_link_pin;
+    bool has_error;
+    bool has_error_and_hovered_on_port;
+    bool has_error_and_hovered_on_node;
+
+    void draw_node_input_pins(Node *node);
+    void draw_node_output_pins(Node *node);
     void draw_image_nodes();
     void draw_comment_nodes();
     void draw_links();
