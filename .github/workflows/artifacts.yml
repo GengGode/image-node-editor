@@ -92,7 +92,7 @@ jobs:
       id: get_commit_messages
       run: |
         TODAY=$(date +%Y-%m-%d)
-        COMMIT_MESSAGES=$(git log --pretty=" - %s" --since="$TODAY 00:00:00")
+        COMMIT_MESSAGES=$(git log --pretty=" - %s \\n" --since="$TODAY 00:00:00")
         echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
 
     - name: Upload to GitHub Releases
