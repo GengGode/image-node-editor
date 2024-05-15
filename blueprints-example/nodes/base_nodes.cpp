@@ -233,6 +233,24 @@ void Graph::auto_arrange()
         }
     }
 
+    // 获取排序后的几何中心
+    ImVec2 new_center = ImVec2(0, 0);
+    for (auto &node : Nodes)
+    {
+        auto pos = ed::GetNodePosition(node.ID);
+        new_center += pos;
+    }
+    new_center /= static_cast<float>(Nodes.size());
+
+    // 重新调整位置
+    auto offset = center - new_center;
+    for (auto &node : Nodes)
+    {
+        auto pos = ed::GetNodePosition(node.ID);
+        pos += offset;
+        ed::SetNodePosition(node.ID, pos);
+    }
+
     printf("layer count: %d\n", static_cast<int>(layer_map.size()));
     for (auto &layer_nodes : layer_map)
     {
