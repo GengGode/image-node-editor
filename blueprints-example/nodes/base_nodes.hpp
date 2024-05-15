@@ -243,7 +243,6 @@ static inline bool CanCreateLink(Pin *a, Pin *b)
 {
     if (!a || !b || a == b || a->Kind == b->Kind || a->Type != b->Type || a->Node == b->Node)
         return false;
-
     return true;
 }
 

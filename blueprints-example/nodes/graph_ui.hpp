@@ -344,6 +344,7 @@ inline void GraphUi::draw_image_nodes()
             builder->EndHeader();
         }
 
+        //ImGui::BeginGroup();
         if (node.ui.is_expanded)
         {
             draw_node_input_pins(&node);
@@ -384,8 +385,9 @@ inline void GraphUi::draw_image_nodes()
                 ed::PopStyleColor();
             }
         }
+        //ImGui::EndGroup();
 
-        // footer
+        //  footer
         if (!isSimple)
         {
             // builder->Footer();

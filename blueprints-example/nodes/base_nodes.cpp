@@ -215,11 +215,13 @@ void Graph::auto_arrange()
     for(auto &[layer,layer_nodes] : layer_map)
     {
         auto layer_max_width = 0;
-        for(auto &node : layer_nodes)
+        printf("===============\n");
+        for (auto &node : layer_nodes)
         {
             auto size = ed::GetNodeSize(node->ID);
-            if(size.x > layer_max_width)
+            if (static_cast<int>(size.x) > layer_max_width)
                 layer_max_width = static_cast<int>(size.x);
+            printf("node [%s] %d size: %f %f\n", node->Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())), size.x, size.y);
         }
         printf("layer %d max width: %d\n", layer, layer_max_width);
         for(int i = 0; i < layer_nodes.size(); i++)
