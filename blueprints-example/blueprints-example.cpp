@@ -591,6 +591,8 @@ struct Example : public Application
 
                         if (startPin && endPin)
                         {
+                            auto convert_factory_it = NodeWorldGlobal::registerLinkAutoConvertNodeFactories.find({startPin->Type, endPin->Type});
+                            auto has_convertor = (convert_factory_it != NodeWorldGlobal::registerLinkAutoConvertNodeFactories.end());
                             if (endPin == startPin)
                             {
                                 ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
@@ -605,9 +607,9 @@ struct Example : public Application
                                 showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
                                 ed::RejectNewItem(ImColor(255, 0, 0), 1.0f);
                             }
-                            else if (endPin->Type != startPin->Type)
+                            else if (endPin->Type != startPin->Type && !has_convertor)
                             {
-                                showLabel("x Incompatible Pin Type", ImColor(45, 32, 32, 180));
+                                showLabel("x Incompatible Pin Type Or Not Find Converter", ImColor(45, 32, 32, 180));
                                 ed::RejectNewItem(ImColor(255, 128, 128), 1.0f);
                             }
                             else
@@ -615,9 +617,27 @@ struct Example : public Application
                                 showLabel("+ Create Link", ImColor(32, 45, 32, 180));
                                 if (ed::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
                                 {
-                                    // 创建新的连接
-                                    m_Graph.Links.emplace_back(Link(GetNextId(), startPinId, endPinId));
-                                    m_Graph.Links.back().Color = ui::GetIconColor(startPin->Type);
+                                    if (has_convertor)
+                                    {
+                                        auto convert_factory = convert_factory_it->second;
+                                        auto convert_node = convert_factory([&]()
+                                                                            { return GetNextId(); }, [&](Node *node)
+                                                                            { m_Graph.build_node(node); }, m_Graph.Nodes, this);
+                                        // 计算位置
+                                        m_Graph.build_nodes();
+                                        m_Graph.Links.emplace_back(Link(GetNextId(), startPinId, convert_node->Inputs[0].ID));
+                                        m_Graph.Links.emplace_back(Link(GetNextId(), convert_node->Outputs[0].ID, endPinId));
+                                        m_Graph.Links.back().Color = ui::GetIconColor(startPin->Type);
+                                        m_Graph.Links.back().Color = ui::GetIconColor(endPin->Type);
+                                        startPin = nullptr;
+                                        endPin = nullptr;
+                                    }
+                                    else
+                                    {
+                                        // 创建新的连接
+                                        m_Graph.Links.emplace_back(Link(GetNextId(), startPin->ID, endPin->ID));
+                                        m_Graph.Links.back().Color = ui::GetIconColor(startPin->Type);
+                                    }
                                 }
                             }
                         }

@@ -304,3 +304,20 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
                                 {"Comment", SpawnComment},
                             }},
 };
+
+std::map<std::pair<PinType, PinType>, NodeWorldGlobal::NodeFactory_t> NodeWorldGlobal::registerLinkAutoConvertNodeFactories = {
+    {{PinType::Bool, PinType::Int}, SpawnBoolToIntNode},
+    {{PinType::Bool, PinType::Float}, SpawnBoolToFloatNode},
+    {{PinType::Bool, PinType::String}, SpawnBoolToStringNode},
+    {{PinType::Int, PinType::Bool}, SpawnIntToBoolNode},
+    {{PinType::Int, PinType::Float}, SpawnIntToFloatNode},
+    {{PinType::Int, PinType::String}, SpawnIntToStringNode},
+    {{PinType::Float, PinType::Bool}, SpawnFloatToBoolNode},
+    {{PinType::Float, PinType::Int}, SpawnFloatToIntNode},
+    {{PinType::Float, PinType::String}, SpawnFloatToStringNode},
+    {{PinType::String, PinType::Bool}, SpawnStringToBoolNode},
+    {{PinType::String, PinType::Int}, SpawnStringToIntNode},
+    {{PinType::String, PinType::Float}, SpawnStringToFloatNode},
+    {{PinType::Size, PinType::Point}, Spawn_ImageOperator_SizeToPoint},
+    {{PinType::Point, PinType::Size}, Spawn_ImageOperator_PointToSize},
+};
