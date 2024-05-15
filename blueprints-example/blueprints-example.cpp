@@ -477,6 +477,10 @@ struct Example : public Application
             m_Graph.env.need_execute();
             printf("循环执行次数: %d\n", count++);
         }
+        if(ImGui::Button("自动排列"))
+        {
+            m_Graph.auto_arrange();
+        }
         ImGui::Spring();
         if (ImGui::Button("序列化"))
         {

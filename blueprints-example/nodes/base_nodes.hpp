@@ -729,6 +729,8 @@ struct Graph
 
         return links;
     }
+    
+    void auto_arrange();
 
     bool serialize(std::string &json_buff);
     bool deserialize(const std::string &json_buff);

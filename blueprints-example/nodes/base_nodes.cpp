@@ -84,6 +84,167 @@ void Node::collapse()
     }
 }
 
+void Graph::auto_arrange()
+{
+    // 根据依赖关系排序
+
+    // 需要计算位置的节点
+    std::set<Node *> need_arrange_nodes;
+    // 每个节点有一个依赖表，记录依赖的节点
+    std::map<Node *, std::vector<Node *>> depend_map;
+    // 每个节点都有一个关联表，记录依赖它的节点
+    std::map<Node *, std::set<Node *>> relate_map;
+    // 每层的节点
+    std::map<int, std::vector<Node *>> layer_map;
+
+    // 运行结束标志
+    bool is_end = false;
+    // 理论上运行的循环次数不会超过节点数
+    size_t max_loop_limit = this->Nodes.size();
+    // 运行循环次数
+    int loop_count = 0;
+
+    // 当前图的几何中心
+    ImVec2 center = ImVec2(0, 0);
+    for (auto &node : Nodes)
+    {
+        auto pos = ed::GetNodePosition(node.ID);
+        center += pos;
+    }
+    center /= static_cast<float>(Nodes.size());
+    printf("center: %f %f\n", center.x, center.y);
+
+    // 需要运行所有节点
+    for (auto &node : this->Nodes)
+        need_arrange_nodes.insert(&node);
+
+    // 生成依赖表
+    {
+        // 根据输入连接生成依赖表
+        for (auto &node : this->Nodes)
+        {
+            for (auto &input : node.Inputs)
+            {
+                if (this->IsPinLinked(input.ID) == false)
+                    continue;
+                auto links = this->FindPinLinks(input.ID);
+                for (auto &link : links)
+                {
+                    auto beginpin = this->FindPin(link->StartPinID);
+                    if (beginpin == nullptr)
+                        continue;
+                    if (beginpin->Kind != PinKind::Output)
+                        continue;
+                    auto beginnode = beginpin->Node;
+                    if (beginnode == nullptr)
+                        continue;
+                    depend_map[&node].push_back(beginnode);
+                }
+            }
+        }
+        // 根据输出连接生成关联表
+        for (auto &node : this->Nodes)
+        {
+            for (auto &output : node.Outputs)
+            {
+                if (this->IsPinLinked(output.ID) == false)
+                    continue;
+                auto links = this->FindPinLinks(output.ID);
+                for (auto &link : links)
+                {
+                    auto endpin = this->FindPin(link->EndPinID);
+                    if (endpin == nullptr)
+                        continue;
+                    if (endpin->Kind != PinKind::Input)
+                        continue;
+                    auto endnode = endpin->Node;
+                    if (endnode == nullptr)
+                        continue;
+                    relate_map[&node].insert(endnode);
+                }
+            }
+        }
+        // debug 打印依赖表
+        for (auto &node : this->Nodes)
+        {
+            printf("node [%s] %d depend on: ", node.Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node.ID.AsPointer())));
+            for (auto &depend : depend_map[&node])
+            {
+                printf("%d ", static_cast<int>(reinterpret_cast<int64>(depend->ID.AsPointer())));
+            }
+            printf("\n");
+        }
+    }
+
+    int current_layer = 0;
+    while (need_arrange_nodes.size() > 0)
+    {
+        // 当前层的节点
+        std::vector<Node *> layer_nodes;
+        // 遍历还没有安排的节点
+        for (auto &node : need_arrange_nodes)
+        {
+            // 如果没有依赖节点
+            if (depend_map[node].size() == 0)
+            {
+                layer_nodes.push_back(node);
+                continue;
+            }
+
+            // 如果依赖节点都已经安排
+            // 计算交集，依赖的节点是否存在于需要安排的节点中
+            std::set<Node *> intersect;
+            std::set_intersection(depend_map[node].begin(), depend_map[node].end(), need_arrange_nodes.begin(), need_arrange_nodes.end(), std::inserter(intersect, intersect.begin()));
+
+            // 如果有交集，说明依赖的节点还没有安排，否则说明依赖的节点都已经安排
+            if (intersect.size() > 0)
+                continue;
+
+            layer_nodes.push_back(node);
+        }
+
+        for (auto &node : layer_nodes)
+        {
+            need_arrange_nodes.erase(node);
+        }
+
+        layer_map[current_layer] = layer_nodes;
+        current_layer++;
+    }
+    
+    for(auto &[layer,layer_nodes] : layer_map)
+    {
+        auto layer_max_width = 0;
+        for(auto &node : layer_nodes)
+        {
+            auto size = ed::GetNodeSize(node->ID);
+            if(size.x > layer_max_width)
+                layer_max_width = static_cast<int>(size.x);
+        }
+        printf("layer %d max width: %d\n", layer, layer_max_width);
+        for(int i = 0; i < layer_nodes.size(); i++)
+        {
+            auto node = layer_nodes[i];
+            ImVec2 pos = center;
+            pos.x += (layer - 1) * (layer_max_width +20);
+            pos.y += (i - 1) * 300;
+            ed::SetNodePosition(node->ID, pos);
+            printf("node [%s] %d pos: %f %f\n", node->Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())), pos.x, pos.y);
+        }
+    }
+
+    printf("layer count: %d\n", static_cast<int>(layer_map.size()));
+    for (auto &layer_nodes : layer_map)
+    {
+        printf("layer %d: ", layer_nodes.first);
+        for (auto &node : layer_nodes.second)
+        {
+            printf("%d ", static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())));
+        }
+        printf("\n");
+    }
+}
+
 std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, BlueprintNodes},
