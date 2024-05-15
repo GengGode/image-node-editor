@@ -570,6 +570,7 @@ struct Example : public Application
                     {
                         auto startPin = m_Graph.FindPin(startPinId);
                         auto endPin = m_Graph.FindPin(endPinId);
+                        auto end_node_pos = ed::GetNodePosition(endPin->Node->ID);
 
                         m_Graph.ui.new_link_pin = startPin ? startPin : endPin;
 
@@ -611,16 +612,20 @@ struct Example : public Application
                                     {
                                         auto convert_factory = convert_factory_it->second;
                                         auto convert_node = convert_factory([&]()
-                                                                            { return GetNextId(); }, [&](Node *node)
-                                                                            { m_Graph.build_node(node); }, m_Graph.Nodes, this);
-                                        // 计算位置
-                                        m_Graph.build_nodes();
-                                        m_Graph.Links.emplace_back(Link(GetNextId(), startPinId, convert_node->Inputs[0].ID));
-                                        m_Graph.Links.emplace_back(Link(GetNextId(), convert_node->Outputs[0].ID, endPinId));
+                                                                            { return m_Graph.get_next_id(); },
+                                                                            [&](Node *node)
+                                                                            { m_Graph.build_node(node); },
+                                                                            m_Graph.Nodes, this);
+
+                                        createNewNode = false; 
+                                        // 设置新建节点位置为目标节点左侧
+                                        auto convert_node_size = ed::GetNodeSize(convert_node->ID);
+                                        ed::SetNodePosition(convert_node->ID, end_node_pos - ImVec2(convert_node_size.x + 200, 0));
+
+                                        m_Graph.Links.emplace_back(Link(m_Graph.get_next_id(), startPinId, convert_node->Inputs[0].ID));
+                                        m_Graph.Links.emplace_back(Link(m_Graph.get_next_id(), convert_node->Outputs[0].ID, endPinId));
                                         m_Graph.Links.back().Color = ui::GetIconColor(startPin->Type);
                                         m_Graph.Links.back().Color = ui::GetIconColor(endPin->Type);
-                                        startPin = nullptr;
-                                        endPin = nullptr;
                                     }
                                     else
                                     {
