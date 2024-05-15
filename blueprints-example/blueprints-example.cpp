@@ -245,7 +245,7 @@ struct Example : public Application
             static int count = 0;
 
             m_Graph.env.need_execute();
-            Notifier::Add(Notif(Notif::Type::INFO, "运行", "运行次数: " + std::to_string(count++),10));
+            Notifier::Add(Notif(Notif::Type::INFO, "运行", "运行次数: " + std::to_string(count++), 10));
         }
         ImGui::Spring(0.0f);
         if (ImGui::Button("清空"))
@@ -263,7 +263,7 @@ struct Example : public Application
             m_Graph.env.need_execute();
             printf("循环执行次数: %d\n", count++);
         }
-        if(ImGui::Button("自动排列"))
+        if (ImGui::Button("自动排列"))
         {
             m_Graph.auto_arrange();
         }
@@ -519,7 +519,7 @@ struct Example : public Application
         static ed::PinId contextPinId = 0;
         static bool createNewNode = false;
         static Pin *newNodeLinkPin = nullptr;
-        //static Pin *new_link_pin = nullptr;
+        // static Pin *new_link_pin = nullptr;
         static bool isUpdateNewNodePositon = false;
 
         static float leftPaneWidth = 400.0f;
@@ -728,7 +728,7 @@ struct Example : public Application
                 ImGui::Separator();
                 if (ImGui::MenuItem("折叠"))
                 {
-                    if(node->ui.is_expanded)
+                    if (node->ui.is_expanded)
                         node->collapse();
                     else
                         node->expand();
@@ -937,7 +937,7 @@ struct Example : public Application
 
         //--------------------------
         // 右下角弹出通知
-        Notifier::Draw(); 
+        Notifier::Draw();
 
         //---------------------------
         // 循环清理异步任务
