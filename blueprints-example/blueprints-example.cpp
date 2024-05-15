@@ -51,16 +51,6 @@ struct Example : public Application
 {
     using Application::Application;
 
-    int GetNextId()
-    {
-        return m_Graph.next_id++;
-    }
-
-    ed::LinkId GetNextLinkId()
-    {
-        return ed::LinkId(GetNextId());
-    }
-
     void TouchNode(ed::NodeId id)
     {
         m_NodeTouchTime[id] = m_TouchTime;
@@ -635,7 +625,7 @@ struct Example : public Application
                                     else
                                     {
                                         // 创建新的连接
-                                        m_Graph.Links.emplace_back(Link(GetNextId(), startPin->ID, endPin->ID));
+                                        m_Graph.Links.emplace_back(Link(m_Graph.get_next_id(), startPin->ID, endPin->ID));
                                         m_Graph.Links.back().Color = ui::GetIconColor(startPin->Type);
                                     }
                                 }
@@ -809,7 +799,7 @@ struct Example : public Application
                         if (ImGui::MenuItem(name.c_str()))
                         {
                             node = func([&]()
-                                        { return GetNextId(); },
+                                        { return m_Graph.get_next_id(); },
                                         [&](Node *node)
                                         { m_Graph.build_node(node); },
                                         m_Graph.Nodes, this);
@@ -839,7 +829,7 @@ struct Example : public Application
                             if (startPin->Kind == PinKind::Input)
                                 std::swap(startPin, endPin);
                             // 创建新的连接
-                            m_Graph.Links.emplace_back(Link(GetNextId(), startPin->ID, endPin->ID));
+                            m_Graph.Links.emplace_back(Link(m_Graph.get_next_id(), startPin->ID, endPin->ID));
                             m_Graph.Links.back().Color = ui::GetIconColor(startPin->Type);
                             break;
                         }
