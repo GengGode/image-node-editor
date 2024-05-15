@@ -290,11 +290,11 @@ struct Example : public Application
             in.close();
 
             m_Graph.deserialize(json);
+            m_Graph.build_nodes();
             for (auto &node : m_Graph.Nodes)
             {
                 ed::SetNodePosition(node.ID, node.Position);
             }
-            m_Graph.build_nodes();
         }
         ImGui::EndHorizontal();
 
