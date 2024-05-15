@@ -85,199 +85,6 @@ struct Example : public Application
         }
     }
 
-    void ExecuteNode(Node *node)
-    {
-        if (node->has_execute_mothod())
-            node->execute(&m_Graph);
-    }
-
-    void ExecuteNodes()
-    {
-        // 每个节点有一个依赖表，记录依赖的节点
-        std::map<Node *, std::vector<Node *>> depend_map;
-        // 每个节点都有一个关联表，记录依赖它的节点
-        std::map<Node *, std::set<Node *>> relate_map;
-        // 每一个节点有一个是否成功运行完毕的标志
-        std::map<Node *, bool> node_run_map;
-        // 如果节点运行错误，记录错误节点和它的关联节点
-        std::set<Node *> error_and_relate_nodes;
-        // 需要运行的所有节点
-        std::list<Node *> need_run_nodes;
-        // 运行结束标志
-        bool is_end = false;
-        // 理论上运行的循环次数不会超过节点数
-        size_t max_loop_limit = m_Graph.Nodes.size();
-        // 运行循环次数
-        int loop_count = 0;
-
-        // 需要运行所有节点
-        std::transform(m_Graph.Nodes.begin(), m_Graph.Nodes.end(), std::back_inserter(need_run_nodes), [](auto &node)
-                       { return &node; });
-
-        // 生成依赖表
-        {
-            // 根据输入连接生成依赖表
-            for (auto &node : m_Graph.Nodes)
-            {
-                for (auto &input : node.Inputs)
-                {
-                    if (m_Graph.IsPinLinked(input.ID) == false)
-                        continue;
-                    auto links = m_Graph.FindPinLinks(input.ID);
-                    for (auto &link : links)
-                    {
-                        auto beginpin = m_Graph.FindPin(link->StartPinID);
-                        if (beginpin == nullptr)
-                            continue;
-                        if (beginpin->Kind != PinKind::Output)
-                            continue;
-                        auto beginnode = beginpin->Node;
-                        if (beginnode == nullptr)
-                            continue;
-                        depend_map[&node].push_back(beginnode);
-                    }
-                }
-            }
-            // 根据输出连接生成关联表
-            for (auto &node : m_Graph.Nodes)
-            {
-                for (auto &output : node.Outputs)
-                {
-                    if (m_Graph.IsPinLinked(output.ID) == false)
-                        continue;
-                    auto links = m_Graph.FindPinLinks(output.ID);
-                    for (auto &link : links)
-                    {
-                        auto endpin = m_Graph.FindPin(link->EndPinID);
-                        if (endpin == nullptr)
-                            continue;
-                        if (endpin->Kind != PinKind::Input)
-                            continue;
-                        auto endnode = endpin->Node;
-                        if (endnode == nullptr)
-                            continue;
-                        relate_map[&node].insert(endnode);
-                    }
-                }
-            }
-            // debug 打印依赖表
-            for (auto &node : m_Graph.Nodes)
-            {
-                printf("node [%s] %d depend on: ", node.Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node.ID.AsPointer())));
-                for (auto &depend : depend_map[&node])
-                {
-                    printf("%d ", static_cast<int>(reinterpret_cast<int64>(depend->ID.AsPointer())));
-                }
-                printf("\n");
-            }
-        }
-
-        while (!is_end)
-        {
-            const auto get_depend_over_nodes = [&need_run_nodes, &depend_map, &node_run_map, error_and_relate_nodes]()
-            {
-                std::vector<Node *> nodes;
-                for (auto &node : need_run_nodes)
-                {
-                    // 跳过已经运行过的节点
-                    if (node_run_map[node] == true)
-                        continue;
-                    // 跳过在[错误和关联节点]中的节点
-                    if (error_and_relate_nodes.find(node) != error_and_relate_nodes.end())
-                        continue;
-
-                    auto &depend_nodes = depend_map[node];
-                    // 如果没有依赖或者依赖节点都已经运行完毕
-                    if (depend_nodes.size() == 0)
-                    {
-                        nodes.push_back(node);
-                        continue;
-                    }
-                    bool is_all_depend_over = true;
-                    for (auto &depend : depend_nodes)
-                    {
-                        if (node_run_map[depend] == false)
-                        {
-                            is_all_depend_over = false;
-                            break;
-                        }
-                    }
-                    if (is_all_depend_over)
-                    {
-                        nodes.push_back(node);
-                    }
-                }
-
-                return nodes;
-            };
-            // 获取依赖节点都已经运行完毕的节点
-            auto can_run_nodes = get_depend_over_nodes();
-            // 没有可以运行的节点，终止循环
-            if (can_run_nodes.size() == 0)
-            {
-                is_end = true;
-                break;
-            }
-            // 并行执行节点
-            std::vector<std::future<void>> futures;
-            for (auto &node : can_run_nodes)
-            { // 添加到运行节点列表
-                futures.push_back(std::async(std::launch::async, [this, node]
-                                             { ExecuteNode(node); }));
-            }
-            // debug 打印本次循环执行的节点
-            printf("本%d次循环执行的节点: %zd个", loop_count, can_run_nodes.size());
-            // ImGui::InsertNotification({ImGuiToastType::Info, 3000, (std::string("本次运行第") + std::to_string(loop_count) + "次循环执行的节点: " + std::to_string(can_run_nodes.size()) + "个").c_str()});
-            for (auto &node : can_run_nodes)
-            {
-                printf("%d ", static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())));
-            }
-            printf("\n");
-
-            // 等待所有节点运行完毕
-            for (auto &future : futures)
-                future.get();
-
-            // 标记节点已经运行完毕
-            for (auto &node : can_run_nodes)
-                node_run_map[node] = true;
-
-            // 如果节点运行错误，记录错误节点
-            std::set<Node *> error_nodes;
-            for (auto &node : can_run_nodes)
-            {
-                if (node->LastExecuteResult.has_error())
-                    error_nodes.insert(node);
-            }
-
-            // 从【需要运行的节点】中删除已经运行完成的
-            for (auto &node : can_run_nodes)
-            {
-                need_run_nodes.remove(node);
-            }
-
-            // 将[错误节点]和[关联节点]加入到[错误和关联节点]中
-            for (auto &error_node : error_nodes)
-            {
-                error_and_relate_nodes.insert(error_node);
-                for (auto &relate_node : relate_map[error_node])
-                {
-                    error_and_relate_nodes.insert(relate_node);
-                }
-            }
-
-            // 循环次数超过限制，终止循环
-            if (loop_count++ > max_loop_limit)
-            {
-                is_end = true;
-                break;
-            }
-        }
-
-        printf("执行结束\n");
-        // ImGui::InsertNotification({ImGuiToastType::Success, 3000, (std::string("执行结束，耗时: ") + std::to_string(ExecuteTime.value().count() / 1000000.0) + "ms").c_str()});
-    }
-
     void OnStart() override
     {
         ed::Config config;
@@ -329,17 +136,6 @@ struct Example : public Application
         m_Graph.ui.graph = &m_Graph;
         m_Graph.env.app = this;
         m_Graph.env.graph = &m_Graph;
-        m_Graph.env.executeFunc = [this](Graph *graph)
-        {
-            std::vector<ExecuteResult> results;
-            // ExecuteNodes();
-            BeginExecuteTime = std::chrono::steady_clock::now();
-            ExecuteNodes();
-            EndExecuteTime = std::chrono::steady_clock::now();
-            ExecuteTime = std::chrono::duration_cast<std::chrono::milliseconds>(*EndExecuteTime - *BeginExecuteTime);
-
-            return results;
-        };
     }
 
     void OnStop() override
@@ -712,7 +508,7 @@ struct Example : public Application
 
         auto &io = ImGui::GetIO();
 
-        ImGui::Text("帧率测试: %.2f (%.2gms) 上次执行全体耗时: %.2f ms", io.Framerate, io.Framerate ? 1000.0f / io.Framerate : 0.0f, ExecuteTime.has_value() ? ExecuteTime.value().count() / 1000000.0 : 0.0f);
+        ImGui::Text("帧率测试: %.2f (%.2gms) 上次执行全体耗时: %.2f ms", io.Framerate, io.Framerate ? 1000.0f / io.Framerate : 0.0f, m_Graph.env.all_execute_time / 1000000.0);
 
         ed::SetCurrentEditor(m_Editor);
 
@@ -1171,10 +967,6 @@ struct Example : public Application
     const float m_TouchTime = 1.0f;
     std::map<ed::NodeId, float, NodeIdLess> m_NodeTouchTime;
     bool m_ShowOrdinals = false;
-
-    std::optional<std::chrono::steady_clock::time_point> BeginExecuteTime;
-    std::optional<std::chrono::steady_clock::time_point> EndExecuteTime;
-    std::optional<std::chrono::steady_clock::duration> ExecuteTime;
 };
 
 int main(int argc, char **argv)
