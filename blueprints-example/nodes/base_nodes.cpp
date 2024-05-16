@@ -16,6 +16,8 @@ void Pin::event_value_changed()
                 cv::cvtColor(image, image, cv::COLOR_GRAY2RGBA);
             else if (image.channels() == 3)
                 cv::cvtColor(image, image, cv::COLOR_RGB2RGBA);
+            if(image.isContinuous() ==false)
+                image = image.clone();
         }
         catch (const std::exception &e)
         {
