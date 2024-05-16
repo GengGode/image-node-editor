@@ -295,6 +295,9 @@ struct node_ui
     Pin &get_virtual_output();
 };
 
+struct node_state_value{};
+
+
 struct Node
 {
     ed::NodeId ID;
@@ -336,6 +339,7 @@ struct Node
     std::atomic<size_t> RunningThreadId = 0;
 
     node_ui ui;
+    std::shared_ptr<node_state_value> state_value;
 
     Node(int id, const char *name, ImColor color = ImColor(255, 255, 255)) : ID(id), Name(name), Color(color), Type(NodeType::Blueprint), Size(0, 0)
     {
@@ -433,6 +437,8 @@ struct Node
         }
         return *this;
     }
+
+
 
     bool can_execute()
     {
@@ -947,6 +953,7 @@ inline bool Graph::deserialize(const std::string &json_buff)
                                                  { g.build_node(node); },
                                                  g.Nodes, this->env.app);
                     n.OnExecute = tmp_node->OnExecute;
+                    n.state_value = tmp_node->state_value;
                     for (auto &input : n.Inputs)
                     {
                         input.app = this->env.app;

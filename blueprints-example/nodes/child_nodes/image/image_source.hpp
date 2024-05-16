@@ -148,6 +148,69 @@ Node *Spawn_ImageWindowBitbltCapture(const std::function<int()> &GetNextId, cons
     return &node;
 }
 
+#include "utils/capture.window_graphic.hpp"
+struct wgc_node_state_value : node_state_value
+{
+    tianli::frame::capture::capture_window_graphics capture;
+};
+
+// window graphic capture
+Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "窗口图形截图");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageSource;
+    node.Inputs.emplace_back(GetNextId(), "窗口名称", PinType::String, std::string());
+    node.Inputs.emplace_back(GetNextId(), "窗口类名", PinType::String, std::string());
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+    node.state_value = std::make_shared<wgc_node_state_value>();
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string window;
+        get_value(graph, node->Inputs[0], window);
+        std::string class_name;
+        get_value(graph, node->Inputs[1], class_name);
+
+        node->Inputs[0].Value = window;
+        node->Inputs[1].Value = class_name;
+
+        try_catch_block;
+        if (node->state_value == nullptr)
+            return ExecuteResult::ErrorNode(node->ID, "未初始化状态值");
+        auto &wgc_value = std::static_pointer_cast<wgc_node_state_value>(node->state_value);
+        if (wgc_value==nullptr)
+            return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
+        auto &capture = wgc_value->capture;
+        
+        const char *window_name = window.size() > 0 ? window.c_str() : nullptr;
+        const char *class_name_str = class_name.size() > 0 ? class_name.c_str() : nullptr;
+        cv::Mat image;
+
+        HWND handle = FindWindowA(class_name_str, window_name);
+        if (handle == NULL)
+            return ExecuteResult::ErrorNode(node->ID, "未找到窗口");
+
+        if (capture.initialization() == false)
+            return ExecuteResult::ErrorNode(node->ID, "初始化失败");
+
+        if(capture.set_capture_handle(handle)==false)
+            return ExecuteResult::ErrorNode(node->ID, "设置窗口句柄失败");
+
+        if (capture.get_frame(image) == false)
+            return ExecuteResult::ErrorNode(node->ID, "获取图像失败");
+
+        node->Outputs[0].SetValue(image);
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+
 // local images from dir
 Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -213,5 +276,6 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
 
 static NodeWorldGlobal::FactoryGroupFunc_t ImageSourceNodes = {
     {"窗口原生截图", Spawn_ImageWindowBitbltCapture},
+    {"窗口图形截图", Spawn_ImageWindowGraphicCapture},
     {"本地图片列表", Spawn_ImageLocalImagesFromDir},
 };
