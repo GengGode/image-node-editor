@@ -11,7 +11,8 @@
 #include <X11/Xatom.h>
 #endif
 
-#include <Windows.h>
+#include "../../utilities/convert.string.h"
+
 namespace window_scale
 {
     namespace window_last_version
@@ -105,6 +106,9 @@ Node *Spawn_ImageWindowBitbltCapture(const std::function<int()> &GetNextId, cons
 
         try_catch_block;
 
+        class_name =utils::to_utf8(class_name);
+        window = utils::to_utf8(window);
+
         const char *window_name = window.size() > 0 ? window.c_str() : nullptr;
         const char *class_name_str = class_name.size() > 0 ? class_name.c_str() : nullptr;
         cv::Mat image;
@@ -183,12 +187,15 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
         if (wgc_value==nullptr)
             return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
         auto &capture = wgc_value->capture;
-        
-        const char *window_name = window.size() > 0 ? window.c_str() : nullptr;
-        const char *class_name_str = class_name.size() > 0 ? class_name.c_str() : nullptr;
+
+        auto w_class_name = utils::to_wstring(class_name);
+        auto w_window = utils::to_wstring(window);
+        const wchar_t *w_window_name = w_window.size() > 0 ? w_window.c_str() : nullptr;
+        const wchar_t *w_class_name_str = w_class_name.size() > 0 ? w_class_name.c_str() : nullptr;
+       
         cv::Mat image;
 
-        HWND handle = FindWindowA(class_name_str, window_name);
+        HWND handle = FindWindowW(w_class_name_str, w_window_name);
         if (handle == NULL)
             return ExecuteResult::ErrorNode(node->ID, "未找到窗口");
 
