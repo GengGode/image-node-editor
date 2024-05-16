@@ -164,7 +164,6 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), "窗口类名", PinType::String, std::string());
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs[0].app = app;
-    node.state_value = std::make_shared<wgc_node_state_value>();
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -179,7 +178,7 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
         try_catch_block;
 
         if (node->state_value == nullptr)
-            return ExecuteResult::ErrorNode(node->ID, "未初始化状态值");
+            node->state_value = std::make_shared<wgc_node_state_value>();
         auto &wgc_value = std::static_pointer_cast<wgc_node_state_value>(node->state_value);
         if (wgc_value==nullptr)
             return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");

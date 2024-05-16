@@ -170,21 +170,21 @@ namespace tianli::frame::capture
             if (data == nullptr)
                 return false;
 
-            frame = cv::Mat(frame_size.Height, frame_size.Width, CV_8UC4, data, pitch);
-            if (client_box_available)
-            {
-                if (static_cast<int>(client_box.right - client_box.left) > static_cast<int>(frame_size.Width) || static_cast<int>(client_box.bottom - client_box.top) > static_cast<int>(frame_size.Height))
-                    return false;
-                this->source_frame = frame(cv::Rect(0, 0, client_box.right - client_box.left, client_box.bottom - client_box.top));
-            }
+            frame = cv::Mat(frame_size.Height, frame_size.Width, CV_8UC4, data, pitch).clone();
+            //if (client_box_available)
+            //{
+            //    if (static_cast<int>(client_box.right - client_box.left) > static_cast<int>(frame_size.Width) || static_cast<int>(client_box.bottom - client_box.top) > static_cast<int>(frame_size.Height))
+            //        return false;
+            //    this->source_frame = frame(cv::Rect(0, 0, client_box.right - client_box.left, client_box.bottom - client_box.top));
+            //}
             // 释放资源
             bufferTexture->Release();
 
-            if (this->source_frame.empty())
-                return false;
-            if (this->source_frame.cols < 480 || this->source_frame.rows < 360)
-                return false;
-            frame = this->source_frame;
+            //if (this->source_frame.empty())
+            //    return false;
+            //if (this->source_frame.cols < 480 || this->source_frame.rows < 360)
+            //    return false;
+            //frame = this->source_frame;
             return true;
         }
 
