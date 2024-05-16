@@ -177,6 +177,7 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
         node->Inputs[1].Value = class_name;
 
         try_catch_block;
+
         if (node->state_value == nullptr)
             return ExecuteResult::ErrorNode(node->ID, "未初始化状态值");
         auto &wgc_value = std::static_pointer_cast<wgc_node_state_value>(node->state_value);
@@ -192,8 +193,8 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
         if (handle == NULL)
             return ExecuteResult::ErrorNode(node->ID, "未找到窗口");
 
-        if (capture.initialization() == false)
-            return ExecuteResult::ErrorNode(node->ID, "初始化失败");
+        if(capture.is_initialized==false)
+            capture.initialization();
 
         if(capture.set_capture_handle(handle)==false)
             return ExecuteResult::ErrorNode(node->ID, "设置窗口句柄失败");
