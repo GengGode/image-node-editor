@@ -145,8 +145,10 @@ namespace tianli::frame::capture
 
             // auto d3dDevice = GetDXGIInterfaceFromObject<ID3D11Device>(m_device);
             utils::window_graphics::graphics_global::get_instance().d3d_device->CreateTexture2D(&desc, nullptr, &bufferTexture);
+           
+            auto scale = tianli::frame::capture::utils::window_scale::get_screen_scale(this->source_handle);
             D3D11_BOX client_box;
-            bool client_box_available = utils::window_graphics::get_client_box(this->source_handle, desc.Width, desc.Height, &client_box);
+            bool client_box_available = utils::window_graphics::get_client_box(this->source_handle, desc.Width, desc.Height, scale, &client_box);
 
             if (client_box_available)
             {

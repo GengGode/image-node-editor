@@ -120,7 +120,7 @@ namespace tianli::frame::capture::utils::window_graphics
         D3D11_TEXTURE2D_DESC desc_type{ 0, 0, 1, 1, DXGI_FORMAT_B8G8R8A8_UNORM, { 1, 0 }, D3D11_USAGE_STAGING, 0, D3D11_CPU_ACCESS_READ, 0 };
     };
 
-    bool get_client_box(HWND window, uint32_t width, uint32_t height, D3D11_BOX* client_box)
+    bool get_client_box(HWND window, uint32_t width, uint32_t height, double scale, D3D11_BOX* client_box)
     {
         RECT client_rect{}, window_rect{};
         POINT upper_left{};
@@ -137,24 +137,23 @@ namespace tianli::frame::capture::utils::window_graphics
             client_box->top = top;
 
             uint32_t texture_width = 1;
+            uint32_t texture_height = 1; // Add this line to declare and initialize texture_height
             if (width > left)
             {
                 texture_width = (std::min)(width - left, (uint32_t)client_rect.right);
             }
-
-            uint32_t texture_height = 1;
             if (height > top)
             {
                 texture_height = (std::min)(height - top, (uint32_t)client_rect.bottom);
             }
 
-            client_box->right = left + texture_width;
-            client_box->bottom = top + texture_height;
+            client_box->right = static_cast<UINT>(left + texture_width * scale);
+            client_box->bottom = static_cast<UINT>(top + texture_height * scale);
 
             client_box->front = 0;
             client_box->back = 1;
 
-            client_box_available = (client_box->right <= width) && (client_box->bottom <= height);
+            client_box_available = (client_box->right <= static_cast<UINT>(width)) && (client_box->bottom <= static_cast<UINT>(height));
         }
 
         return client_box_available;
