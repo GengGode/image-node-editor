@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <any>
 #include <functional>
 #include <variant>
 #include <optional>
@@ -44,12 +45,14 @@ typedef std::vector<cv::KeyPoint> KeyPoints;
 typedef std::pair<KeyPoints, cv::Mat> Feature;
 typedef std::vector<cv::DMatch> Matches;
 typedef std::vector<cv::Vec3f> Circles;
+typedef std::optional<std::any> Object;
 
 typedef std::variant<int, float, bool, std::string,
                      cv::Mat, cv::Rect, cv::Size, cv::Point, cv::Scalar,
                      Contour, Contours,
                      cv::KeyPoint, KeyPoints, Feature, cv::DMatch, Matches,
-                     Circles>
+                     Circles,
+                     Object>
     port_value_t;
 
 enum class PinType
@@ -95,6 +98,7 @@ static const std::map<std::size_t, PinType> typeMap = {
     {typeid(cv::DMatch).hash_code(), PinType::Match},
     {typeid(Matches).hash_code(), PinType::Matches},
     {typeid(Circles).hash_code(), PinType::Circles},
+    {typeid(Object).hash_code(), PinType::Object},
 };
 static const std::map<PinType, std::string> typeLabelNames = {
     {PinType::Int, "整数"},
@@ -114,6 +118,7 @@ static const std::map<PinType, std::string> typeLabelNames = {
     {PinType::Match, "匹配对"},
     {PinType::Matches, "匹配集合"},
     {PinType::Circles, "霍夫圆数据集合"},
+    {PinType::Object, "任意对象"},
 };
 
 template <typename T>
@@ -231,6 +236,12 @@ static bool is_equal(const Matches &lft, const Matches &rht)
             return false;
     }
     return true;
+}
+
+template<>
+static bool is_equal(const Object&lft, const Object&rht)
+{
+    return false;
 }
 
 static bool is_equal(const port_value_t &lft, const port_value_t &rht)
@@ -405,6 +416,10 @@ struct PortValueSerializer
         if (std::holds_alternative<Circles>(v))
         {
             return json::object{{"Circles", json::serialize(std::get<Circles>(v), *this)}};
+        }
+        if (std::holds_alternative<Object>(v))
+        {
+            return json::object{{"Object", "Object"}};
         }
         return json::object{{"null", "null"}};
     }
@@ -745,6 +760,11 @@ struct PortValueDeserializer
                     v = circles;
                     return true;
                 }
+            }
+            if (json.as_object().contains("Object"))
+            {
+                v = std::any();
+                return true;
             }
         }
         return false;
