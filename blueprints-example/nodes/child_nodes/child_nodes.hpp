@@ -33,6 +33,8 @@
 
 #include <filesystem>
 
+#include <libocr.h>
+
 Node *Spawn_ImageFileSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "图像文件源");
@@ -481,6 +483,57 @@ Node *Spawn_ImageOperator_ImageAndMaskCopy(const std::function<int()> &GetNextId
             cv::Mat result;
             image.copyTo(result, mask);
             node->Outputs[0].SetValue(result);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+
+// ImageOcrText
+Node *Spawn_ImageOperator_OcrText(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "OCR 文本");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), PinType::String);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = image;
+
+        try_catch_block
+        {
+            cv::Mat roi = image;
+            if(image.channels() == 1)
+            {
+                cv::cvtColor(image, roi, cv::COLOR_GRAY2BGR);
+            }
+            if (roi.channels() == 4)
+            {
+                cv::cvtColor(roi, roi, cv::COLOR_BGRA2BGR);
+            }
+
+            
+            auto data = roi.data;
+            auto data_size = roi.channels() * roi.cols * roi.rows;
+            char result[1024] = {0};
+            auto error_code = ocr_image_data(roi.cols, roi.rows, (const char *)roi.data, data_size, result,1024);
+            if (error_code != 0)
+                return ExecuteResult::ErrorNode(node->ID, "OCR 失败，错误码：" + std::to_string(error_code));
+            std::string text = std::string(result);
+            node->Outputs[0].SetValue(text);
         }
         catch_block_and_return;
     };

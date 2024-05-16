@@ -6,6 +6,8 @@ include(cmake/auto_subdirectory.cmake)
 
 project(image-node-editor)
 
+set(third_party_dir "${CMAKE_SOURCE_DIR}/third_party")
+
 set(IMAGE_NODE_EDITOR_BUILD_OPENCV OFF CACHE BOOL "Build with opencv")
 
 # Define IMGUI_NODE_EDITOR_ROOT_DIR pointing to project root directory
@@ -16,6 +18,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Point CMake where to look for module files.
 list(APPEND CMAKE_MODULE_PATH ${IMGUI_NODE_EDITOR_ROOT_DIR}/misc/cmake-modules)
+list(APPEND CMAKE_MODULE_PATH ${third_party_dir}/libocr)
 
 # Node editor use C++14
 set(CMAKE_CXX_STANDARD            17)
@@ -137,8 +140,10 @@ macro(add_example_executable name)
 
     find_package(imgui REQUIRED)
     find_package(imgui_node_editor REQUIRED)
+    find_package(libocr REQUIRED)
     target_link_libraries(${name} PRIVATE imgui imgui_node_editor application)
     target_link_libraries(${name} PRIVATE meojson)
+    target_link_libraries(${name} PRIVATE libocr)
     target_link_libraries(${name} PRIVATE ${OpenCV_LIBS})
     target_link_directories(${name} PRIVATE ${OpenCV_LIB_DIR})
     target_include_directories(${name} PRIVATE ${OpenCV_INCLUDE_DIRS})
@@ -174,6 +179,12 @@ macro(add_example_executable name)
         TARGET ${name}
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OpenCV_BIN_DIR}\\${OpenCV_BINS}" $<TARGET_FILE_DIR:${name}>
+    )
+
+    add_custom_command(
+        TARGET ${name}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE_DIR:libocr>/libocr.dll $<TARGET_FILE_DIR:${name}>
     )
 
     set(_ResourceRoot ${CMAKE_CURRENT_SOURCE_DIR})

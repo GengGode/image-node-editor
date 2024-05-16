@@ -285,6 +285,7 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
         {NodeType::ImageDraw, ImageDrawNodes},
         {NodeType::ImageSource, ImageSourceNodes},
         {NodeType::ImageOperation, {
+                                       {"OCR 文本", Spawn_ImageOperator_OcrText},
                                        {"Mask Image", Spawn_ImageOperator_MaskImage},
                                        {"图像通道拆分", Spawn_ImageOperator_ImageChannelSplit},
                                        {"Image Channel Merge", Spawn_ImageOperator_ImageChannelMerge},
