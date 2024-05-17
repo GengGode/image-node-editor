@@ -176,6 +176,79 @@ Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId
     return &node;
 }
 
+// Image Get Depth
+Node *Spawn_ImageOperator_ImageGetDepth(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "获取图像深度");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "Depth", PinType::Int);
+
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = image;
+
+        try_catch_block
+        {
+            node->Outputs[0].SetValue(image.depth());
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
+// Image Get All Info
+Node *Spawn_ImageOperator_ImageGetAllInfo(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "获取图像信息");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), "大小", PinType::Size);
+    node.Outputs.emplace_back(GetNextId(), "中心点", PinType::Point);
+    node.Outputs.emplace_back(GetNextId(), "通道数", PinType::Int);
+    node.Outputs.emplace_back(GetNextId(), "位深", PinType::Int);
+
+    node.Outputs[0].app = app;
+    node.Outputs[1].app = app;
+    node.Outputs[2].app = app;
+    node.Outputs[3].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = image;
+
+        try_catch_block
+        {
+            node->Outputs[0].SetValue(image.size());
+            node->Outputs[1].SetValue(cv::Point(image.cols / 2, image.rows / 2));
+            node->Outputs[2].SetValue(image.channels());
+            node->Outputs[3].SetValue(image.depth());
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 // ImageGetRectImage
 Node *Spawn_ImageOperator_ImageGetRectImage(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {

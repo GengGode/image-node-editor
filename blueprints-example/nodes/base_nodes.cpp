@@ -278,6 +278,8 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
                                   {"获取图像大小", Spawn_ImageOperator_ImageGetSize},
                                   {"获取图像范围", Spawn_ImageOperator_ImageGetRect},
                                   {"获取图像通道数", Spawn_ImageOperator_ImageGetChannels},
+                                  {"获取图像深度", Spawn_ImageOperator_ImageGetDepth},
+                                  {"获取图像信息", Spawn_ImageOperator_ImageGetAllInfo},
                               }},
         {NodeType::ImageType, ImageTypeNodes},
         {NodeType::ImageValue, ImageMathNodes},
