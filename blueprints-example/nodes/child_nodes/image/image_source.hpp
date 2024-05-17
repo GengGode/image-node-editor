@@ -140,7 +140,7 @@ Node *Spawn_ImageWindowBitbltCapture(const std::function<int()> &GetNextId, cons
         image.create(cv::Size(source_bitmap.bmWidth, source_bitmap.bmHeight), CV_MAKETYPE(CV_8U, nChannels));
         GetBitmapBits(hbitmap, source_bitmap.bmHeight * source_bitmap.bmWidth * nChannels, image.data);
         image = image(cv::Rect(client_rect.left, client_rect.top, client_size.width, client_size.height));
-        
+
         node->Outputs[0].SetValue(image);
         catch_block_and_return;
     };
@@ -279,8 +279,42 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
     return &node;
 }
 
+Node *Spawn_ImageFileSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "图像文件源");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::String, "图像路径", std::string("resources/texture.png"));
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string path;
+        auto result = get_value(graph, node->Inputs[0], path);
+        if (result.has_error())
+            return result;
+
+        std::filesystem::path p(path);
+        if (!std::filesystem::exists(p))
+            return ExecuteResult::ErrorNode(node->ID, "文件没有找到");
+
+        try_catch_block;
+        cv::Mat image = cv::imread(path, cv::IMREAD_UNCHANGED);
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "图片加载失败");
+        node->Outputs[0].SetValue(image);
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 static NodeWorldGlobal::FactoryGroupFunc_t ImageSourceNodes = {
     {"窗口原生截图", Spawn_ImageWindowBitbltCapture},
     {"窗口图形截图", Spawn_ImageWindowGraphicCapture},
     {"本地图片列表", Spawn_ImageLocalImagesFromDir},
+    {"图像文件源", Spawn_ImageFileSource},
 };

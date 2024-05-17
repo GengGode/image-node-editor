@@ -35,43 +35,6 @@
 
 #include <libocr.h>
 
-Node *Spawn_ImageFileSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
-{
-    m_Nodes.emplace_back(GetNextId(), "图像文件源");
-    auto &node = m_Nodes.back();
-    node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), PinType::String, "图像路径", std::string("resources/texture.png"));
-    node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
-
-    node.OnExecute = [](Graph *graph, Node *node)
-    {
-        std::string path;
-        auto result = get_value(graph, node->Inputs[0], path);
-        if (result.has_error())
-            return result;
-
-        std::filesystem::path p(path);
-        if (!std::filesystem::exists(p))
-            return ExecuteResult::ErrorNode(node->ID, "文件没有找到");
-
-        // std::string ext = p.extension().string();
-        // if (ext != ".png" && ext != ".jpg" && ext != ".jpeg")
-        //     return ExecuteResult::ErrorNode(node->ID, "不支持的文件格式");
-
-        try_catch_block;
-        cv::Mat image = cv::imread(path, cv::IMREAD_UNCHANGED);
-        if (image.empty())
-            return ExecuteResult::ErrorNode(node->ID, "图片加载失败");
-        node->Outputs[0].SetValue(image);
-        catch_block_and_return;
-    };
-
-    BuildNode(&node);
-
-    return &node;
-}
-
 Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
     m_Nodes.emplace_back(GetNextId(), "图像查看器");

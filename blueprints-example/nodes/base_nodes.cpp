@@ -274,7 +274,6 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
         {NodeType::BaseConvert, BaseConvertNodes},
         {NodeType::BaseOperation, BaseOperationNodes},
         {NodeType::ImageFlow, {
-                                  {"图像文件源", Spawn_ImageFileSource},
                                   {"图像查看器", Spawn_ImageViewer},
                                   {"获取图像大小", Spawn_ImageOperator_ImageGetSize},
                                   {"获取图像范围", Spawn_ImageOperator_ImageGetRect},
