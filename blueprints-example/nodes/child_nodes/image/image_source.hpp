@@ -324,9 +324,168 @@ Node *Spawn_ImageFileSource(const std::function<int()> &GetNextId, const std::fu
     return &node;
 }
 
+// load raw image file
+Node *Spawn_ImageRawFileSource(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "图像Raw数据源");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::String, "图像路径", std::string("resources/texture.png"));
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "宽度", 256);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "高度", 256);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "通道数", 1);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "通道字节数", 8);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "文件头偏移", 0);
+    node.Inputs.emplace_back(GetNextId(), PinType::Bool, "小端序", false);
+
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string path;
+        auto result = get_value(graph, node->Inputs[0], path);
+        if (result.has_error())
+            return result;
+
+        int width;
+        get_value(graph, node->Inputs[1], width);
+
+        int height;
+        get_value(graph, node->Inputs[2], height);
+
+        int channels;
+        get_value(graph, node->Inputs[3], channels);
+
+        int depth;
+        get_value(graph, node->Inputs[4], depth);
+
+        int offset;
+        get_value(graph, node->Inputs[5], offset);
+
+        bool little_endian;
+        get_value(graph, node->Inputs[6], little_endian);
+
+        node->Inputs[0].Value = path;
+        node->Inputs[1].Value = width;
+        node->Inputs[2].Value = height;
+        node->Inputs[3].Value = channels;
+        node->Inputs[4].Value = depth;
+        node->Inputs[5].Value = offset;
+        node->Inputs[6].Value = little_endian;
+
+        try_catch_block;
+
+        int cv_depth = CV_8U;
+        switch (depth)
+        {
+        case 8:
+            cv_depth = CV_8U;
+            break;
+        case 16:
+            cv_depth = CV_16U;
+            break;
+        case 32:
+            cv_depth = CV_32F;
+            break;
+        case 64:
+            cv_depth = CV_64F;
+            break;
+        default:
+            return ExecuteResult::ErrorNode(node->ID, "不支持的深度");
+        }
+
+        std::filesystem::path p(path);
+        if (!std::filesystem::exists(p))
+            return ExecuteResult::ErrorNode(node->ID, "文件没有找到");
+
+        cv::Mat image;
+        std::ifstream file(path, std::ios::binary);
+        if (!file.is_open())
+            return ExecuteResult::ErrorNode(node->ID, "文件打开失败");
+
+        file.seekg(0, std::ios::end);
+        size_t file_size = file.tellg();
+        size_t image_size = width * height * channels * depth / 8;
+
+        if (file_size < offset + image_size)
+            return ExecuteResult::ErrorNode(node->ID, "文件大小不匹配");
+
+        switch (cv_depth)
+        {
+        case CV_8U:
+        {
+            std::vector<uint8_t> buffer(image_size);
+            file.seekg(offset);
+            file.read(reinterpret_cast<char *>(buffer.data()), image_size);
+            if (little_endian)
+            {
+                for (auto &v : buffer)
+                    v = _byteswap_ulong(v);
+            }
+            image = cv::Mat(height, width, CV_MAKETYPE(cv_depth, channels), buffer.data()).clone();
+        }
+        break;
+        case CV_16U:
+        {
+            std::vector<uint16_t> buffer(image_size / 2);
+            file.seekg(offset);
+            file.read(reinterpret_cast<char *>(buffer.data()), image_size);
+            if (little_endian)
+            {
+                for (auto &v : buffer)
+                    v = _byteswap_ushort(v);
+            }
+            image = cv::Mat(height, width, CV_MAKETYPE(cv_depth, channels), buffer.data()).clone();
+        }
+        break;
+        case CV_32F:
+        {
+            std::vector<int32_t> buffer(image_size / 4);
+            file.seekg(offset);
+            file.read(reinterpret_cast<char *>(buffer.data()), image_size);
+            if (little_endian)
+            {
+                for (auto &v : buffer)
+                    v = _byteswap_ulong(v);
+            }
+            image = cv::Mat(height, width, CV_MAKETYPE(cv_depth, channels), buffer.data()).clone();
+        }
+        break;
+        case CV_64F:
+        {
+            std::vector<uint64_t> buffer(image_size / 8);
+            file.seekg(offset);
+            file.read(reinterpret_cast<char *>(buffer.data()), image_size);
+            if (little_endian)
+            {
+                for (auto &v : buffer)
+                    v = _byteswap_uint64(v);
+            }
+            image = cv::Mat(height, width, CV_MAKETYPE(cv_depth, channels), buffer.data()).clone();
+        }
+        break;
+        default:
+            return ExecuteResult::ErrorNode(node->ID, "不支持的字节宽度 " + std::to_string(depth));
+        }
+
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "图片加载失败");
+
+        node->Outputs[0].SetValue(image);
+
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 static NodeWorldGlobal::FactoryGroupFunc_t ImageSourceNodes = {
     {"窗口原生截图", Spawn_ImageWindowBitbltCapture},
     {"窗口图形截图", Spawn_ImageWindowGraphicCapture},
     {"本地图片列表", Spawn_ImageLocalImagesFromDir},
     {"图像文件源", Spawn_ImageFileSource},
+    {"图像Raw数据源", Spawn_ImageRawFileSource},
 };
