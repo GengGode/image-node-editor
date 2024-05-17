@@ -12,6 +12,7 @@
 #endif
 
 #include "../../utilities/convert.string.h"
+#include "../../utilities/utils.string.h"
 
 namespace window_scale
 {
@@ -182,7 +183,7 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
         if (node->state_value == nullptr)
             node->state_value = std::make_shared<wgc_node_state_value>();
         auto &wgc_value = std::static_pointer_cast<wgc_node_state_value>(node->state_value);
-        if (wgc_value==nullptr)
+        if (wgc_value == nullptr)
             return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
         auto &capture = wgc_value->capture;
 
@@ -190,17 +191,17 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
         auto w_window = utils::to_wstring(window);
         const wchar_t *w_window_name = w_window.size() > 0 ? w_window.c_str() : nullptr;
         const wchar_t *w_class_name_str = w_class_name.size() > 0 ? w_class_name.c_str() : nullptr;
-       
+
         cv::Mat image;
 
         HWND handle = FindWindowW(w_class_name_str, w_window_name);
         if (handle == NULL)
             return ExecuteResult::ErrorNode(node->ID, "未找到窗口");
 
-        if(capture.is_initialized==false)
+        if (capture.is_initialized == false)
             capture.initialization();
 
-        if(capture.set_capture_handle(handle)==false)
+        if (capture.set_capture_handle(handle) == false)
             return ExecuteResult::ErrorNode(node->ID, "设置窗口句柄失败");
 
         if (capture.get_frame(image) == false)
@@ -215,7 +216,6 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
     return &node;
 }
 
-
 // local images from dir
 Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -225,6 +225,7 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
     node.Inputs.emplace_back(GetNextId(), "目录", PinType::String, std::string("."));
     node.Inputs.emplace_back(GetNextId(), "下次输出索引", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "是否锁定图片", PinType::Bool, false);
+    node.Inputs.emplace_back(GetNextId(), "筛选后缀名", PinType::String, std::string(".jpg;.png;.tiff;.tif;.bmp;.jpeg"));
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs[0].app = app;
 
@@ -236,10 +237,13 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
         get_value(graph, node->Inputs[1], index);
         bool lock;
         get_value(graph, node->Inputs[2], lock);
+        std::string suffixes_str;
+        get_value(graph, node->Inputs[3], suffixes_str);
 
         node->Inputs[0].Value = dir;
         node->Inputs[1].Value = index;
         node->Inputs[2].Value = lock;
+        node->Inputs[3].Value = suffixes_str;
 
         try_catch_block;
 
@@ -247,13 +251,21 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
         if (std::filesystem::exists(images_dir) == false)
             return ExecuteResult::ErrorNode(node->ID, "目录不存在");
 
+        std::set<std::string> suffixes_set;
+        if (suffixes_str.size() > 0)
+        {
+            auto suffixes = utils::split_string(suffixes_str, ";");
+            for (auto &suffix : suffixes)
+                suffixes_set.insert(suffix);
+        }
+
         cv::Mat result;
         std::vector<std::filesystem::path> images;
         for (auto &entry : std::filesystem::directory_iterator(images_dir))
         {
             if (entry.is_directory())
                 continue;
-            if (entry.path().extension() != ".jpg" && entry.path().extension() != ".png")
+            if (suffixes_set.find(entry.path().extension().string()) == suffixes_set.end())
                 continue;
             images.push_back(entry.path());
         }
