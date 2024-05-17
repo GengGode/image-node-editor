@@ -12,37 +12,41 @@ void Pin::event_value_changed()
             return;
         try
         {
+            if ((image.depth() != CV_8U) || (image.depth() != CV_8S))
+                // 根据单通道图像的深度(16,32,64)，将其转换为8位图像，除以255.0
+                cv::normalize(image, image, 0, 255, cv::NORM_MINMAX, CV_8U);
             if (image.channels() == 1)
                 cv::cvtColor(image, image, cv::COLOR_GRAY2RGBA);
             else if (image.channels() == 3)
                 cv::cvtColor(image, image, cv::COLOR_RGB2RGBA);
-            if(image.isContinuous() ==false)
+            if (image.isContinuous() == false)
                 image = image.clone();
+            int width = image.cols;
+            int height = image.rows;
+            if (ImageTexture)
+            {
+                app->DestroyTexture(ImageTexture);
+            }
+            ImageTexture = app->CreateTexture(image.data, width, height);
         }
         catch (const std::exception &e)
         {
             this->Node->LastExecuteResult = ExecuteResult::ErrorPin(ID, e.what());
+            return;
         }
-        int width = image.cols;
-        int height = image.rows;
-        if (ImageTexture)
-        {
-            app->DestroyTexture(ImageTexture);
-        }
-        ImageTexture = app->CreateTexture(image.data, width, height);
     }
 }
 
 Pin &node_ui::get_virtual_input()
 {
-    if(virtual_input == nullptr)
+    if (virtual_input == nullptr)
         virtual_input = std::make_shared<Pin>(graph->get_next_id(), "Virtual Input", PinType::Object);
     return *virtual_input;
 }
 
 Pin &node_ui::get_virtual_output()
 {
-    if(virtual_output == nullptr)
+    if (virtual_output == nullptr)
         virtual_output = std::make_shared<Pin>(graph->get_next_id(), "Virtual Output", PinType::Object);
     return *virtual_output;
 }
@@ -213,8 +217,8 @@ void Graph::auto_arrange()
         layer_map[current_layer] = layer_nodes;
         current_layer++;
     }
-    
-    for(auto &[layer,layer_nodes] : layer_map)
+
+    for (auto &[layer, layer_nodes] : layer_map)
     {
         auto layer_max_width = 0;
         printf("===============\n");
@@ -226,11 +230,11 @@ void Graph::auto_arrange()
             printf("node [%s] %d size: %f %f\n", node->Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())), size.x, size.y);
         }
         printf("layer %d max width: %d\n", layer, layer_max_width);
-        for(int i = 0; i < layer_nodes.size(); i++)
+        for (int i = 0; i < layer_nodes.size(); i++)
         {
             auto node = layer_nodes[i];
             ImVec2 pos = center;
-            pos.x += (layer - 1) * (layer_max_width +20);
+            pos.x += (layer - 1) * (layer_max_width + 20);
             pos.y += (i - 1) * 300;
             ed::SetNodePosition(node->ID, pos);
             printf("node [%s] %d pos: %f %f\n", node->Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())), pos.x, pos.y);
