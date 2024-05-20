@@ -279,6 +279,8 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
         {NodeType::BaseOperation, BaseOperationNodes},
         {NodeType::ImageFlow, {
                                   {"图像查看器", Spawn_ImageViewer},
+                                  {"写入本地文件", Spawn_ImageWriteLocalFile},
+                                  {"写入Raw文件", Spawn_ImageWriteRawFile},
                                   {"获取图像大小", Spawn_ImageOperator_ImageGetSize},
                                   {"获取图像范围", Spawn_ImageOperator_ImageGetRect},
                                   {"获取图像通道数", Spawn_ImageOperator_ImageGetChannels},

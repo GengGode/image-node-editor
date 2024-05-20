@@ -61,6 +61,198 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
     return &node;
 }
 
+// 写入本地文件
+Node *Spawn_ImageWriteLocalFile(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "写入本地文件");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "图像");
+    node.Inputs.emplace_back(GetNextId(), PinType::String, "文件路径", std::string("output.png"));
+    node.Inputs.emplace_back(GetNextId(), PinType::Bool, "启用压缩", false);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "压缩参数", 3);
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        std::string path;
+        get_value(graph, node->Inputs[1], path);
+
+        bool compress;
+        get_value(graph, node->Inputs[2], compress);
+
+        int compress_param;
+        get_value(graph, node->Inputs[3], compress_param);
+
+        node->Inputs[1].Value = path;
+        node->Inputs[2].Value = compress;
+        node->Inputs[3].Value = compress_param;
+
+        try_catch_block;
+
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "图像为空");
+
+        auto extension = std::filesystem::path(path).extension().string();
+        if (extension == ".jpg" || extension == ".jpeg")
+        {
+            std::vector<int> params;
+            params.push_back(cv::IMWRITE_JPEG_QUALITY);
+            params.push_back(compress);
+            cv::imwrite(path, image, params);
+        }
+        else if (extension == ".png")
+        {
+            std::vector<int> params;
+            params.push_back(cv::IMWRITE_PNG_COMPRESSION);
+            params.push_back(compress);
+            cv::imwrite(path, image, params);
+        }
+        else
+        {
+            cv::imwrite(path, image);
+        }
+
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+// 写入Raw文件
+Node *Spawn_ImageWriteRawFile(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "写入Raw文件");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "图像");
+    node.Inputs.emplace_back(GetNextId(), PinType::String, "文件路径", std::string("output.raw"));
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "通道字节数", 8);
+    node.Inputs.emplace_back(GetNextId(), PinType::Bool, "小端序", false);
+    node.Inputs.emplace_back(GetNextId(), PinType::String, "文件头", std::string());
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        std::string path;
+        get_value(graph, node->Inputs[1], path);
+
+        int depth;
+        get_value(graph, node->Inputs[2], depth);
+
+        bool little_endian;
+        get_value(graph, node->Inputs[3], little_endian);
+
+        std::string header;
+        get_value(graph, node->Inputs[4], header);
+
+        node->Inputs[1].Value = path;
+        node->Inputs[2].Value = depth;
+        node->Inputs[3].Value = little_endian;
+        node->Inputs[4].Value = header;
+
+        try_catch_block;
+
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "图像为空");
+
+        int cv_depth = CV_8U;
+        switch (depth)
+        {
+        case 8:
+            cv_depth = CV_8U;
+            break;
+        case 16:
+            cv_depth = CV_16U;
+            break;
+        case 32:
+            cv_depth = CV_32F;
+            break;
+        case 64:
+            cv_depth = CV_64F;
+            break;
+        default:
+            return ExecuteResult::ErrorNode(node->ID, "不支持的深度");
+        }
+
+        std::ofstream file(path, std::ios::binary);
+        if (!file.is_open())
+            return ExecuteResult::ErrorNode(node->ID, "文件打开失败");
+
+        if (header.size() > 0)
+            file.write(header.c_str(), header.size());
+
+        int image_size = image.cols * image.rows * image.channels() * static_cast<int>(image.elemSize1());
+        switch (cv_depth)
+        {
+        case CV_8U:
+        {
+            std::vector<uint8_t> buffer(image_size);
+            std::memcpy(buffer.data(), image.data, image_size);
+            if (little_endian)
+            {
+                for (auto &v : buffer)
+                    v = static_cast<uint8_t>(_byteswap_ulong(v));
+            }
+            file.write(reinterpret_cast<char *>(buffer.data()), image_size);
+        }
+        break;
+        case CV_16U:
+        {
+            std::vector<uint16_t> buffer(image_size / 2);
+            std::memcpy(buffer.data(), image.data, image_size);
+            if (little_endian)
+            {
+                for (auto &v : buffer)
+                    v = _byteswap_ushort(v);
+            }
+            file.write(reinterpret_cast<char *>(buffer.data()), image_size);
+        }
+        break;
+        case CV_32F:
+        {
+            std::vector<int32_t> buffer(image_size / 4);
+            std::memcpy(buffer.data(), image.data, image_size);
+            if (little_endian)
+            {
+                for (auto &v : buffer)
+                    v = _byteswap_ulong(v);
+            }
+            file.write(reinterpret_cast<char *>(buffer.data()), image_size);
+        }
+        break;
+        case CV_64F:
+        {
+            std::vector<uint64_t> buffer(image_size / 8);
+            std::memcpy(buffer.data(), image.data, image_size);
+            if (little_endian)
+            {
+                for (auto &v : buffer)
+                    v = _byteswap_uint64(v);
+            }
+            file.write(reinterpret_cast<char *>(buffer.data()), image_size);
+        }
+        break;
+        default:
+            return ExecuteResult::ErrorNode(node->ID, "不支持的字节宽度 " + std::to_string(depth));
+        }
+
+        catch_block_and_return;
+    };
+    BuildNode(&node);
+    return &node;
+}
+
 // Image Get Size
 Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
