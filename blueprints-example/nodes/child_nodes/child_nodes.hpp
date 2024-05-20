@@ -444,7 +444,7 @@ Node *Spawn_ImageOperator_ImageGetAllInfo(const std::function<int()> &GetNextId,
 // ImageGetRectImage
 Node *Spawn_ImageOperator_ImageGetRectImage(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image Get Rect Image");
+    m_Nodes.emplace_back(GetNextId(), "调整图像大小");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
@@ -537,7 +537,7 @@ Node *Spawn_ImageOperator_RectImageToImage(const std::function<int()> &GetNextId
 /* *** */
 Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image ReSize");
+    m_Nodes.emplace_back(GetNextId(), "调整图像大小");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
@@ -674,7 +674,7 @@ Node *Spawn_ImageOperator_ImageChannelSplit(const std::function<int()> &GetNextI
 // ImageChannelMerge
 Node *Spawn_ImageOperator_ImageChannelMerge(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image Channel Merge");
+    m_Nodes.emplace_back(GetNextId(), "图像通道合并");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Channel 0", PinType::Image);
@@ -735,7 +735,7 @@ Node *Spawn_ImageOperator_ImageChannelMerge(const std::function<int()> &GetNextI
 // ImageAndMaskCopy
 Node *Spawn_ImageOperator_ImageAndMaskCopy(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Image And Mask Copy");
+    m_Nodes.emplace_back(GetNextId(), "获取遮罩图像");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
