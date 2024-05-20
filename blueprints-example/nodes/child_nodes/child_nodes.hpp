@@ -460,9 +460,7 @@ Node *Spawn_ImageOperator_ImageGetRectImage(const std::function<int()> &GetNextI
             return result;
 
         cv::Rect rect;
-        result = get_value(graph, node->Inputs[1], rect);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], rect);
 
         // Display image
         node->Inputs[0].Value = image;
