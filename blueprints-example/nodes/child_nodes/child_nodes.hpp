@@ -444,12 +444,12 @@ Node *Spawn_ImageOperator_ImageGetAllInfo(const std::function<int()> &GetNextId,
 // ImageGetRectImage
 Node *Spawn_ImageOperator_ImageGetRectImage(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "调整图像大小");
+    m_Nodes.emplace_back(GetNextId(), "获取范围图像");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Inputs.emplace_back(GetNextId(), "Rect", PinType::Rect);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Rect);
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
@@ -488,7 +488,7 @@ Node *Spawn_ImageOperator_RectImageToImage(const std::function<int()> &GetNextId
     node.Inputs.emplace_back(GetNextId(), PinType::Rect, "范围");
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "覆盖图像");
 
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
