@@ -2,6 +2,236 @@
 
 #include "base_nodes.hpp"
 
+// 图像归一化
+Node *Spawn_ImageNormalize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "图像归一化");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "图像");
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "归一化类型", cv::NORM_MINMAX);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "最小值", 0.0f);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "最大值", 255.0f);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "目标位宽", 8);
+
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        int type;
+        get_value(graph, node->Inputs[1], type);
+
+        float min_value;
+        get_value(graph, node->Inputs[2], min_value);
+
+        float max_value;
+        get_value(graph, node->Inputs[3], max_value);
+
+        int target_depth;
+        get_value(graph, node->Inputs[4], target_depth);
+
+        node->Inputs[1].Value = type;
+        node->Inputs[2].Value = min_value;
+        node->Inputs[3].Value = max_value;
+        node->Inputs[4].Value = target_depth;
+
+        try_catch_block;
+
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "图像为空");
+
+        int depth = CV_8U;
+        switch (target_depth)
+        {
+        case 8:
+            depth = CV_8U;
+            break;
+        case 16:
+            depth = CV_16U;
+            break;
+        case 32:
+            depth = CV_32F;
+            break;
+        case 64:
+            depth = CV_64F;
+            break;
+        default:
+            return ExecuteResult::ErrorNode(node->ID, "不支持的位宽");
+        }
+
+        cv::Mat result;
+        cv::normalize(image, result, min_value, max_value, type, depth);
+
+        node->Outputs[0].SetValue(result);
+
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+// 图像转换类型
+Node *Spawn_ImageConvertToType(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "图像转换类型");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "图像");
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "目标位宽", 8);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "乘数", 1.0f);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "加数", 0.0f);
+
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        int type;
+        get_value(graph, node->Inputs[1], type);
+
+        float multiplier;
+        get_value(graph, node->Inputs[2], multiplier);
+
+        float adder;
+        get_value(graph, node->Inputs[3], adder);
+
+        node->Inputs[1].Value = type;
+        node->Inputs[2].Value = multiplier;
+        node->Inputs[3].Value = adder;
+
+        try_catch_block;
+
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "图像为空");
+
+        int depth = CV_8U;
+        switch (type)
+        {
+        case 8:
+            depth = CV_8U;
+            break;
+        case 16:
+            depth = CV_16U;
+            break;
+        case 32:
+            depth = CV_32F;
+            break;
+        case 64:
+            depth = CV_64F;
+            break;
+        default:
+            return ExecuteResult::ErrorNode(node->ID, "不支持的位宽");
+        }
+
+        cv::Mat result;
+        image.convertTo(result, depth, multiplier, adder);
+
+        node->Outputs[0].SetValue(result);
+
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+// 图像转换缩放 convertScaleAbs
+Node *Spawn_ImageConvertScaleAbs(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "图像转换缩放");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "图像");
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "缩放比例", 1.0f);
+    node.Inputs.emplace_back(GetNextId(), PinType::Float, "偏移", 0.0f);
+
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        float scale;
+        get_value(graph, node->Inputs[1], scale);
+
+        float offset;
+        get_value(graph, node->Inputs[2], offset);
+
+        node->Inputs[1].Value = scale;
+        node->Inputs[2].Value = offset;
+
+        try_catch_block;
+
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "图像为空");
+
+        cv::Mat result;
+        cv::convertScaleAbs(image, result, scale, offset);
+
+        node->Outputs[0].SetValue(result);
+
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+// 图像转换到Fp16
+Node *Spawn_ImageConvertToFp16(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "图像转换到Fp16");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "图像");
+
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_value(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        try_catch_block;
+
+        if (image.empty())
+            return ExecuteResult::ErrorNode(node->ID, "图像为空");
+
+        cv::Mat result;
+        cv::convertFp16(image, result);
+
+        node->Outputs[0].SetValue(result);
+
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 // rgb to bgr
 Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -426,6 +656,10 @@ Node *Spawn_ImageOperator_YCrCbToRGB(const std::function<int()> &GetNextId, cons
 }
 
 static NodeWorldGlobal::FactoryGroupFunc_t ImageColorConvertNodes = {
+    {"图像归一化", Spawn_ImageNormalize},
+    {"图像转换类型", Spawn_ImageConvertToType},
+    {"图像转换缩放", Spawn_ImageConvertScaleAbs},
+    {"图像转换到Fp16", Spawn_ImageConvertToFp16},
     {"RGB 转 BGR", Spawn_ImageOperator_RgbToBgr},
     {"RGBA 转 RGB", Spawn_ImageOperator_RgbaToRgb},
     {"BGR 转 RGB", Spawn_ImageOperator_BgrToRgb},
