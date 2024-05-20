@@ -480,6 +480,61 @@ Node *Spawn_ImageOperator_ImageGetRectImage(const std::function<int()> &GetNextI
     return &node;
 }
 
+// Rect Image To Image
+Node *Spawn_ImageOperator_RectImageToImage(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "范围图像覆盖图像");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Rect, "范围");
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "覆盖图像");
+
+    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        cv::Rect rect;
+        get_value(graph, node->Inputs[1], rect);
+
+        cv::Mat overlay;
+        result = get_image(graph, node->Inputs[2], overlay);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = rect;
+        node->Inputs[2].Value = overlay;
+
+        try_catch_block
+        {
+            if (image.empty())
+                return ExecuteResult::ErrorNode(node->ID, "图像为空");
+
+            if (overlay.empty())
+                return ExecuteResult::ErrorNode(node->ID, "覆盖图像为空");
+
+            if (rect.x < 0 || rect.y < 0 || rect.x + rect.width > image.cols || rect.y + rect.height > image.rows)
+                return ExecuteResult::ErrorNode(node->ID, "范围超出图像范围");
+
+            cv::Mat result_image = image.clone();
+            overlay.copyTo(result_image(rect));
+            node->Outputs[0].SetValue(result_image);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+    return &node;
+}
+
 /* *** */
 /* *** */
 Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
