@@ -775,7 +775,6 @@ Node *Spawn_ImageOperator_ImageAndMaskCopy(const std::function<int()> &GetNextId
     return &node;
 }
 
-
 // ImageOcrText
 Node *Spawn_ImageOperator_OcrText(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -799,7 +798,7 @@ Node *Spawn_ImageOperator_OcrText(const std::function<int()> &GetNextId, const s
         try_catch_block
         {
             cv::Mat roi = image;
-            if(image.channels() == 1)
+            if (image.channels() == 1)
             {
                 cv::cvtColor(image, roi, cv::COLOR_GRAY2BGR);
             }
@@ -808,11 +807,10 @@ Node *Spawn_ImageOperator_OcrText(const std::function<int()> &GetNextId, const s
                 cv::cvtColor(roi, roi, cv::COLOR_BGRA2BGR);
             }
 
-            
             auto data = roi.data;
             auto data_size = roi.channels() * roi.cols * roi.rows;
             char result[1024] = {0};
-            auto error_code = ocr_image_data(roi.cols, roi.rows, (const char *)roi.data, data_size, result,1024);
+            auto error_code = ocr_image_data(roi.cols, roi.rows, (const char *)roi.data, data_size, result, 1024);
             if (error_code != 0)
                 return ExecuteResult::ErrorNode(node->ID, "OCR 失败，错误码：" + std::to_string(error_code));
             std::string text = std::string(result);
