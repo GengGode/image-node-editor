@@ -421,7 +421,7 @@ Node *Spawn_ImageRawFileSource(const std::function<int()> &GetNextId, const std:
             if (little_endian)
             {
                 for (auto &v : buffer)
-                    v = _byteswap_ulong(v);
+                    v = static_cast<uint8_t>(_byteswap_ulong(v));
             }
             image = cv::Mat(height, width, CV_MAKETYPE(cv_depth, channels), buffer.data()).clone();
         }
