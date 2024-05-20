@@ -116,7 +116,7 @@ struct NodeWorldGlobal
     using NodeFactory_t = std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>;
     using FactoryGroupFunc_t = std::vector<std::pair<std::string, NodeFactory_t>>;
     static std::map<NodeType, FactoryGroupFunc_t> nodeFactories;
-    static std::map<std::pair<PinType,PinType>,NodeFactory_t> registerLinkAutoConvertNodeFactories;
+    static std::map<std::pair<PinType, PinType>, NodeFactory_t> registerLinkAutoConvertNodeFactories;
     inline static std::thread::id main_thread_id = std::this_thread::get_id();
 };
 
@@ -295,8 +295,9 @@ struct node_ui
     Pin &get_virtual_output();
 };
 
-struct node_state_value{};
-
+struct node_state_value
+{
+};
 
 struct Node
 {
@@ -438,8 +439,6 @@ struct Node
         return *this;
     }
 
-
-
     bool can_execute()
     {
         for (auto input : Inputs)
@@ -576,25 +575,26 @@ struct Graph
 
     struct ExectureEnv
     {
-
         std::atomic<bool> isRunning = false;
         std::atomic<bool> needRunning = false; // 在下一次循环中是否需要执行
         std::atomic<bool> isStoped = false;    // 是否已经销毁
         std::map<ed::NodeId, std::chrono::steady_clock::time_point> nodeBeginExecuteTime;
         std::map<ed::NodeId, std::chrono::steady_clock::time_point> nodeEndExecuteTime;
         std::map<ed::NodeId, std::chrono::steady_clock::duration> nodeExecuteTime;
+        std::optional<std::chrono::steady_clock::time_point> BeginExecuteTime;
+        std::optional<std::chrono::steady_clock::time_point> EndExecuteTime;
+        std::optional<std::chrono::steady_clock::duration> ExecuteTime;
         std::atomic<double> all_execute_time = 0;
         std::list<ed::NodeId> nodeBeginExecuteList;
         std::future<void> future; // 异步执行
         // need inint
-        void execture_stopwatch(){
-            std::optional<std::chrono::steady_clock::time_point> BeginExecuteTime;
-            std::optional<std::chrono::steady_clock::time_point> EndExecuteTime;
-            std::optional<std::chrono::steady_clock::duration> ExecuteTime;
+        void execture_stopwatch()
+        {
             BeginExecuteTime = std::chrono::steady_clock::now();
             ExecuteNodes();
             EndExecuteTime = std::chrono::steady_clock::now();
             ExecuteTime = std::chrono::duration_cast<std::chrono::milliseconds>(*EndExecuteTime - *BeginExecuteTime);
+            all_execute_time = static_cast<double>(ExecuteTime->count());
         };
         Graph *graph;
         Application *app;
@@ -729,7 +729,7 @@ struct Graph
                     futures.push_back(std::async(std::launch::async, [this, node]
                                                  { ExecuteNode(node); }));
                 }
-                
+
                 // debug 打印本次循环执行的节点
                 printf("本%d次循环执行的节点: %zd个", loop_count, can_run_nodes.size());
                 // ImGui::InsertNotification({ImGuiToastType::Info, 3000, (std::string("本次运行第") + std::to_string(loop_count) + "次循环执行的节点: " + std::to_string(can_run_nodes.size()) + "个").c_str()});
@@ -889,7 +889,7 @@ struct Graph
 
         return links;
     }
-    
+
     void auto_arrange();
 
     bool serialize(std::string &json_buff);
