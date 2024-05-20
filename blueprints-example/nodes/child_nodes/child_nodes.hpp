@@ -49,11 +49,14 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
         auto result = get_image(graph, node->Inputs[0], image);
         if (result.has_error())
             return result;
+
+        try_catch_block;
+
         if (image.empty())
             return ExecuteResult::ErrorNode(node->ID, "图像为空");
-
         node->Inputs[0].SetValue(image);
-        return ExecuteResult::Success();
+
+        catch_block_and_return;
     };
 
     BuildNode(&node);
