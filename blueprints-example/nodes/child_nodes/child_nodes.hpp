@@ -825,4 +825,86 @@ Node *Spawn_ImageOperator_OcrText(const std::function<int()> &GetNextId, const s
     return &node;
 }
 
+// image HConcat
+Node *Spawn_ImageOperator_HConcatenateImages(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "水平拼接图像");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "左侧图像");
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "右侧图像");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat left_image;
+        auto result = get_image(graph, node->Inputs[0], left_image);
+        if (result.has_error())
+            return result;
+
+        cv::Mat right_image;
+        result = get_image(graph, node->Inputs[1], right_image);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = left_image;
+        node->Inputs[1].Value = right_image;
+
+        try_catch_block
+        {
+            cv::Mat result;
+            cv::hconcat(left_image, right_image, result);
+            node->Outputs[0].SetValue(result);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+// image VConcat
+Node *Spawn_ImageOperator_VConcatenateImages(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "垂直拼接图像");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "上方图像");
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "下方图像");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat top_image;
+        auto result = get_image(graph, node->Inputs[0], top_image);
+        if (result.has_error())
+            return result;
+
+        cv::Mat bottom_image;
+        result = get_image(graph, node->Inputs[1], bottom_image);
+        if (result.has_error())
+            return result;
+
+        // Display image
+        node->Inputs[0].Value = top_image;
+        node->Inputs[1].Value = bottom_image;
+
+        try_catch_block
+        {
+            cv::Mat result;
+            cv::vconcat(top_image, bottom_image, result);
+            node->Outputs[0].SetValue(result);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 #endif // CHILD_NODES_HPP

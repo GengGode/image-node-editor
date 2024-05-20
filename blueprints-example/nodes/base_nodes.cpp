@@ -300,6 +300,8 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
                                        {"调整图像大小", Spawn_ImageOperator_ImageReSize},
                                        {"获取范围图像", Spawn_ImageOperator_ImageGetRectImage},
                                        {"范围图像覆盖图像", Spawn_ImageOperator_RectImageToImage},
+                                       {"水平拼接图像", Spawn_ImageOperator_HConcatenateImages},
+                                       {"垂直拼接图像", Spawn_ImageOperator_VConcatenateImages},
                                    }},
         {NodeType::ImageOperation_Threshold, ImageOperatorThresholdNodes},
         {NodeType::ImageOperation_Morphology, ImageOperatorMorphologyNodes},
