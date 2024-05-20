@@ -907,4 +907,94 @@ Node *Spawn_ImageOperator_VConcatenateImages(const std::function<int()> &GetNext
     return &node;
 }
 
+// image Grid Split
+Node *Spawn_ImageOperator_GridSplitImages(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "网格拆分图像");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "行数", 2);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "列数", 2);
+
+    node.Outputs.emplace_back(GetNextId(), PinType::Image, "Image 0, 0");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image, "Image 0, 1");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image, "Image 1, 0");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image, "Image 1, 1");
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        static auto SplitImage = [](cv::Mat &image, int rows, int cols, std::vector<cv::Mat> &images)
+        {
+            int rowsize = image.rows / rows;
+            int colsize = image.cols / cols;
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    cv::Mat roi = image(cv::Rect(j * colsize, i * rowsize, colsize, rowsize));
+                    images.push_back(roi.clone());
+                }
+            }
+        };
+
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        int rows = 2;
+        get_value(graph, node->Inputs[1], rows);
+
+        int cols = 2;
+        get_value(graph, node->Inputs[2], cols);
+
+        // Display image
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = rows;
+        node->Inputs[2].Value = cols;
+
+        try_catch_block
+        {
+            if (rows <= 0 || cols <= 0)
+                return ExecuteResult::ErrorNode(node->ID, "行列数必须大于0");
+            if (rows * cols < node->Outputs.size())
+            {
+                node->Outputs.erase(node->Outputs.begin() + rows * cols, node->Outputs.end());
+            }
+            if (rows * cols > node->Outputs.size())
+            {
+                for (int x = 0; x < rows; x++)
+                {
+                    for (int y = 0; y < cols; y++)
+                    {
+                        // 跳过已有的输出
+                        if (x * cols + y < node->Outputs.size())
+                            continue;
+                        // 创建新的输出
+                        std::string name = "Image " + std::to_string(x) + ", " + std::to_string(y);
+                        node->Outputs.emplace_back(graph->get_next_id(), PinType::Image, name);
+                        node->Outputs[node->Outputs.size() - 1].app = graph->env.app;
+                    }
+                }
+            }
+
+            std::vector<cv::Mat> images;
+            SplitImage(image, rows, cols, images);
+            for (size_t i = 0; i < images.size(); i++)
+            {
+                node->Outputs[i].SetValue(images[i]);
+            }
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 #endif // CHILD_NODES_HPP
