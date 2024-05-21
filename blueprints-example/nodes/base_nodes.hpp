@@ -293,6 +293,19 @@ struct node_ui
     Pin &get_virtual_input();
 
     Pin &get_virtual_output();
+
+    void draw_node_ui(Node *node);
+    void draw_input_pin(Pin &input);
+    void draw_output_pin(Pin &output);
+    void draw_node_title(Node *node);
+    void draw_node_body(Node *node);
+    void draw_node_footer(Node *node);
+
+    void draw_node(Node *node);
+    void draw_comment_node(Node *node);
+    void draw_simple_node(Node *node);
+    void draw_image_node(Node *node);
+    void draw_flow_node(Node *node);
 };
 
 struct node_state_value
@@ -528,8 +541,7 @@ struct GraphUi
 
     void draw_node_input_pins(Node *node);
     void draw_node_output_pins(Node *node);
-    void draw_image_nodes();
-    void draw_comment_nodes();
+    void draw_nodes();
     void draw_links();
     void draw_virtual_links();
 };

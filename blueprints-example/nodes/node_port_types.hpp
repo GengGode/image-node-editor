@@ -238,8 +238,8 @@ static bool is_equal(const Matches &lft, const Matches &rht)
     return true;
 }
 
-template<>
-static bool is_equal(const Object&lft, const Object&rht)
+template <>
+static bool is_equal(const Object &lft, const Object &rht)
 {
     return false;
 }
