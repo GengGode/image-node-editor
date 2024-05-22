@@ -211,8 +211,54 @@ Node *Spawn_ImageOperator_ChannelThresholding(const std::function<int()> &GetNex
     return &node;
 }
 
+// image inrange
+Node *Spawn_ImageOperator_InRange(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "彩图二值化");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::ImageFlow;
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Color);
+    node.Inputs.emplace_back(GetNextId(), PinType::Color);
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs[0].app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        cv::Mat image;
+        auto result = get_image(graph, node->Inputs[0], image);
+        if (result.has_error())
+            return result;
+
+        cv::Scalar lower_bound(0, 0, 0);
+        result = get_value(graph, node->Inputs[1], lower_bound);
+        if (result.has_error())
+            return result;
+
+        cv::Scalar upper_bound(255, 255, 255);
+        result = get_value(graph, node->Inputs[2], upper_bound);
+        if (result.has_error())
+            return result;
+
+        node->Inputs[0].Value = image;
+        node->Inputs[1].Value = lower_bound;
+        node->Inputs[2].Value = upper_bound;
+
+        try_catch_block;
+        cv::Mat thresholded;
+        cv::inRange(image, lower_bound, upper_bound, thresholded);
+        node->Outputs[0].SetValue(thresholded);
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorThresholdNodes = {
     {"阈值", Spawn_ImageOperator_Threshold},
     {"高级阈值", Spawn_ImageOperator_AdaptiveThreshold},
     {"多通道图像阈值", Spawn_ImageOperator_ChannelThresholding},
+    {"彩图二值化", Spawn_ImageOperator_InRange},
 };
