@@ -350,6 +350,25 @@ void node_ui::draw_input_pin(Pin &input)
 
         ImGui::Spring(0);
     }
+    if (input.Type == PinType::Enum)
+    {
+        EnumValue enum_value;
+        static int last_index = 0;
+        input.GetValue(enum_value);
+        last_index = enum_value.second;
+        // 限制宽度
+        ImGui::PushItemWidth(100.0f);
+        auto &[enums, value] = enum_value;
+        ImGui::Text("枚举值: %s", enums[value].c_str());
+
+        ImGui::PopItemWidth();
+        if (value != last_index)
+        {
+            input.SetValue(enum_value, [this]()
+                           { this->graph->env.need_execute(); });
+        }
+        ImGui::Spring(0);
+    }
 }
 
 void node_ui::draw_output_pin(Pin &output)
@@ -434,6 +453,39 @@ void node_ui::draw_output_pin(Pin &output)
 
             ImGui::Spring(0);
         }
+    }
+    if (output.Type == PinType::Enum)
+    {
+        EnumValue enum_value;
+        static int last_index = 0;
+        output.GetValue(enum_value);
+        last_index = enum_value.second;
+        // 限制宽度
+        ImGui::PushItemWidth(100.0f);
+        auto &[enums, value] = enum_value;
+        // 直接绘制一个列表
+        ImGui::BeginVertical("##combo_show");
+        for (int i = 0; i < enums.size(); i++)
+        {
+            ImGui::BeginHorizontal(std::string("##combo_show_" + std::to_string(i)).c_str());
+            // ImGui::BeginChild("##combo_show_child", ImVec2(100, 20));
+            ImGui::LabelText("##combo_show_label", "%s", enums[i].c_str());
+            bool is_selected = (value == i);
+            ImGui::Checkbox("##combo_show_checkbox", &is_selected);
+            if (is_selected)
+                value = i;
+            // ImGui::EndChild();
+            ImGui::EndHorizontal();
+        }
+        ImGui::EndVertical();
+
+        ImGui::PopItemWidth();
+        if (value != last_index)
+        {
+            output.SetValue(enum_value, [this]()
+                            { this->graph->env.need_execute(); });
+        }
+        ImGui::Spring(0);
     }
 
     if (output.Type == PinType::Image)
