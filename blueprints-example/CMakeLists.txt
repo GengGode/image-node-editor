@@ -10,4 +10,9 @@ add_example_executable(blueprints-example
     notifiers/Notifier.cpp
     addons/ImFileDialog.cpp
     #textures/image_to_texture.cpp
+
+    nodes/child_nodes/image/image_draw.cpp
+    nodes/child_nodes/image/image_source.cpp
 )
+target_include_directories(blueprints-example PRIVATE nodes)
+target_include_directories(blueprints-example PRIVATE utilities)
