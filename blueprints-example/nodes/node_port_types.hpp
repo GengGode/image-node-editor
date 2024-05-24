@@ -14,6 +14,8 @@
 #include <atomic>
 #include <future>
 
+#include <Windows.h>
+
 #include <opencv2/opencv.hpp>
 
 #include <json.hpp>
@@ -38,6 +40,7 @@ enum class PinKind
     Output,
     Input
 };
+typedef std::map<int, std::string> EnumType;
 
 typedef std::vector<cv::Point> Contour;
 typedef std::vector<Contour> Contours;
@@ -46,12 +49,16 @@ typedef std::pair<KeyPoints, cv::Mat> Feature;
 typedef std::vector<cv::DMatch> Matches;
 typedef std::vector<cv::Vec3f> Circles;
 typedef std::optional<std::any> Object;
+typedef std::pair<EnumType, int> EnumValue;
 
 typedef std::variant<int, float, bool, std::string,
                      cv::Mat, cv::Rect, cv::Size, cv::Point, cv::Scalar,
                      Contour, Contours,
                      cv::KeyPoint, KeyPoints, Feature, cv::DMatch, Matches,
                      Circles,
+                     EnumType,
+                     EnumValue,
+                     HWND,
                      Object>
     port_value_t;
 
@@ -75,6 +82,9 @@ enum class PinType
     Int,
     Float,
     String,
+    EnumClass,
+    Enum,
+    Win32Handle,
     Object,
     Function,
     Delegate,
@@ -98,6 +108,9 @@ static const std::map<std::size_t, PinType> typeMap = {
     {typeid(cv::DMatch).hash_code(), PinType::Match},
     {typeid(Matches).hash_code(), PinType::Matches},
     {typeid(Circles).hash_code(), PinType::Circles},
+    {typeid(EnumType).hash_code(), PinType::EnumClass},
+    {typeid(EnumValue).hash_code(), PinType::Enum},
+    {typeid(HWND).hash_code(), PinType::Win32Handle},
     {typeid(Object).hash_code(), PinType::Object},
 };
 static const std::map<PinType, std::string> typeLabelNames = {
@@ -118,6 +131,9 @@ static const std::map<PinType, std::string> typeLabelNames = {
     {PinType::Match, "匹配对"},
     {PinType::Matches, "匹配集合"},
     {PinType::Circles, "霍夫圆数据集合"},
+    {PinType::EnumClass, "枚举类"},
+    {PinType::Enum, "枚举"},
+    {PinType::Win32Handle, "窗口句柄"},
     {PinType::Object, "任意对象"},
 };
 
@@ -239,6 +255,31 @@ static bool is_equal(const Matches &lft, const Matches &rht)
 }
 
 template <>
+static bool is_equal(const EnumType &lft, const EnumType &rht)
+{
+    if (lft.size() != rht.size())
+        return false;
+    for (auto item : lft)
+    {
+        if (rht.find(item.first) == rht.end() || rht.at(item.first) != item.second)
+            return false;
+    }
+    return true;
+}
+
+template <>
+static bool is_equal(const EnumValue &lft, const EnumValue &rht)
+{
+    return lft.second == rht.second;
+}
+
+template <>
+static bool is_equal(const HWND &lft, const HWND &rht)
+{
+    return lft == rht;
+}
+
+template <>
 static bool is_equal(const Object &lft, const Object &rht)
 {
     return false;
@@ -346,6 +387,28 @@ struct PortValueSerializer
         }
         return json::object{{"Circles", arr}};
     }
+    json::value operator()(const EnumType &v) const
+    {
+        json::array arr;
+        for (auto item : v)
+        {
+            arr.push_back(json::array{item.first, item.second});
+        }
+        return json::object{{"EnumType", arr}};
+    }
+    json::value operator()(const EnumValue &v) const
+    {
+        json::object obj{{"EnumValue", json::array{v.second}}};
+        if (v.first.size() > 0)
+        {
+            obj["EnumType"] = json::serialize(v.first, *this);
+        }
+        return obj;
+    }
+    json::value operator()(const HWND &v) const
+    {
+        return json::object{{"HWND", json::array{reinterpret_cast<int64_t>(v)}}};
+    }
 
     json::value operator()(const port_value_t &v) const
     {
@@ -416,6 +479,18 @@ struct PortValueSerializer
         if (std::holds_alternative<Circles>(v))
         {
             return json::object{{"Circles", json::serialize(std::get<Circles>(v), *this)}};
+        }
+        if (std::holds_alternative<EnumType>(v))
+        {
+            return json::object{{"EnumType", json::serialize(std::get<EnumType>(v), *this)}};
+        }
+        if (std::holds_alternative<EnumValue>(v))
+        {
+            return json::object{{"EnumValue", json::serialize(std::get<EnumValue>(v), *this)}};
+        }
+        if (std::holds_alternative<HWND>(v))
+        {
+            return json::object{{"HWND", json::serialize(std::get<HWND>(v), *this)}};
         }
         if (std::holds_alternative<Object>(v))
         {
@@ -623,6 +698,46 @@ struct PortValueDeserializer
         }
         return false;
     }
+    bool operator()(const json::value &json, EnumType &v) const
+    {
+        if (json.is_object() && json.as_object().contains("EnumType"))
+        {
+            auto arr = json.as_object().at("EnumType").as_array();
+            for (auto item : arr)
+            {
+                v[item[0].as_integer()] = item[1].as_string();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool operator()(const json::value &json, EnumValue &v) const
+    {
+        if (json.is_object() && json.as_object().contains("EnumValue"))
+        {
+            if (json.as_object().contains("EnumType"))
+            {
+                EnumType enumType;
+                if (operator()(json.as_object().at("EnumType"), enumType))
+                {
+                    v.first = enumType;
+                }
+            }
+            v.second = json.as_object().at("EnumValue").as_array()[0].as_integer();
+            return true;
+        }
+        return false;
+    }
+    bool operator()(const json::value &json, HWND &v) const
+    {
+        if (json.is_object() && json.as_object().contains("HWND"))
+        {
+            v = reinterpret_cast<HWND>(json.as_object().at("HWND").as_array()[0].as_integer());
+            return true;
+        }
+        return false;
+    }
 
     bool operator()(const json::value &json, port_value_t &v) const
     {
@@ -758,6 +873,24 @@ struct PortValueDeserializer
                 if (operator()(json.as_object().at("Circles"), circles))
                 {
                     v = circles;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("EnumValue"))
+            {
+                EnumValue enumValue;
+                if (operator()(json.as_object().at("EnumValue"), enumValue))
+                {
+                    v = enumValue;
+                    return true;
+                }
+            }
+            if (json.as_object().contains("HWND"))
+            {
+                HWND hwnd;
+                if (operator()(json.as_object().at("HWND"), hwnd))
+                {
+                    v = hwnd;
                     return true;
                 }
             }
