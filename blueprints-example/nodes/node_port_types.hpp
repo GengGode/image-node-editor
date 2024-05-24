@@ -733,7 +733,7 @@ struct PortValueDeserializer
     {
         if (json.is_object() && json.as_object().contains("HWND"))
         {
-            v = reinterpret_cast<HWND>(json.as_object().at("HWND").as_array()[0].as_integer());
+            v = reinterpret_cast<HWND>((int64_t)json.as_object().at("HWND").as_array()[0].as_integer());
             return true;
         }
         return false;
