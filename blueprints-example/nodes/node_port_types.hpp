@@ -407,7 +407,7 @@ struct PortValueSerializer
     }
     json::value operator()(const HWND &v) const
     {
-        return json::object{{"HWND", json::array{reinterpret_cast<int64_t>(v)}}};
+        return json::object{{"HWND", json::array{reinterpret_cast<uint64_t>(v)}}};
     }
 
     json::value operator()(const port_value_t &v) const
