@@ -3,7 +3,7 @@
 #include <vector>
 namespace utils
 {
-    std::vector<std::string> split_string(const std::string &str, const std::string &delimiter)
+    inline std::vector<std::string> split_string(const std::string &str, const std::string &delimiter)
     {
         std::vector<std::string> result;
         size_t last = 0;
