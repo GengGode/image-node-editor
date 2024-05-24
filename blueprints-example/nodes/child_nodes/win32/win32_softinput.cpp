@@ -117,9 +117,35 @@ Node *Spawn_Win32_SoftInput_MouseClick(const std::function<int()> &GetNextId, co
             else if (key_name == "中键")
                 input.mi.dwFlags = action_name == "按下" ? MOUSEEVENTF_MIDDLEDOWN : MOUSEEVENTF_MIDDLEUP;
 
-            auto res = SendMessageTimeoutW(handle, WM_MOUSEMOVE, 0, MAKELPARAM(point.x, point.y), SMTO_NORMAL, 100, nullptr);
+            if (action_name == "单击")
+            {
+                input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                SendInput(1, &input, sizeof(INPUT));
+                input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                SendInput(1, &input, sizeof(INPUT));
+            }
+            else if (action_name == "双击")
+            {
+                input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                SendInput(1, &input, sizeof(INPUT));
+                input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                SendInput(1, &input, sizeof(INPUT));
+                input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                SendInput(1, &input, sizeof(INPUT));
+                input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                SendInput(1, &input, sizeof(INPUT));
+            }
+            else if (action_name == "长按")
+            {
+                input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                SendInput(1, &input, sizeof(INPUT));
+            }
+            else
+            {
+                auto res = SendMessageTimeoutW(handle, WM_MOUSEMOVE, 0, MAKELPARAM(point.x, point.y), SMTO_NORMAL, 100, nullptr);
+            }
 
-            node->Outputs[0].Value = res != 0;
+            // node->Outputs[0].Value = res != 0;
             node->Outputs[1].Value = (int)GetLastError();
         }
         catch_block_and_return;
