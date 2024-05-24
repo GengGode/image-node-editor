@@ -618,6 +618,10 @@ void node_ui::draw_comment_node(Node *node)
 }
 void node_ui::draw_simple_node(Node *node)
 {
+    node->graph->ui.builder->Begin(node->ID);
+    node->graph->ui.draw_node_input_pins(node);
+    node->graph->ui.draw_node_output_pins(node);
+    node->graph->ui.builder->End();
 }
 void node_ui::draw_image_node(Node *node)
 {
@@ -765,6 +769,7 @@ void node_ui::draw_image_node(Node *node)
     {
         ImGui::PopStyleColor();
         ed::Suspend();
+        // 绘制错误提示
         if (node->graph->ui.has_error_and_hovered_on_node || node->graph->ui.has_error_and_hovered_on_port)
         {
             // ImGui::SetTooltip("错误: %s", context_error_opt.value().Message.c_str());
