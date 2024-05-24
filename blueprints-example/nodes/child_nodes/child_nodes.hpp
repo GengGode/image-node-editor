@@ -3,6 +3,7 @@
 
 #include "../base_nodes.hpp"
 #include "blueprint/blueprint.hpp"
+#include "maa/maa_task.hpp"
 
 #include "base/base_type.hpp"
 #include "base/base_convert.hpp"

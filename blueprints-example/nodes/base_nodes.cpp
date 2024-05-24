@@ -505,6 +505,8 @@ void node_ui::draw_node(Node *node)
     case NodeType::Blueprint:
         // draw_blueprint_node(node);
         break;
+    case NodeType::MaaTaskFlow:
+        draw_image_node(node);
     case NodeType::BaseType:
         draw_image_node(node);
         break;
@@ -797,6 +799,7 @@ void node_ui::draw_flow_node(Node *node)
 std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, BlueprintNodes},
+        {NodeType::MaaTaskFlow, MaaTaskFlowNodes},
         {NodeType::BaseType, BaseTypeNodes},
         {NodeType::BaseConvert, BaseConvertNodes},
         {NodeType::BaseOperation, BaseOperationNodes},

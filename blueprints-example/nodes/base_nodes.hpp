@@ -64,6 +64,7 @@ using ax::Widgets::IconType;
 enum class NodeType
 {
     Blueprint,
+    MaaTaskFlow,
     BaseType,
     BaseConvert,
     BaseOperation,
