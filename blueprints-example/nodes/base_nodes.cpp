@@ -507,6 +507,8 @@ void node_ui::draw_node(Node *node)
         break;
     case NodeType::MaaTaskFlow:
         draw_image_node(node);
+    case NodeType::Win32:
+        draw_image_node(node);
     case NodeType::BaseType:
         draw_image_node(node);
         break;
@@ -800,6 +802,8 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
     {
         {NodeType::Blueprint, BlueprintNodes},
         {NodeType::MaaTaskFlow, MaaTaskFlowNodes},
+        {NodeType::Win32, Win32WindowNodes},
+        {NodeType::Win32Input, Win32SoftInputNodes},
         {NodeType::BaseType, BaseTypeNodes},
         {NodeType::BaseConvert, BaseConvertNodes},
         {NodeType::BaseOperation, BaseOperationNodes},

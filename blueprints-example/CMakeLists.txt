@@ -13,6 +13,8 @@ add_example_executable(blueprints-example
 
     nodes/child_nodes/image/image_draw.cpp
     nodes/child_nodes/image/image_source.cpp
+    nodes/child_nodes/win32/win32_window.cpp
+    nodes/child_nodes/win32/win32_softinput.cpp
 )
 target_include_directories(blueprints-example PRIVATE nodes)
 target_include_directories(blueprints-example PRIVATE utilities)

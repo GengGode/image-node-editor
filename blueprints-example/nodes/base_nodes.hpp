@@ -65,6 +65,8 @@ enum class NodeType
 {
     Blueprint,
     MaaTaskFlow,
+    Win32,
+    Win32Input,
     BaseType,
     BaseConvert,
     BaseOperation,
@@ -88,6 +90,9 @@ enum class NodeType
 };
 static std::vector<std::pair<std::string, NodeType>> nodeTypes = {
     {"蓝图", NodeType::Blueprint},
+    {"Maa任务流", NodeType::MaaTaskFlow},
+    {"Win32", NodeType::Win32},
+    {"Win32输入", NodeType::Win32Input},
     {"基础类型", NodeType::BaseType},
     {"基础转换", NodeType::BaseConvert},
     {"基础操作", NodeType::BaseOperation},
