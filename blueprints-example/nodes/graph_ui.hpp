@@ -36,7 +36,10 @@ inline void GraphUi::draw_node_input_pins(Node *node)
 {
     for (auto &input : node->Inputs)
     {
-        ed::PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(255, 0, 0, 255));
+        auto this_input_has_error = node->LastExecuteResult.Error.has_value() && node->LastExecuteResult.Error.value().Source.index() == 1 && std::get<1>(node->LastExecuteResult.Error.value().Source) == input.ID;
+        if (this_input_has_error)
+            ed::PushStyleColor(ed::StyleColor_PinRect, ImColor(255, 64, 64, 255));
+
         auto alpha = ImGui::GetStyle().Alpha;
         if (new_link_pin && !CanCreateLink(new_link_pin, &input) && &input != new_link_pin)
             alpha = alpha * (48.0f / 255.0f);
@@ -68,7 +71,9 @@ inline void GraphUi::draw_node_input_pins(Node *node)
 
         ImGui::PopStyleVar();
         builder->EndInput();
-        ed::PopStyleColor();
+
+        if (this_input_has_error)
+            ed::PopStyleColor();
 
         if (has_error && ImGui::IsItemHovered())
         {
