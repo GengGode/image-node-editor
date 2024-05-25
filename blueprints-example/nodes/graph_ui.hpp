@@ -111,6 +111,13 @@ inline void GraphUi::draw_nodes()
 {
     for (auto &node : graph->Nodes)
     {
+        auto has_error = node.LastExecuteResult.has_error();
+        if (has_error)
+            ed::PushStyleColor(ed::StyleColor_NodeBg, ImVec4(0.25f, 0.125f, 0.125f, 1.0f));
+
         node.ui.draw_node(&node);
+
+        if (has_error)
+            ed::PopStyleColor();
     }
 }
