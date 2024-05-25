@@ -19,6 +19,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Point CMake where to look for module files.
 list(APPEND CMAKE_MODULE_PATH ${IMGUI_NODE_EDITOR_ROOT_DIR}/misc/cmake-modules)
 list(APPEND CMAKE_MODULE_PATH ${third_party_dir}/libocr)
+list(APPEND CMAKE_MODULE_PATH ${third_party_dir}/InputSimulator)
 
 # Node editor use C++14
 set(CMAKE_CXX_STANDARD            17)
@@ -141,11 +142,14 @@ macro(add_example_executable name)
     find_package(imgui REQUIRED)
     find_package(imgui_node_editor REQUIRED)
     find_package(libocr REQUIRED)
+    find_package(InputSimulator REQUIRED)
     target_link_libraries(${name} PRIVATE imgui imgui_node_editor application)
     target_link_libraries(${name} PRIVATE meojson)
     target_link_libraries(${name} PRIVATE libocr)
     target_link_libraries(${name} PRIVATE ${OpenCV_LIBS})
     target_link_directories(${name} PRIVATE ${OpenCV_LIB_DIR})
+    
+    target_include_directories(${name} PRIVATE ${_InputSimulator_IncludeDir})
     target_include_directories(${name} PRIVATE ${OpenCV_INCLUDE_DIRS})
 
     set(_ExampleBinDir ${CMAKE_BINARY_DIR}/bin)
