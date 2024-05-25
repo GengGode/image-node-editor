@@ -267,8 +267,8 @@ Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, co
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs.emplace_back(GetNextId(), PinType::Size);
-    node.Outputs.emplace_back(GetNextId(), PinType::Int, "Width");
-    node.Outputs.emplace_back(GetNextId(), PinType::Int, "Height");
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "宽度");
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "高度");
 
     node.Outputs[0].app = app;
     node.Outputs[1].app = app;
@@ -303,12 +303,12 @@ Node *Spawn_ImageOperator_ImageGetRect(const std::function<int()> &GetNextId, co
     m_Nodes.emplace_back(GetNextId(), "获取图像范围");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Rect", PinType::Rect);
-    node.Outputs.emplace_back(GetNextId(), "X", PinType::Int);
-    node.Outputs.emplace_back(GetNextId(), "Y", PinType::Int);
-    node.Outputs.emplace_back(GetNextId(), "Width", PinType::Int);
-    node.Outputs.emplace_back(GetNextId(), "Height", PinType::Int);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), PinType::Rect);
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "横坐标");
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "纵坐标");
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "宽度");
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "高度");
 
     node.Outputs[0].app = app;
     node.Outputs[1].app = app;
@@ -348,8 +348,8 @@ Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId
     m_Nodes.emplace_back(GetNextId(), "获取图像通道数");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Channels", PinType::Int);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "通道数");
 
     node.Outputs[0].app = app;
 
@@ -380,8 +380,8 @@ Node *Spawn_ImageOperator_ImageGetDepth(const std::function<int()> &GetNextId, c
     m_Nodes.emplace_back(GetNextId(), "获取图像深度");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Depth", PinType::Int);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "深度");
 
     node.Outputs[0].app = app;
 
@@ -546,10 +546,10 @@ Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, con
     m_Nodes.emplace_back(GetNextId(), "调整图像大小");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Inputs.emplace_back(GetNextId(), "Width", PinType::Int, 640);
-    node.Inputs.emplace_back(GetNextId(), "Height", PinType::Int, 480);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "宽度", 640);
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "高度", 480);
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
@@ -593,7 +593,7 @@ Node *Spawn_ImageOperator_MaskImage(const std::function<int()> &GetNextId, const
     m_Nodes.emplace_back(GetNextId(), "Mask Image");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Mask", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs[0].app = app;
@@ -634,11 +634,11 @@ Node *Spawn_ImageOperator_ImageChannelSplit(const std::function<int()> &GetNextI
     m_Nodes.emplace_back(GetNextId(), "图像通道拆分");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Channel 0", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Channel 1", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Channel 2", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Channel 3", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 1");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 2");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 3");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 4");
     node.Outputs[0].app = app;
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
@@ -683,11 +683,11 @@ Node *Spawn_ImageOperator_ImageChannelMerge(const std::function<int()> &GetNextI
     m_Nodes.emplace_back(GetNextId(), "图像通道合并");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Channel 0", PinType::Image);
-    node.Inputs.emplace_back(GetNextId(), "Channel 1", PinType::Image);
-    node.Inputs.emplace_back(GetNextId(), "Channel 2", PinType::Image);
-    node.Inputs.emplace_back(GetNextId(), "Channel 3", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "通道 1");
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "通道 2");
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "通道 3");
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "通道 4");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
@@ -744,9 +744,9 @@ Node *Spawn_ImageOperator_ImageAndMaskCopy(const std::function<int()> &GetNextId
     m_Nodes.emplace_back(GetNextId(), "获取遮罩图像");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageFlow;
-    node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Inputs.emplace_back(GetNextId(), "Mask", PinType::Image);
-    node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image);
+    node.Inputs.emplace_back(GetNextId(), PinType::Image, "遮罩");
+    node.Outputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
