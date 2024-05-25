@@ -336,7 +336,7 @@ struct Node
 
     std::function<ExecuteResult(Graph *, Node *)> OnExecute = [](Graph *, Node *node)
     {
-        return ExecuteResult::ErrorNode(node->ID, "Null Impl");
+        return ExecuteResult::ErrorNode(node->ID, "Null Impl: " + node->Name);
     };
 
     std::function<ExecuteResult(Graph *, Node *)> OnExecuteEx = [](Graph *graph, Node *node)
