@@ -102,6 +102,11 @@ void Graph::auto_arrange()
 {
     // 根据依赖关系排序
 
+    // 节点层（列）之间的间距
+    constexpr int node_padding_horizontal = 80;
+    // 节点之间的间距
+    constexpr int node_padding_vertical = 40;
+
     // 需要计算位置的节点
     std::set<Node *> need_arrange_nodes;
     // 每个节点有一个依赖表，记录依赖的节点
@@ -110,6 +115,12 @@ void Graph::auto_arrange()
     std::map<Node *, std::set<Node *>> relate_map;
     // 每层的节点
     std::map<int, std::vector<Node *>> layer_map;
+    // 获取每个节点所在层
+    std::map<Node *, int> node_layer_map;
+    // 每个节点在每层的的高度
+    std::map<Node *, int> node_layer_height_map;
+    // 每层（列）中的高度堆栈 <<层, 高度>，节点>
+    std::map<std::pair<int, int>, Node *> layer_height_stack;
 
     // 运行结束标志
     bool is_end = false;
@@ -208,13 +219,18 @@ void Graph::auto_arrange()
             // 如果依赖节点都已经安排
             // 计算交集，依赖的节点是否存在于需要安排的节点中
             std::set<Node *> intersect;
-            std::set_intersection(depend_map[node].begin(), depend_map[node].end(), need_arrange_nodes.begin(), need_arrange_nodes.end(), std::inserter(intersect, intersect.begin()));
+            for (auto &depend : depend_map[node])
+            {
+                if (need_arrange_nodes.find(depend) != need_arrange_nodes.end())
+                    intersect.insert(depend);
+            }
 
             // 如果有交集，说明依赖的节点还没有安排，否则说明依赖的节点都已经安排
             if (intersect.size() > 0)
                 continue;
 
             layer_nodes.push_back(node);
+            node_layer_map[node] = current_layer;
         }
 
         for (auto &node : layer_nodes)
@@ -226,26 +242,101 @@ void Graph::auto_arrange()
         current_layer++;
     }
 
+    // 根据子节点的最低层级，调整父节点的层级为子节点的最低层级-1
+    for (auto &[parent_node, relates] : relate_map)
+    {
+        // 获取子节点的最低层级
+        int min_layer = static_cast<int>(layer_map.size());
+        for (auto &relate : relates)
+        {
+            if (node_layer_map[relate] < min_layer)
+                min_layer = node_layer_map[relate];
+        }
+
+        // 如果父节点的层级小于子节点的最高层级，调整父节点的层级
+        if (node_layer_map[parent_node] < min_layer - 1)
+        {
+            // 先删除原来的层级
+            layer_map[node_layer_map[parent_node]].erase(std::find(layer_map[node_layer_map[parent_node]].begin(), layer_map[node_layer_map[parent_node]].end(), parent_node));
+            // 调整层级
+            node_layer_map[parent_node] = min_layer - 1;
+            layer_map[min_layer - 1].push_back(parent_node);
+        }
+    }
+
+    // 计算每个节点在每层的高度
     for (auto &[layer, layer_nodes] : layer_map)
     {
-        auto layer_max_width = 0;
-        printf("===============\n");
+        for (int i = 0; i < layer_nodes.size(); i++)
+        {
+            auto node = layer_nodes[i];
+            node_layer_height_map[node] = i;
+        }
+    }
+    for (auto &[node, height] : node_layer_height_map)
+    {
+        layer_height_stack[std::make_pair(node_layer_map[node], height)] = node;
+    }
+
+    // 根据所有依赖节点的最低高度，调整节点的高度
+    for (auto &[node, depends] : depend_map)
+    {
+        // 获取依赖节点的最低高度
+        int min_height = static_cast<int>(layer_map[node_layer_map[node]].size()) - 1;
+        for (auto &depend : depends)
+        {
+            if (node_layer_height_map[depend] <= min_height)
+                min_height = node_layer_height_map[depend];
+        }
+
+        // 如果节点的高度小于依赖节点的最低高度，调整节点的高度
+        if (node_layer_height_map[node] < min_height)
+        {
+            // 先删除原来的高度
+            layer_map[node_layer_map[node]].erase(std::find(layer_map[node_layer_map[node]].begin(), layer_map[node_layer_map[node]].end(), node));
+            layer_height_stack[std::make_pair(node_layer_map[node], node_layer_height_map[node])] = nullptr;
+            // 调整高度
+            node_layer_height_map[node] = min_height;
+            layer_map[node_layer_map[node]].insert(layer_map[node_layer_map[node]].begin() + min_height, node);
+            layer_height_stack[std::make_pair(node_layer_map[node], min_height)] = node;
+        }
+    }
+
+    // 获取所有节点大小
+    for (auto &node : Nodes)
+    {
+        auto size = ed::GetNodeSize(node.ID);
+        printf("node [%s] %d size: %f %f\n", node.Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node.ID.AsPointer())), size.x, size.y);
+    }
+
+    // 调整位置
+    // 每层左侧起点的位置
+    std::map<int, int> layers_left_pos = {{0, 0}};
+    // 每层最大宽度
+    std::map<int, int> layers_max_width;
+    for (auto &[layer, layer_nodes] : layer_map)
+    {
+        int layer_max_width = 0;
+        std::map<Node *, int> node_height_map;
         for (auto &node : layer_nodes)
         {
             auto size = ed::GetNodeSize(node->ID);
-            if (static_cast<int>(size.x) > layer_max_width)
-                layer_max_width = static_cast<int>(size.x);
-            printf("node [%s] %d size: %f %f\n", node->Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())), size.x, size.y);
+            if (static_cast<double>(size.x) > static_cast<double>(layer_max_width))
+                layer_max_width = static_cast<int>(std::floor(size.x));
+            node_height_map[node] = static_cast<int>(std::floor(size.y));
         }
-        printf("layer %d max width: %d\n", layer, layer_max_width);
+        layers_max_width[layer] = layer_max_width;
+        layers_left_pos[layer + 1] = layers_left_pos[layer] + layer_max_width + node_padding_horizontal;
+
+        int layer_top_pos = 0;
         for (int i = 0; i < layer_nodes.size(); i++)
         {
             auto node = layer_nodes[i];
             ImVec2 pos = center;
-            pos.x += (layer - 1) * (layer_max_width + 20);
-            pos.y += (i - 1) * 300;
+            pos.x += layers_left_pos[layer];
+            pos.y += layer_top_pos;
             ed::SetNodePosition(node->ID, pos);
-            printf("node [%s] %d pos: %f %f\n", node->Name.c_str(), static_cast<int>(reinterpret_cast<int64>(node->ID.AsPointer())), pos.x, pos.y);
+            layer_top_pos += node_height_map[node] + node_padding_vertical;
         }
     }
 
