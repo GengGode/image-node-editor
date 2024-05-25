@@ -553,12 +553,15 @@ void node_ui::draw_output_pin(Pin &output)
         last_index = enum_value.second;
         // 限制宽度
         float max_text_width = 0;
+        const float output_pin_text_width_max = 300.0f;
         auto &[enums, value] = enum_value;
         for (int i = 0; i < enums.size(); i++)
         {
             float text_width = ImGui::CalcTextSize(enums[i].c_str()).x;
             if (text_width > max_text_width)
                 max_text_width = text_width;
+            if (text_width > output_pin_text_width_max)
+                max_text_width = output_pin_text_width_max;
         }
         ImGui::PushItemWidth(max_text_width + 20.0f);
         // 直接绘制一个列表
