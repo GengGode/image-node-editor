@@ -28,7 +28,7 @@ static NodeWorldGlobal::FactoryGroupFunc_t Win32SoftInputNodes = {
     {"Win32 鼠标点击类型枚举", Spawn_EnumMouseClickTypeNode},
     {"Win32 鼠标点击动作枚举", Spawn_EnumMouseClickActionTypeNode},
     {"Win32 键盘控制类型枚举", Spawn_EnumKeyContorlTypeNode},
-    {"Win32 键盘点击动作枚举", Spawn_EnumKeyClickActionTypeNode},
+    {"Win32 键盘按键动作枚举", Spawn_EnumKeyClickActionTypeNode},
     {"Win32 软件鼠标点击", Spawn_Win32_SoftInput_MouseClick},
     {"Win32 软件鼠标移动", Spawn_Win32_SoftInput_MouseMove},
     {"Win32 软件鼠标滚轮", Spawn_Win32_SoftInput_MouseWheel},

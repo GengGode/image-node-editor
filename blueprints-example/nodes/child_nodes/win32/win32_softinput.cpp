@@ -5,7 +5,6 @@ static EnumType MouseClickType = {
     {1, "右键"},
     {2, "中键"},
 };
-
 // enum mouse click type node
 Node *Spawn_EnumMouseClickTypeNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -36,7 +35,6 @@ static EnumType MouseClickActionType = {
     {3, "双击"},
     {4, "长按"},
 };
-
 // enum mouse click action type node
 Node *Spawn_EnumMouseClickActionTypeNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -45,6 +43,64 @@ Node *Spawn_EnumMouseClickActionTypeNode(const std::function<int()> &GetNextId, 
     node.Type = NodeType::Simple;
 
     node.Outputs.push_back(Pin(GetNextId(), PinType::Enum, "鼠标动作", EnumValue{MouseClickActionType, 0}));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        try_catch_block
+            catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+static EnumType KeyContorlType = {
+    {0, "Null"},
+    {1, "Ctrl"},
+    {2, "Alt"},
+    {3, "Shift"},
+    {4, "Win"},
+};
+// software key contorl type node
+Node *Spawn_EnumKeyContorlTypeNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "Win32 键盘控制键枚举");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::Simple;
+
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Enum, "控制键", EnumValue{KeyContorlType, 0}));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        try_catch_block
+            catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
+static EnumType KeyClickActionType = {
+    {0, "按下"},
+    {1, "释放"},
+    {2, "单击"},
+};
+// software key action type node
+Node *Spawn_EnumKeyClickActionTypeNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "Win32 键盘按键动作枚举");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::Simple;
+
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Enum, "按键动作", EnumValue{KeyClickActionType, 0}));
 
     for (auto &output : node.Outputs)
         output.app = app;
@@ -107,6 +163,7 @@ Node *Spawn_Win32_SoftInput_MouseClick(const std::function<int()> &GetNextId, co
             WindowsInput::InputSimulator simulator;
             simulator.GetMouseSimulator().Sleep(wait_ms);
 
+            simulator.GetMouseSimulator().MoveMouseTo(point.x, point.y);
             if (action_name == "按下")
             {
                 if (key_name == "左键")
@@ -151,10 +208,6 @@ Node *Spawn_Win32_SoftInput_MouseClick(const std::function<int()> &GetNextId, co
                     simulator.GetMouseSimulator().RightButtonDown();
                 else if (key_name == "中键")
                     simulator.GetMouseSimulator().MiddleButtonDown();
-            }
-            else
-            {
-                simulator.GetMouseSimulator().MoveMouseTo(point.x, point.y);
             }
 
             // node->Outputs[0].Value = res != 0;
@@ -269,65 +322,6 @@ Node *Spawn_Win32_SoftInput_MouseWheel(const std::function<int()> &GetNextId, co
 
     return &node;
 }
-
-static EnumType KeyContorlType = {
-    {0, "Null"},
-    {1, "Ctrl"},
-    {2, "Alt"},
-    {3, "Shift"},
-    {4, "Win"},
-};
-// software key contorl type node
-Node *Spawn_EnumKeyContorlTypeNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
-{
-    m_Nodes.emplace_back(GetNextId(), "Win32 键盘控制键枚举");
-    auto &node = m_Nodes.back();
-    node.Type = NodeType::Simple;
-
-    node.Outputs.push_back(Pin(GetNextId(), PinType::Enum, "控制键", EnumValue{KeyContorlType, 0}));
-
-    for (auto &output : node.Outputs)
-        output.app = app;
-
-    node.OnExecute = [](Graph *graph, Node *node)
-    {
-        try_catch_block
-            catch_block_and_return;
-    };
-
-    BuildNode(&node);
-
-    return &node;
-}
-static EnumType KeyClickActionType = {
-    {0, "按下"},
-    {1, "释放"},
-    {2, "单击"},
-};
-
-// software key action type node
-Node *Spawn_EnumKeyClickActionTypeNode(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
-{
-    m_Nodes.emplace_back(GetNextId(), "Win32 键盘按键动作枚举");
-    auto &node = m_Nodes.back();
-    node.Type = NodeType::Simple;
-
-    node.Outputs.push_back(Pin(GetNextId(), PinType::Enum, "按键动作", EnumValue{KeyClickActionType, 0}));
-
-    for (auto &output : node.Outputs)
-        output.app = app;
-
-    node.OnExecute = [](Graph *graph, Node *node)
-    {
-        try_catch_block
-            catch_block_and_return;
-    };
-
-    BuildNode(&node);
-
-    return &node;
-}
-
 // software key click node
 Node *Spawn_Win32_SoftInput_KeyClick(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
@@ -392,7 +386,7 @@ Node *Spawn_Win32_SoftInput_KeyClick(const std::function<int()> &GetNextId, cons
                 simulator.GetKeyboardSimulator().KeyDown(WindowsInput::VirtualKeyCode::LWIN);
 
             if (action_name == "按下")
-                simulator.GetKeyboardSimulator().TextEntry(key);
+                simulator.GetKeyboardSimulator().KeyDown((WindowsInput::VirtualKeyCode)key_name);
             else if (action_name == "释放")
                 simulator.GetKeyboardSimulator().KeyUp((WindowsInput::VirtualKeyCode)key_name);
             else if (action_name == "单击")
@@ -474,6 +468,7 @@ Node *Spawn_Win32_PostMessage_MouseClick(const std::function<int()> &GetNextId, 
 
             dispatcher.targetWindow = handle;
 
+            simulator->GetMouseSimulator().MoveMouseTo(point.x, point.y);
             if (action_name == "按下")
             {
                 if (key_name == "左键")
@@ -518,10 +513,6 @@ Node *Spawn_Win32_PostMessage_MouseClick(const std::function<int()> &GetNextId, 
                     simulator->GetMouseSimulator().RightButtonDown();
                 else if (key_name == "中键")
                     simulator->GetMouseSimulator().MiddleButtonDown();
-            }
-            else
-            {
-                simulator->GetMouseSimulator().MoveMouseTo(point.x, point.y);
             }
 
             delete simulator;
@@ -655,7 +646,7 @@ Node *Spawn_Win32_PostMessage_MouseWheel(const std::function<int()> &GetNextId, 
 // post message key action node
 Node *Spawn_Win32_PostMessage_KeyClick(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Win32 后台键盘按键");
+    m_Nodes.emplace_back(GetNextId(), "Win32 后台键盘点击");
     auto &node = m_Nodes.back();
     node.Type = NodeType::Win32;
     node.Inputs.emplace_back(GetNextId(), PinType::Win32Handle, "窗口句柄");
@@ -726,7 +717,7 @@ Node *Spawn_Win32_PostMessage_KeyClick(const std::function<int()> &GetNextId, co
             else if (action_name == "释放")
                 simulator->GetKeyboardSimulator().KeyUp((WindowsInput::VirtualKeyCode)key_name);
             else if (action_name == "单击")
-                simulator->GetKeyboardSimulator().TextEntry(key);
+                simulator->GetKeyboardSimulator().KeyPress((WindowsInput::VirtualKeyCode)key_name);
 
             if (control1_name == "Ctrl")
                 simulator->GetKeyboardSimulator().KeyUp(WindowsInput::VirtualKeyCode::CONTROL_);
