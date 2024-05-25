@@ -371,7 +371,12 @@ struct Example : public Application
                 ed::NavigateToSelection();
             }
             if (ImGui::IsItemHovered() && !node.State.empty())
-                ImGui::SetTooltip("State: %s", node.State.c_str());
+            {
+                auto tip_text = "State: " + node.State;
+                if (node.LastExecuteResult.has_error())
+                    tip_text += "\nError: " + node.LastExecuteResult.Error.value().Message;
+                ImGui::SetTooltip("%s", tip_text.c_str());
+            }
 
             auto id = std::string("(") + std::to_string(reinterpret_cast<uintptr_t>(node.ID.AsPointer())) + ")";
             auto textSize = ImGui::CalcTextSize(id.c_str(), nullptr);
@@ -383,9 +388,11 @@ struct Example : public Application
                 IM_COL32(255, 255, 255, 255), id.c_str(), nullptr);
 
             std::string node_run_time = "";
+            ImColor node_run_time_color = ImColor(255, 255, 255, 255);
             if (node.LastExecuteResult.has_error())
             {
                 node_run_time = "error";
+                node_run_time_color = ImColor(255, 0, 0, 255);
             }
             else
             {
@@ -400,7 +407,7 @@ struct Example : public Application
                 auto run_time_text_size = ImGui::CalcTextSize(node_run_time.c_str(), nullptr);
                 ImGui::GetWindowDrawList()->AddText(
                     ImVec2(iconPanelPos.x - run_time_text_size.x - ImGui::GetStyle().ItemInnerSpacing.x - textSize.x - ImGui::GetStyle().ItemInnerSpacing.x, start.y),
-                    IM_COL32(255, 255, 255, 255), node_run_time.c_str(), nullptr);
+                    node_run_time_color, node_run_time.c_str(), nullptr);
             }
 
             auto drawList = ImGui::GetWindowDrawList();
