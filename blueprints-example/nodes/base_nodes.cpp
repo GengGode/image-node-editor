@@ -552,8 +552,15 @@ void node_ui::draw_output_pin(Pin &output)
         output.GetValue(enum_value);
         last_index = enum_value.second;
         // 限制宽度
-        ImGui::PushItemWidth(100.0f);
+        float max_text_width = 0;
         auto &[enums, value] = enum_value;
+        for (int i = 0; i < enums.size(); i++)
+        {
+            float text_width = ImGui::CalcTextSize(enums[i].c_str()).x;
+            if (text_width > max_text_width)
+                max_text_width = text_width;
+        }
+        ImGui::PushItemWidth(max_text_width + 20.0f);
         // 直接绘制一个列表
         ImGui::BeginVertical("##combo_show");
         for (int i = 0; i < enums.size(); i++)
