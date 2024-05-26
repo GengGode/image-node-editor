@@ -40,6 +40,31 @@ enum class PinKind
     Output,
     Input
 };
+class ArrayType
+{
+public:
+    // TODO: 实现数组
+
+    static bool is_equal(const ArrayType &lft, const ArrayType &rht)
+    {
+        // TODO: 实现数组比较
+        return true;
+    }
+};
+class ArrayElementType
+{
+public:
+    // TODO: 实现数组元素
+
+    static bool is_equal(const ArrayElementType &lft, const ArrayElementType &rht)
+    {
+        // TODO: 实现数组元素比较
+        return true;
+    }
+};
+typedef ArrayType Array;
+typedef ArrayElementType ArrayElement;
+
 typedef std::map<int, std::string> EnumType;
 
 typedef std::vector<cv::Point> Contour;
@@ -59,6 +84,7 @@ typedef std::variant<int, float, bool, std::string,
                      EnumType,
                      EnumValue,
                      HWND,
+                     Array, ArrayElement,
                      Object>
     port_value_t;
 
@@ -85,6 +111,10 @@ enum class PinType
     EnumClass,
     Enum,
     Win32Handle,
+
+    Array,        // 数组 模板
+    ArrayElement, // 数组元素 模板
+
     Object,
     Function,
     Delegate,
@@ -111,9 +141,12 @@ static const std::map<std::size_t, PinType> typeMap = {
     {typeid(EnumType).hash_code(), PinType::EnumClass},
     {typeid(EnumValue).hash_code(), PinType::Enum},
     {typeid(HWND).hash_code(), PinType::Win32Handle},
+    {typeid(Array).hash_code(), PinType::Array},
+    {typeid(ArrayElement).hash_code(), PinType::ArrayElement},
     {typeid(Object).hash_code(), PinType::Object},
 };
 static const std::map<PinType, std::string> typeLabelNames = {
+    {PinType::Flow, "控制流"},
     {PinType::Int, "整数"},
     {PinType::Float, "浮点数"},
     {PinType::Bool, "布尔值"},
@@ -134,6 +167,8 @@ static const std::map<PinType, std::string> typeLabelNames = {
     {PinType::EnumClass, "枚举类"},
     {PinType::Enum, "枚举"},
     {PinType::Win32Handle, "窗口句柄"},
+    {PinType::Array, "数组"},
+    {PinType::ArrayElement, "数组元素"},
     {PinType::Object, "任意对象"},
 };
 
@@ -280,6 +315,18 @@ static bool is_equal(const HWND &lft, const HWND &rht)
 }
 
 template <>
+static bool is_equal(const Array &lft, const Array &rht)
+{
+    return Array::is_equal(lft, rht);
+}
+
+template <>
+static bool is_equal(const ArrayElement &lft, const ArrayElement &rht)
+{
+    return ArrayElement::is_equal(lft, rht);
+}
+
+template <>
 static bool is_equal(const Object &lft, const Object &rht)
 {
     return false;
@@ -409,6 +456,7 @@ struct PortValueSerializer
     {
         return json::object{{"HWND", json::array{reinterpret_cast<uint64_t>(v)}}};
     }
+    // TODO: Array, ArrayElement, Object
 
     json::value operator()(const port_value_t &v) const
     {
@@ -496,6 +544,7 @@ struct PortValueSerializer
         {
             return json::object{{"Object", "Object"}};
         }
+        // TODO: Array, ArrayElement, Object
         return json::object{{"null", "null"}};
     }
 };
@@ -711,7 +760,6 @@ struct PortValueDeserializer
         }
         return false;
     }
-
     bool operator()(const json::value &json, EnumValue &v) const
     {
         if (json.is_object() && json.as_object().contains("EnumValue"))
@@ -738,6 +786,7 @@ struct PortValueDeserializer
         }
         return false;
     }
+    // TODO: Array, ArrayElement
 
     bool operator()(const json::value &json, port_value_t &v) const
     {
@@ -894,6 +943,7 @@ struct PortValueDeserializer
                     return true;
                 }
             }
+            // TODO: Array, ArrayElement
             if (json.as_object().contains("Object"))
             {
                 v = std::any();

@@ -39,6 +39,12 @@ namespace ui
             return ImColor(51, 200, 215);
         case PinType::Win32Handle:
             return ImColor(218, 200, 15);
+
+        case PinType::Array:
+            return ImColor(188, 188, 188);
+        case PinType::ArrayElement:
+            return ImColor(128, 128, 128);
+
         case PinType::Object:
             return ImColor(51, 150, 215);
         case PinType::Function:
@@ -121,6 +127,14 @@ namespace ui
         case PinType::Win32Handle:
             iconType = IconType::Circle;
             break;
+
+        case PinType::Array:
+            iconType = IconType::Grid;
+            break;
+        case PinType::ArrayElement:
+            iconType = IconType::Circle;
+            break;
+
         case PinType::Object:
             iconType = IconType::Circle;
             break;
