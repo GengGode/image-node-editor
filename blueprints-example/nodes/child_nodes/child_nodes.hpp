@@ -3,6 +3,7 @@
 
 #include "../base_nodes.hpp"
 #include "blueprint/blueprint.hpp"
+#include "flow/flow_source.hpp"
 #include "maa/maa_task.hpp"
 #include "win32/win32_window.hpp"
 #include "win32/win32_softinput.hpp"

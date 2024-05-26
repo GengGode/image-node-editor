@@ -64,6 +64,7 @@ using ax::Widgets::IconType;
 enum class NodeType
 {
     Blueprint,
+    FlowSource,
     MaaTaskFlow,
     Win32,
     Win32Input,
@@ -90,6 +91,7 @@ enum class NodeType
 };
 static std::vector<std::pair<std::string, NodeType>> nodeTypes = {
     {"蓝图", NodeType::Blueprint},
+    {"流程源", NodeType::FlowSource},
     {"Maa任务流", NodeType::MaaTaskFlow},
     {"Win32", NodeType::Win32},
     {"Win32输入", NodeType::Win32Input},

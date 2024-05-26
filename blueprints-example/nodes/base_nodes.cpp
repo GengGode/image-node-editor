@@ -606,10 +606,15 @@ void node_ui::draw_node(Node *node)
     case NodeType::Blueprint:
         // draw_blueprint_node(node);
         break;
+    case NodeType::FlowSource:
+        draw_flow_node(node);
+        break;
     case NodeType::MaaTaskFlow:
         draw_image_node(node);
+        break;
     case NodeType::Win32:
         draw_image_node(node);
+        break;
     case NodeType::BaseType:
         draw_image_node(node);
         break;
@@ -898,10 +903,176 @@ void node_ui::draw_image_node(Node *node)
 }
 void node_ui::draw_flow_node(Node *node)
 {
+    const auto isSimple = node->Type == NodeType::Simple;
+
+    node->graph->ui.has_error = node->LastExecuteResult.has_error();
+    node->graph->ui.has_error_and_hovered_on_port = false;
+    node->graph->ui.has_error_and_hovered_on_node = false;
+
+    if (node->graph->ui.has_error)
+    {
+        ImGui::PushStyleColor(ed::StyleColor_NodeBorder, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+        node->graph->ui.context_error_opt = node->LastExecuteResult.Error;
+    }
+
+    bool hasOutputDelegates = false;
+    for (auto &output : node->Outputs)
+        if (output.Type == PinType::Delegate)
+            hasOutputDelegates = true;
+
+    node->graph->ui.builder->Begin(node->ID);
+    if (!isSimple)
+    {
+        if (node->graph->ui.has_error)
+        {
+            if (node->LastExecuteResult.has_node_error())
+                node->graph->ui.builder->Header(ImColor(255, 0, 0));
+            else
+                node->graph->ui.builder->Header(ImColor(200, 100, 100));
+        }
+        else
+            node->graph->ui.builder->Header(node->Color);
+        ImGui::Spring(0);
+        ImGui::TextUnformatted(node->Name.c_str());
+        if (node->graph->ui.has_error && ImGui::IsItemHovered())
+        {
+            auto error_source = node->graph->ui.context_error_opt.value().Source;
+            if (std::holds_alternative<ed::NodeId>(error_source))
+                node->graph->ui.has_error_and_hovered_on_node = true;
+        }
+        ImGui::Spring(1);
+        ImGui::Dummy(ImVec2(0, 28));
+        if (hasOutputDelegates)
+        {
+            ImGui::BeginVertical("delegates", ImVec2(0, 28));
+            ImGui::Spring(1, 0);
+            for (auto &output : node->Outputs)
+            {
+                if (output.Type != PinType::Delegate)
+                    continue;
+
+                auto alpha = ImGui::GetStyle().Alpha;
+                if (node->graph->ui.new_link_pin && !CanCreateLink(node->graph->ui.new_link_pin, &output) && &output != node->graph->ui.new_link_pin)
+                    alpha = alpha * (48.0f / 255.0f);
+
+                ed::BeginPin(output.ID, ed::PinKind::Output);
+                ed::PinPivotAlignment(ImVec2(1.0f, 0.5f));
+                ed::PinPivotSize(ImVec2(0, 0));
+                ImGui::BeginHorizontal(output.ID.AsPointer());
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+                if (!output.Name.empty())
+                {
+                    ImGui::TextUnformatted(output.Name.c_str());
+                    ImGui::Spring(0);
+                }
+                ui::DrawPinIcon(output, graph->IsPinLinked(output.ID), (int)(alpha * 255));
+                ImGui::Spring(0, ImGui::GetStyle().ItemSpacing.x / 2);
+                ImGui::EndHorizontal();
+                ImGui::PopStyleVar();
+                ed::EndPin();
+
+                DrawItemRect(ImColor(255, 0, 0));
+            }
+            ImGui::Spring(1, 0);
+            ImGui::EndVertical();
+            ImGui::Spring(0, ImGui::GetStyle().ItemSpacing.x / 2);
+        }
+        else
+            ImGui::Spring(0);
+        node->graph->ui.builder->EndHeader();
+    }
+
+    // ImGui::BeginGroup();
+    if (node->ui.is_expanded)
+    {
+        node->graph->ui.draw_node_input_pins(node);
+        node->graph->ui.draw_node_output_pins(node);
+    }
+    else
+    {
+        // 所有连线都汇总到一个输入和输出上
+        {
+            auto &virtual_input = node->ui.get_virtual_input();
+
+            ed::PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(255, 0, 0, 255));
+            auto alpha = ImGui::GetStyle().Alpha;
+
+            node->graph->ui.builder->Input(virtual_input.ID);
+
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+            ui::DrawPinIcon(virtual_input, graph->IsPinLinked(virtual_input.ID), (int)(alpha * 255));
+            ImGui::PopStyleVar();
+
+            node->graph->ui.builder->EndInput();
+            ed::PopStyleColor();
+        }
+
+        {
+            auto &virtual_output = node->ui.get_virtual_output();
+
+            ed::PushStyleColor(ed::StyleColor_PinRectBorder, ImColor(255, 0, 0, 255));
+            auto alpha = ImGui::GetStyle().Alpha;
+
+            node->graph->ui.builder->Output(virtual_output.ID);
+
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+            ui::DrawPinIcon(virtual_output, graph->IsPinLinked(virtual_output.ID), (int)(alpha * 255));
+            ImGui::PopStyleVar();
+
+            node->graph->ui.builder->EndOutput();
+            ed::PopStyleColor();
+        }
+    }
+    // ImGui::EndGroup();
+
+    //  footer
+    if (!isSimple)
+    {
+        // builder->Footer();
+        ImGui::Spring(1);
+        std::string footer = "耗时：" + node->get_last_execute_time();
+        ImGui::TextUnformatted(footer.c_str());
+        if (node->is_running())
+        {
+            ImColor color = ui::get_color_from_thread_id(node->get_running_thread_id());
+            // ImGui::Image(m_PlayIcon, ImVec2(16, 16), ImVec2(0, 0), ImVec2(1, 1), color.Value);
+            ImSpinner::SpinnerHerbertBalls3D("wiat", 16, 3.f, color, 2.0f);
+        }
+        // builder->EndFooter();
+    }
+
+    node->graph->ui.builder->End();
+
+    if (node->graph->ui.has_error)
+    {
+        ImGui::PopStyleColor();
+        ed::Suspend();
+        // 绘制错误提示
+        if (node->graph->ui.has_error_and_hovered_on_node || node->graph->ui.has_error_and_hovered_on_port)
+        {
+            // ImGui::SetTooltip("错误: %s", context_error_opt.value().Message.c_str());
+            auto error_message = node->graph->ui.context_error_opt.value().Message;
+            if (error_message.size() < 64)
+            {
+                ImGui::SetTooltip("错误: \n%s", error_message.c_str());
+            }
+            else
+            {
+                ImGui::BeginTooltip();
+                ImGui::BeginChild("error", ImVec2(240, 300));
+                ImGui::TextWrapped("错误: \n%s", error_message.c_str());
+                ImGui::SetScrollHereY(1.0f);
+                ImGui::EndChild();
+                ImGui::EndTooltip();
+            }
+        }
+        ed::Resume();
+    }
 }
 std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, BlueprintNodes},
+        {NodeType::FlowSource, FlowSourceNodes},
         {NodeType::MaaTaskFlow, MaaTaskFlowNodes},
         {NodeType::Win32, Win32WindowNodes},
         {NodeType::Win32Input, Win32SoftInputNodes},
