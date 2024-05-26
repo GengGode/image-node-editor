@@ -31,6 +31,7 @@
 // #include "image/image_face_detection.hpp"
 // #include "image/image_face_recognition.hpp"
 // #include "image/image_image_retrieval.hpp"
+#include "image/image_operator_match.hpp"
 #include "image/image_operator_morphology.hpp"
 #include "image/image_operator_edge.hpp"
 #include "image/image_operator_threshold.hpp"

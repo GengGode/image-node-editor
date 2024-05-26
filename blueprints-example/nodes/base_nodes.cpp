@@ -1110,6 +1110,7 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
         {NodeType::ImageOperation_Morphology, ImageOperatorMorphologyNodes},
         {NodeType::ImageOperation_Filter, ImageOperatorFilterNodes},
         {NodeType::ImageOperation_Edge, ImageOperatorEdgeNodes},
+        {NodeType::ImageOperation_Match, ImageOperatorMatchNodes},
         {NodeType::ImageOperation_Feature, ImageFeatureNodes},
         {NodeType::ImageOther, ImageColorConvertNodes},
         {NodeType::Simple, {
