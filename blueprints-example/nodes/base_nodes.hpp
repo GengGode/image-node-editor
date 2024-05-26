@@ -576,12 +576,14 @@ struct Graph
         {
             input.Node = node;
             input.Kind = PinKind::Input;
+            input.app = this->env.app;
         }
 
         for (auto &output : node->Outputs)
         {
             output.Node = node;
             output.Kind = PinKind::Output;
+            output.app = this->env.app;
         }
     }
 
