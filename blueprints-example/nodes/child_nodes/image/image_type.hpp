@@ -517,6 +517,6 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageTypeNodes = {
     {"Rect to Point and Size", Spawn_ImageOperator_RectToPointAndSize},
     {"Point and Size to Rect", Spawn_ImageOperator_PointAndSizeToRect},
     {"随机颜色", Spawn_ImageOperator_RandomColor},
-    {"Int to Color", Spawn_ImageOperator_IntToColor},
+    {"创建颜色", Spawn_ImageOperator_IntToColor},
     {"创建图片", Spawn_ImageOperator_CreateImage},
 };
