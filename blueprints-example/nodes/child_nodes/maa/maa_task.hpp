@@ -96,10 +96,318 @@ Node *Spawn_EnumOutputNode(const std::function<int()> &GetNextId, const std::fun
     return &node;
 }
 
-// ocr task node
+// Direct Hit task node
+Node *Spawn_Maa_DirectHitTask(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "maa 直接命中任务");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::MaaTaskFlow;
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Flow, "依赖"));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "Task名称", std::string("Ocr Task")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Rect, "ROI", cv::Rect(0, 0, 0, 0)));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "期望的结果", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "替换", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "排序方式", std::string("Horizontal")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "命中第几个结果", 0));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Bool, "仅识别", false));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "模型文件夹路径", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Enum, "动作", EnumValue{MaaTaskFlowActionType, 0}));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "next Task 数量", 1));
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Flow, "next 1"));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string task_name;
+        get_value(graph, node->Inputs[1], task_name);
+        cv::Rect roi;
+        get_value(graph, node->Inputs[2], roi);
+        std::string expect_result;
+        get_value(graph, node->Inputs[3], expect_result);
+        std::string replace;
+        get_value(graph, node->Inputs[4], replace);
+        std::string sort_way;
+        get_value(graph, node->Inputs[5], sort_way);
+        int hit_index;
+        get_value(graph, node->Inputs[6], hit_index);
+        bool only_recognize;
+        get_value(graph, node->Inputs[7], only_recognize);
+        std::string model_folder_path;
+        get_value(graph, node->Inputs[8], model_folder_path);
+        EnumValue action;
+        get_value(graph, node->Inputs[9], action);
+
+        int next_task_count;
+        get_value(graph, node->Inputs[10], next_task_count);
+
+        // Display image
+        node->Inputs[1].Value = task_name;
+        node->Inputs[2].Value = roi;
+        node->Inputs[3].Value = expect_result;
+        node->Inputs[4].Value = replace;
+        node->Inputs[5].Value = sort_way;
+        node->Inputs[6].Value = hit_index;
+        node->Inputs[7].Value = only_recognize;
+        node->Inputs[8].Value = model_folder_path;
+        node->Inputs[9].Value = action;
+        node->Inputs[10].Value = next_task_count;
+
+        try_catch_block
+        {
+            if (node->state_value == nullptr)
+                node->state_value = std::make_shared<maa_base_node_state_value>();
+            auto &task_value = std::static_pointer_cast<maa_base_node_state_value>(node->state_value);
+            if (task_value == nullptr)
+                return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
+
+            auto_resize_outputs(next_task_count);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+// Template Match task node
+Node *Spawn_Maa_TemplateMatchTask(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "maa 模板匹配任务");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::MaaTaskFlow;
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Flow, "依赖"));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "Task名称", std::string("Ocr Task")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Rect, "ROI", cv::Rect(0, 0, 0, 0)));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "期望的结果", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "替换", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "排序方式", std::string("Horizontal")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "命中第几个结果", 0));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Bool, "仅识别", false));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "模型文件夹路径", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Enum, "动作", EnumValue{MaaTaskFlowActionType, 0}));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "next Task 数量", 1));
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Flow, "next 1"));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string task_name;
+        get_value(graph, node->Inputs[1], task_name);
+        cv::Rect roi;
+        get_value(graph, node->Inputs[2], roi);
+        std::string expect_result;
+        get_value(graph, node->Inputs[3], expect_result);
+        std::string replace;
+        get_value(graph, node->Inputs[4], replace);
+        std::string sort_way;
+        get_value(graph, node->Inputs[5], sort_way);
+        int hit_index;
+        get_value(graph, node->Inputs[6], hit_index);
+        bool only_recognize;
+        get_value(graph, node->Inputs[7], only_recognize);
+        std::string model_folder_path;
+        get_value(graph, node->Inputs[8], model_folder_path);
+        EnumValue action;
+        get_value(graph, node->Inputs[9], action);
+
+        int next_task_count;
+        get_value(graph, node->Inputs[10], next_task_count);
+
+        // Display image
+        node->Inputs[1].Value = task_name;
+        node->Inputs[2].Value = roi;
+        node->Inputs[3].Value = expect_result;
+        node->Inputs[4].Value = replace;
+        node->Inputs[5].Value = sort_way;
+        node->Inputs[6].Value = hit_index;
+        node->Inputs[7].Value = only_recognize;
+        node->Inputs[8].Value = model_folder_path;
+        node->Inputs[9].Value = action;
+        node->Inputs[10].Value = next_task_count;
+
+        try_catch_block
+        {
+            if (node->state_value == nullptr)
+                node->state_value = std::make_shared<maa_base_node_state_value>();
+            auto &task_value = std::static_pointer_cast<maa_base_node_state_value>(node->state_value);
+            if (task_value == nullptr)
+                return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
+
+            auto_resize_outputs(next_task_count);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+// Feature Match task node
+Node *Spawn_Maa_FeatureMatchTask(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "maa 特征匹配任务");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::MaaTaskFlow;
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Flow, "依赖"));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "Task名称", std::string("Ocr Task")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Rect, "ROI", cv::Rect(0, 0, 0, 0)));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "期望的结果", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "替换", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "排序方式", std::string("Horizontal")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "命中第几个结果", 0));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Bool, "仅识别", false));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "模型文件夹路径", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Enum, "动作", EnumValue{MaaTaskFlowActionType, 0}));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "next Task 数量", 1));
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Flow, "next 1"));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string task_name;
+        get_value(graph, node->Inputs[1], task_name);
+        cv::Rect roi;
+        get_value(graph, node->Inputs[2], roi);
+        std::string expect_result;
+        get_value(graph, node->Inputs[3], expect_result);
+        std::string replace;
+        get_value(graph, node->Inputs[4], replace);
+        std::string sort_way;
+        get_value(graph, node->Inputs[5], sort_way);
+        int hit_index;
+        get_value(graph, node->Inputs[6], hit_index);
+        bool only_recognize;
+        get_value(graph, node->Inputs[7], only_recognize);
+        std::string model_folder_path;
+        get_value(graph, node->Inputs[8], model_folder_path);
+        EnumValue action;
+        get_value(graph, node->Inputs[9], action);
+
+        int next_task_count;
+        get_value(graph, node->Inputs[10], next_task_count);
+
+        // Display image
+        node->Inputs[1].Value = task_name;
+        node->Inputs[2].Value = roi;
+        node->Inputs[3].Value = expect_result;
+        node->Inputs[4].Value = replace;
+        node->Inputs[5].Value = sort_way;
+        node->Inputs[6].Value = hit_index;
+        node->Inputs[7].Value = only_recognize;
+        node->Inputs[8].Value = model_folder_path;
+        node->Inputs[9].Value = action;
+        node->Inputs[10].Value = next_task_count;
+
+        try_catch_block
+        {
+            if (node->state_value == nullptr)
+                node->state_value = std::make_shared<maa_base_node_state_value>();
+            auto &task_value = std::static_pointer_cast<maa_base_node_state_value>(node->state_value);
+            if (task_value == nullptr)
+                return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
+
+            auto_resize_outputs(next_task_count);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+// Color Match task node
+Node *Spawn_Maa_ColorMatchTask(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "maa 颜色匹配任务");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::MaaTaskFlow;
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Flow, "依赖"));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "Task名称", std::string("Ocr Task")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Rect, "ROI", cv::Rect(0, 0, 0, 0)));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "期望的结果", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "替换", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "排序方式", std::string("Horizontal")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "命中第几个结果", 0));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Bool, "仅识别", false));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "模型文件夹路径", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Enum, "动作", EnumValue{MaaTaskFlowActionType, 0}));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "next Task 数量", 1));
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Flow, "next 1"));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string task_name;
+        get_value(graph, node->Inputs[1], task_name);
+        cv::Rect roi;
+        get_value(graph, node->Inputs[2], roi);
+        std::string expect_result;
+        get_value(graph, node->Inputs[3], expect_result);
+        std::string replace;
+        get_value(graph, node->Inputs[4], replace);
+        std::string sort_way;
+        get_value(graph, node->Inputs[5], sort_way);
+        int hit_index;
+        get_value(graph, node->Inputs[6], hit_index);
+        bool only_recognize;
+        get_value(graph, node->Inputs[7], only_recognize);
+        std::string model_folder_path;
+        get_value(graph, node->Inputs[8], model_folder_path);
+        EnumValue action;
+        get_value(graph, node->Inputs[9], action);
+
+        int next_task_count;
+        get_value(graph, node->Inputs[10], next_task_count);
+
+        // Display image
+        node->Inputs[1].Value = task_name;
+        node->Inputs[2].Value = roi;
+        node->Inputs[3].Value = expect_result;
+        node->Inputs[4].Value = replace;
+        node->Inputs[5].Value = sort_way;
+        node->Inputs[6].Value = hit_index;
+        node->Inputs[7].Value = only_recognize;
+        node->Inputs[8].Value = model_folder_path;
+        node->Inputs[9].Value = action;
+        node->Inputs[10].Value = next_task_count;
+
+        try_catch_block
+        {
+            if (node->state_value == nullptr)
+                node->state_value = std::make_shared<maa_base_node_state_value>();
+            auto &task_value = std::static_pointer_cast<maa_base_node_state_value>(node->state_value);
+            if (task_value == nullptr)
+                return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
+
+            auto_resize_outputs(next_task_count);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+// Ocr task node
 Node *Spawn_Maa_OcrTask(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "maa Ocr 任务");
+    m_Nodes.emplace_back(GetNextId(), "maa OCR 任务");
     auto &node = m_Nodes.back();
     node.Type = NodeType::MaaTaskFlow;
     node.Inputs.push_back(Pin(GetNextId(), PinType::Flow, "依赖"));
@@ -174,39 +482,247 @@ Node *Spawn_Maa_OcrTask(const std::function<int()> &GetNextId, const std::functi
     return &node;
 }
 
-/*
-recognition : string
-识别算法类型。可选，默认 DirectHit。
-可选的值：DirectHit | TemplateMatch | FeatureMatch | ColorMatch | OCR | NeuralNetworkClassify | NeuralNetworkDetect | Custom
-详见 算法类型。
-*/
-/*
-action: strings
-执行的动作。可选，默认 DoNothing。
-可选的值：DoNothing | Click | Swipe | Key | Text | StartApp | StopApp | StopTask | Custom
-详见 动作类型。
-*/
-// DoNothing
-// Click
-// Swipe
-// Key
-// Text
-// StartApp
-// StopApp
-// StopTask
-// Custom
+// Neural Network Classify task node
+Node *Spawn_Maa_NeuralNetworkClassifyTask(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "maa 神经网络分类任务");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::MaaTaskFlow;
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Flow, "依赖"));
 
-// DirectHit
-// TemplateMatch
-// FeatureMatch
-// ColorMatch
-// OCR
-// NeuralNetworkClassify
-// NeuralNetworkDetect
-// Custom
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "Task名称", std::string("Ocr Task")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Rect, "ROI", cv::Rect(0, 0, 0, 0)));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "期望的结果", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "替换", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "排序方式", std::string("Horizontal")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "命中第几个结果", 0));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Bool, "仅识别", false));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "模型文件夹路径", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Enum, "动作", EnumValue{MaaTaskFlowActionType, 0}));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "next Task 数量", 1));
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Flow, "next 1"));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string task_name;
+        get_value(graph, node->Inputs[1], task_name);
+        cv::Rect roi;
+        get_value(graph, node->Inputs[2], roi);
+        std::string expect_result;
+        get_value(graph, node->Inputs[3], expect_result);
+        std::string replace;
+        get_value(graph, node->Inputs[4], replace);
+        std::string sort_way;
+        get_value(graph, node->Inputs[5], sort_way);
+        int hit_index;
+        get_value(graph, node->Inputs[6], hit_index);
+        bool only_recognize;
+        get_value(graph, node->Inputs[7], only_recognize);
+        std::string model_folder_path;
+        get_value(graph, node->Inputs[8], model_folder_path);
+        EnumValue action;
+        get_value(graph, node->Inputs[9], action);
+
+        int next_task_count;
+        get_value(graph, node->Inputs[10], next_task_count);
+
+        // Display image
+        node->Inputs[1].Value = task_name;
+        node->Inputs[2].Value = roi;
+        node->Inputs[3].Value = expect_result;
+        node->Inputs[4].Value = replace;
+        node->Inputs[5].Value = sort_way;
+        node->Inputs[6].Value = hit_index;
+        node->Inputs[7].Value = only_recognize;
+        node->Inputs[8].Value = model_folder_path;
+        node->Inputs[9].Value = action;
+        node->Inputs[10].Value = next_task_count;
+
+        try_catch_block
+        {
+            if (node->state_value == nullptr)
+                node->state_value = std::make_shared<maa_base_node_state_value>();
+            auto &task_value = std::static_pointer_cast<maa_base_node_state_value>(node->state_value);
+            if (task_value == nullptr)
+                return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
+
+            auto_resize_outputs(next_task_count);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+// Neural Network Detect task node
+Node *Spawn_Maa_NeuralNetworkDetectTask(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "maa 神经网络检测任务");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::MaaTaskFlow;
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Flow, "依赖"));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "Task名称", std::string("Ocr Task")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Rect, "ROI", cv::Rect(0, 0, 0, 0)));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "期望的结果", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "替换", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "排序方式", std::string("Horizontal")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "命中第几个结果", 0));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Bool, "仅识别", false));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "模型文件夹路径", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Enum, "动作", EnumValue{MaaTaskFlowActionType, 0}));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "next Task 数量", 1));
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Flow, "next 1"));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string task_name;
+        get_value(graph, node->Inputs[1], task_name);
+        cv::Rect roi;
+        get_value(graph, node->Inputs[2], roi);
+        std::string expect_result;
+        get_value(graph, node->Inputs[3], expect_result);
+        std::string replace;
+        get_value(graph, node->Inputs[4], replace);
+        std::string sort_way;
+        get_value(graph, node->Inputs[5], sort_way);
+        int hit_index;
+        get_value(graph, node->Inputs[6], hit_index);
+        bool only_recognize;
+        get_value(graph, node->Inputs[7], only_recognize);
+        std::string model_folder_path;
+        get_value(graph, node->Inputs[8], model_folder_path);
+        EnumValue action;
+        get_value(graph, node->Inputs[9], action);
+
+        int next_task_count;
+        get_value(graph, node->Inputs[10], next_task_count);
+
+        // Display image
+        node->Inputs[1].Value = task_name;
+        node->Inputs[2].Value = roi;
+        node->Inputs[3].Value = expect_result;
+        node->Inputs[4].Value = replace;
+        node->Inputs[5].Value = sort_way;
+        node->Inputs[6].Value = hit_index;
+        node->Inputs[7].Value = only_recognize;
+        node->Inputs[8].Value = model_folder_path;
+        node->Inputs[9].Value = action;
+        node->Inputs[10].Value = next_task_count;
+
+        try_catch_block
+        {
+            if (node->state_value == nullptr)
+                node->state_value = std::make_shared<maa_base_node_state_value>();
+            auto &task_value = std::static_pointer_cast<maa_base_node_state_value>(node->state_value);
+            if (task_value == nullptr)
+                return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
+
+            auto_resize_outputs(next_task_count);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+// Custom task node
+Node *Spawn_Maa_CustomTask(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "maa 自定义任务");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::MaaTaskFlow;
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Flow, "依赖"));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "Task名称", std::string("Ocr Task")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Rect, "ROI", cv::Rect(0, 0, 0, 0)));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "期望的结果", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "替换", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "排序方式", std::string("Horizontal")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "命中第几个结果", 0));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Bool, "仅识别", false));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::String, "模型文件夹路径", std::string("")));
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Enum, "动作", EnumValue{MaaTaskFlowActionType, 0}));
+
+    node.Inputs.push_back(Pin(GetNextId(), PinType::Int, "next Task 数量", 1));
+    node.Outputs.push_back(Pin(GetNextId(), PinType::Flow, "next 1"));
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string task_name;
+        get_value(graph, node->Inputs[1], task_name);
+        cv::Rect roi;
+        get_value(graph, node->Inputs[2], roi);
+        std::string expect_result;
+        get_value(graph, node->Inputs[3], expect_result);
+        std::string replace;
+        get_value(graph, node->Inputs[4], replace);
+        std::string sort_way;
+        get_value(graph, node->Inputs[5], sort_way);
+        int hit_index;
+        get_value(graph, node->Inputs[6], hit_index);
+        bool only_recognize;
+        get_value(graph, node->Inputs[7], only_recognize);
+        std::string model_folder_path;
+        get_value(graph, node->Inputs[8], model_folder_path);
+        EnumValue action;
+        get_value(graph, node->Inputs[9], action);
+
+        int next_task_count;
+        get_value(graph, node->Inputs[10], next_task_count);
+
+        // Display image
+        node->Inputs[1].Value = task_name;
+        node->Inputs[2].Value = roi;
+        node->Inputs[3].Value = expect_result;
+        node->Inputs[4].Value = replace;
+        node->Inputs[5].Value = sort_way;
+        node->Inputs[6].Value = hit_index;
+        node->Inputs[7].Value = only_recognize;
+        node->Inputs[8].Value = model_folder_path;
+        node->Inputs[9].Value = action;
+        node->Inputs[10].Value = next_task_count;
+
+        try_catch_block
+        {
+            if (node->state_value == nullptr)
+                node->state_value = std::make_shared<maa_base_node_state_value>();
+            auto &task_value = std::static_pointer_cast<maa_base_node_state_value>(node->state_value);
+            if (task_value == nullptr)
+                return ExecuteResult::ErrorNode(node->ID, "状态值类型错误");
+
+            auto_resize_outputs(next_task_count);
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
 
 static NodeWorldGlobal::FactoryGroupFunc_t MaaTaskFlowNodes = {
     {"maa 入口任务", Spawn_Maa_StartupTask},
     {"maa 任务流动作枚举", Spawn_EnumOutputNode},
+    {"maa 直接命中任务", Spawn_Maa_DirectHitTask},
+    {"maa 模板匹配任务", Spawn_Maa_TemplateMatchTask},
+    {"maa 特征匹配任务", Spawn_Maa_FeatureMatchTask},
+    {"maa 颜色匹配任务", Spawn_Maa_ColorMatchTask},
     {"maa OCR 任务", Spawn_Maa_OcrTask},
+    {"maa 神经网络分类任务", Spawn_Maa_NeuralNetworkClassifyTask},
+    {"maa 神经网络检测任务", Spawn_Maa_NeuralNetworkDetectTask},
+    {"maa 自定义任务", Spawn_Maa_CustomTask},
 };
