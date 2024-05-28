@@ -3,6 +3,8 @@
 
 // find window node
 Node *Spawn_Win32_Window(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app);
+// enum window node
+Node *Spawn_Win32_EnumWindow(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app);
 // move window node
 Node *Spawn_Win32_MoveWindow(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app);
 // resize window node
@@ -28,6 +30,7 @@ Node *Spawn_Win32_SetActiveWindow(const std::function<int()> &GetNextId, const s
 
 static NodeWorldGlobal::FactoryGroupFunc_t Win32WindowNodes = {
     {"Win32 窗口句柄", Spawn_Win32_Window},
+    {"Win32 枚举窗口", Spawn_Win32_EnumWindow},
     {"Win32 移动窗口", Spawn_Win32_MoveWindow},
     {"Win32 调整窗口大小", Spawn_Win32_ResizeWindow},
     {"Win32 切换窗口", Spawn_Win32_ToggleWindow},

@@ -63,6 +63,95 @@ Node *Spawn_Win32_Window(const std::function<int()> &GetNextId, const std::funct
     return &node;
 }
 
+// enum window node
+Node *Spawn_Win32_EnumWindow(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
+{
+    m_Nodes.emplace_back(GetNextId(), "Win32 枚举窗口");
+    auto &node = m_Nodes.back();
+    node.Type = NodeType::Win32;
+
+    node.Inputs.emplace_back(GetNextId(), "窗口名称", PinType::String, std::string());
+    node.Inputs.emplace_back(GetNextId(), "窗口类名", PinType::String, std::string());
+    node.Inputs.emplace_back(GetNextId(), PinType::Int, "选中窗口索引", 0);
+
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "窗口数量");
+    node.Outputs.emplace_back(GetNextId(), PinType::Win32Handle, "窗口句柄");
+    node.Outputs.emplace_back(GetNextId(), PinType::Size, "窗口大小");
+    node.Outputs.emplace_back(GetNextId(), PinType::Point, "窗口位置");
+
+    for (auto &output : node.Outputs)
+        output.app = app;
+
+    node.OnExecute = [](Graph *graph, Node *node)
+    {
+        std::string window_name;
+        get_value(graph, node->Inputs[0], window_name);
+        std::string class_name;
+        get_value(graph, node->Inputs[1], class_name);
+        int index;
+        get_value(graph, node->Inputs[2], index);
+
+        try_catch_block
+        {
+            auto w_class_name = utils::to_wstring(class_name);
+            auto w_window_name = utils::to_wstring(window_name);
+            const wchar_t *w_window_name_str = w_window_name.size() > 0 ? w_window_name.c_str() : nullptr;
+            const wchar_t *w_class_name_str = w_class_name.size() > 0 ? w_class_name.c_str() : nullptr;
+
+            std::vector<HWND> handles;
+            EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL
+                        {
+                auto handles = reinterpret_cast<std::vector<HWND> *>(lParam);
+                handles->push_back(hwnd);
+                return TRUE; },
+                        reinterpret_cast<LPARAM>(&handles));
+
+            std::vector<HWND> filtered_handles;
+            for (auto handle : handles)
+            {
+                if (w_window_name_str != nullptr)
+                {
+                    wchar_t buffer[256];
+                    GetWindowTextW(handle, buffer, 256);
+                    if (wcscmp(buffer, w_window_name_str) != 0)
+                        continue;
+                }
+
+                if (w_class_name_str != nullptr)
+                {
+                    wchar_t buffer[256];
+                    GetClassNameW(handle, buffer, 256);
+                    if (wcscmp(buffer, w_class_name_str) != 0)
+                        continue;
+                }
+
+                filtered_handles.push_back(handle);
+            }
+            if (filtered_handles.empty())
+                return ExecuteResult::ErrorNode(node->ID, "未找到窗口");
+
+            if (index < 0 || index >= filtered_handles.size())
+                return ExecuteResult::ErrorNode(node->ID, "索引超出范围");
+
+            HWND handle = filtered_handles[index];
+            RECT rect;
+            GetWindowRect(handle, &rect);
+            cv::Point point = {rect.left, rect.top};
+            cv::Size size = {rect.right - rect.left, rect.bottom - rect.top};
+
+            node->Outputs[0].Value = (int)filtered_handles.size();
+            node->Outputs[1].Value = handle;
+            node->Outputs[2].Value = size;
+            node->Outputs[3].Value = point;
+        }
+        catch_block_and_return;
+    };
+
+    BuildNode(&node);
+
+    return &node;
+}
+
 // move window node
 Node *Spawn_Win32_MoveWindow(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
