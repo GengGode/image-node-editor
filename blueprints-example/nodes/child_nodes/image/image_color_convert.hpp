@@ -15,14 +15,11 @@ Node *Spawn_ImageNormalize(const std::function<int()> &GetNextId, const std::fun
     node.Inputs.emplace_back(GetNextId(), PinType::Int, "目标位宽", 8);
 
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int type;
         get_value(graph, node->Inputs[1], type);
@@ -35,11 +32,6 @@ Node *Spawn_ImageNormalize(const std::function<int()> &GetNextId, const std::fun
 
         int target_depth;
         get_value(graph, node->Inputs[4], target_depth);
-
-        node->Inputs[1].Value = type;
-        node->Inputs[2].Value = min_value;
-        node->Inputs[3].Value = max_value;
-        node->Inputs[4].Value = target_depth;
 
         try_catch_block;
 
@@ -90,14 +82,11 @@ Node *Spawn_ImageConvertToType(const std::function<int()> &GetNextId, const std:
     node.Inputs.emplace_back(GetNextId(), PinType::Float, "加数", 0.0f);
 
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int type;
         get_value(graph, node->Inputs[1], type);
@@ -107,10 +96,6 @@ Node *Spawn_ImageConvertToType(const std::function<int()> &GetNextId, const std:
 
         float adder;
         get_value(graph, node->Inputs[3], adder);
-
-        node->Inputs[1].Value = type;
-        node->Inputs[2].Value = multiplier;
-        node->Inputs[3].Value = adder;
 
         try_catch_block;
 
@@ -160,23 +145,17 @@ Node *Spawn_ImageConvertScaleAbs(const std::function<int()> &GetNextId, const st
     node.Inputs.emplace_back(GetNextId(), PinType::Float, "偏移", 0.0f);
 
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         float scale;
         get_value(graph, node->Inputs[1], scale);
 
         float offset;
         get_value(graph, node->Inputs[2], offset);
-
-        node->Inputs[1].Value = scale;
-        node->Inputs[2].Value = offset;
 
         try_catch_block;
 
@@ -205,14 +184,11 @@ Node *Spawn_ImageConvertToFp16(const std::function<int()> &GetNextId, const std:
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "图像");
 
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block;
 
@@ -240,17 +216,11 @@ Node *Spawn_ImageOperator_RgbToBgr(const std::function<int()> &GetNextId, const 
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "BGR", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -275,20 +245,14 @@ Node *Spawn_ImageOperator_RgbaToRgb(const std::function<int()> &GetNextId, const
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "RGBA", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         if (image.channels() != 4)
             return ExecuteResult::ErrorNode(node->ID, "Image must have 4 channels");
-
-        // Display image
-        node->Inputs[0].Value = image;
 
         try_catch_block
         {
@@ -310,17 +274,11 @@ Node *Spawn_ImageOperator_BgrToRgb(const std::function<int()> &GetNextId, const 
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "BGR", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -345,17 +303,11 @@ Node *Spawn_ImageOperator_GrayToRGB(const std::function<int()> &GetNextId, const
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "灰度", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -378,16 +330,11 @@ Node *Spawn_ImageOperator_ImageToGray(const std::function<int()> &GetNextId, con
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "图像", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "灰度", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -415,16 +362,11 @@ Node *Spawn_ImageOperator_RGBToHSV(const std::function<int()> &GetNextId, const 
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "HSV", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat rgb;
-        auto result = get_image(graph, node->Inputs[0], rgb);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = rgb;
+        get_value(graph, node->Inputs[0], rgb);
 
         try_catch_block;
         cv::Mat hsv;
@@ -446,16 +388,11 @@ Node *Spawn_ImageOperator_HSVToRGB(const std::function<int()> &GetNextId, const 
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "HSV", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat hsv;
-        auto result = get_image(graph, node->Inputs[0], hsv);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = hsv;
+        get_value(graph, node->Inputs[0], hsv);
 
         try_catch_block;
         cv::Mat rgb;
@@ -477,16 +414,11 @@ Node *Spawn_ImageOperator_RGBToLAB(const std::function<int()> &GetNextId, const 
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "LAB", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat rgb;
-        auto result = get_image(graph, node->Inputs[0], rgb);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = rgb;
+        get_value(graph, node->Inputs[0], rgb);
 
         try_catch_block;
         cv::Mat lab;
@@ -508,16 +440,11 @@ Node *Spawn_ImageOperator_LABToRGB(const std::function<int()> &GetNextId, const 
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "LAB", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat lab;
-        auto result = get_image(graph, node->Inputs[0], lab);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = lab;
+        get_value(graph, node->Inputs[0], lab);
 
         try_catch_block;
         cv::Mat rgb;
@@ -539,16 +466,11 @@ Node *Spawn_ImageOperator_RGBToYUV(const std::function<int()> &GetNextId, const 
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "YUV", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat rgb;
-        auto result = get_image(graph, node->Inputs[0], rgb);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = rgb;
+        get_value(graph, node->Inputs[0], rgb);
 
         try_catch_block;
         cv::Mat yuv;
@@ -570,16 +492,11 @@ Node *Spawn_ImageOperator_YUVToRGB(const std::function<int()> &GetNextId, const 
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "YUV", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat yuv;
-        auto result = get_image(graph, node->Inputs[0], yuv);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = yuv;
+        get_value(graph, node->Inputs[0], yuv);
 
         try_catch_block;
         cv::Mat rgb;
@@ -601,16 +518,11 @@ Node *Spawn_ImageOperator_RGBToYCrCb(const std::function<int()> &GetNextId, cons
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "RGB", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "YCrCb", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat rgb;
-        auto result = get_image(graph, node->Inputs[0], rgb);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = rgb;
+        get_value(graph, node->Inputs[0], rgb);
 
         try_catch_block;
         cv::Mat ycrcb;
@@ -632,16 +544,11 @@ Node *Spawn_ImageOperator_YCrCbToRGB(const std::function<int()> &GetNextId, cons
     node.Type = NodeType::ImageOther;
     node.Inputs.emplace_back(GetNextId(), "YCrCb", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "RGB", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat ycrcb;
-        auto result = get_image(graph, node->Inputs[0], ycrcb);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = ycrcb;
+        get_value(graph, node->Inputs[0], ycrcb);
 
         try_catch_block;
         cv::Mat rgb;

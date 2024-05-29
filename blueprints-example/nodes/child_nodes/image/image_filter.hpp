@@ -18,14 +18,10 @@ Node *Spawn_ImageOperator_LowPassFilter(const std::function<int()> &GetNextId, c
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
         get_value(graph, node->Inputs[1], kernel_size);
@@ -35,12 +31,6 @@ Node *Spawn_ImageOperator_LowPassFilter(const std::function<int()> &GetNextId, c
 
         int border_type = cv::BORDER_DEFAULT;
         get_value(graph, node->Inputs[3], border_type);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
-        node->Inputs[2].Value = kernel_type;
-        node->Inputs[3].Value = border_type;
 
         try_catch_block
         {
@@ -69,14 +59,10 @@ Node *Spawn_ImageOperator_HighPassFilter(const std::function<int()> &GetNextId, 
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
         get_value(graph, node->Inputs[1], kernel_size);
@@ -86,12 +72,6 @@ Node *Spawn_ImageOperator_HighPassFilter(const std::function<int()> &GetNextId, 
 
         int border_type = cv::BORDER_DEFAULT;
         get_value(graph, node->Inputs[3], border_type);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
-        node->Inputs[2].Value = kernel_type;
-        node->Inputs[3].Value = border_type;
 
         try_catch_block
         {
@@ -120,25 +100,16 @@ Node *Spawn_ImageOperator_BoxFilter(const std::function<int()> &GetNextId, const
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
         get_value(graph, node->Inputs[1], kernel_size);
 
         int border_type = cv::BORDER_DEFAULT;
         get_value(graph, node->Inputs[2], border_type);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
-        node->Inputs[2].Value = border_type;
 
         try_catch_block
         {
@@ -165,25 +136,16 @@ Node *Spawn_ImageOperator_BlurFilter(const std::function<int()> &GetNextId, cons
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
         get_value(graph, node->Inputs[1], kernel_size);
 
         int border_type = cv::BORDER_DEFAULT;
         get_value(graph, node->Inputs[2], border_type);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
-        node->Inputs[2].Value = border_type;
 
         try_catch_block
         {
@@ -211,14 +173,10 @@ Node *Spawn_ImageOperator_GaussianFilter(const std::function<int()> &GetNextId, 
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
         get_value(graph, node->Inputs[1], kernel_size);
@@ -228,12 +186,6 @@ Node *Spawn_ImageOperator_GaussianFilter(const std::function<int()> &GetNextId, 
 
         int border_type = cv::BORDER_DEFAULT;
         get_value(graph, node->Inputs[3], border_type);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
-        node->Inputs[2].Value = sigma;
-        node->Inputs[3].Value = border_type;
 
         try_catch_block
         {
@@ -259,21 +211,13 @@ Node *Spawn_ImageOperator_MedianFilter(const std::function<int()> &GetNextId, co
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
         get_value(graph, node->Inputs[1], kernel_size);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
 
         try_catch_block
         {
@@ -302,14 +246,10 @@ Node *Spawn_ImageOperator_BilateralFilter(const std::function<int()> &GetNextId,
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
         get_value(graph, node->Inputs[1], kernel_size);
@@ -322,13 +262,6 @@ Node *Spawn_ImageOperator_BilateralFilter(const std::function<int()> &GetNextId,
 
         int border_type = cv::BORDER_DEFAULT;
         get_value(graph, node->Inputs[4], border_type);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
-        node->Inputs[2].Value = sigma_color;
-        node->Inputs[3].Value = sigma_space;
-        node->Inputs[4].Value = border_type;
 
         try_catch_block
         {
@@ -359,14 +292,10 @@ Node *Spawn_ImageOperator_NonLocalMeansFilter(const std::function<int()> &GetNex
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         float h = 3.0f;
         get_value(graph, node->Inputs[1], h);
@@ -376,13 +305,6 @@ Node *Spawn_ImageOperator_NonLocalMeansFilter(const std::function<int()> &GetNex
         get_value(graph, node->Inputs[3], templateWindowSize);
         int searchWindowSize = 21;
         get_value(graph, node->Inputs[4], searchWindowSize);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = h;
-        node->Inputs[2].Value = hColor;
-        node->Inputs[3].Value = templateWindowSize;
-        node->Inputs[4].Value = searchWindowSize;
 
         try_catch_block
         {
@@ -431,14 +353,10 @@ Node *Spawn_ImageOperator_AdaptiveMeanFilter(const std::function<int()> &GetNext
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         float h = 1;
         get_value(graph, node->Inputs[1], h);
@@ -463,17 +381,6 @@ Node *Spawn_ImageOperator_AdaptiveMeanFilter(const std::function<int()> &GetNext
         int transformType = cv::xphoto::HAAR;
         get_value(graph, node->Inputs[11], transformType);
 
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = h;
-        node->Inputs[2].Value = templateWindowSize;
-        node->Inputs[3].Value = searchWindowSize;
-        node->Inputs[4].Value = blockMatchingStep1;
-        node->Inputs[5].Value = blockMatchingStep2;
-        node->Inputs[6].Value = groupSize;
-        node->Inputs[7].Value = slidingStep;
-        node->Inputs[8].Value = beta;
-        node->Inputs[9].Value = normType;
         node->Inputs[10].Value = step;
         node->Inputs[11].Value = transformType;
 

@@ -12,34 +12,20 @@ Node *Spawn_ImageOperator_Threshold(const std::function<int()> &GetNextId, const
     node.Inputs.emplace_back(GetNextId(), "Max Value", PinType::Int, 255);
     node.Inputs.emplace_back(GetNextId(), "Type", PinType::Int, cv::THRESH_BINARY);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int threshold = 128;
-        result = get_value(graph, node->Inputs[1], threshold);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], threshold);
 
         int max_value = 255;
-        result = get_value(graph, node->Inputs[2], max_value);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[2], max_value);
 
         int type = cv::THRESH_BINARY;
-        result = get_value(graph, node->Inputs[3], type);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = threshold;
-        node->Inputs[2].Value = max_value;
-        node->Inputs[3].Value = type;
+        get_value(graph, node->Inputs[3], type);
 
         try_catch_block;
         cv::Mat thresholded;
@@ -64,40 +50,23 @@ Node *Spawn_ImageOperator_AdaptiveThreshold(const std::function<int()> &GetNextI
     node.Inputs.emplace_back(GetNextId(), "Block Size", PinType::Int, 11);
     node.Inputs.emplace_back(GetNextId(), "C", PinType::Int, 2);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int max_value = 255;
-        result = get_value(graph, node->Inputs[1], max_value);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], max_value);
 
         int type = cv::ADAPTIVE_THRESH_MEAN_C;
-        result = get_value(graph, node->Inputs[2], type);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[2], type);
 
         int block_size = 11;
-        result = get_value(graph, node->Inputs[3], block_size);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[3], block_size);
 
         int c = 2;
-        result = get_value(graph, node->Inputs[4], c);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = max_value;
-        node->Inputs[2].Value = type;
-        node->Inputs[3].Value = block_size;
-        node->Inputs[4].Value = c;
+        get_value(graph, node->Inputs[4], c);
 
         try_catch_block;
         cv::Mat thresholded;
@@ -140,9 +109,7 @@ Node *Spawn_ImageOperator_ChannelThresholding(const std::function<int()> &GetNex
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int threshold1 = 128;
         get_value(graph, node->Inputs[1], threshold1);
@@ -171,21 +138,6 @@ Node *Spawn_ImageOperator_ChannelThresholding(const std::function<int()> &GetNex
         get_value(graph, node->Inputs[11], max_value4);
         int type4 = cv::THRESH_BINARY;
         get_value(graph, node->Inputs[12], type4);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = threshold1;
-        node->Inputs[2].Value = max_value1;
-        node->Inputs[3].Value = type1;
-        node->Inputs[4].Value = threshold2;
-        node->Inputs[5].Value = max_value2;
-        node->Inputs[6].Value = type2;
-        node->Inputs[7].Value = threshold3;
-        node->Inputs[8].Value = max_value3;
-        node->Inputs[9].Value = type3;
-        node->Inputs[10].Value = threshold4;
-        node->Inputs[11].Value = max_value4;
-        node->Inputs[12].Value = type4;
 
         try_catch_block
         {
@@ -221,28 +173,17 @@ Node *Spawn_ImageOperator_InRange(const std::function<int()> &GetNextId, const s
     node.Inputs.emplace_back(GetNextId(), PinType::Color);
     node.Inputs.emplace_back(GetNextId(), PinType::Color);
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Scalar lower_bound(0, 0, 0);
-        result = get_value(graph, node->Inputs[1], lower_bound);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], lower_bound);
 
         cv::Scalar upper_bound(255, 255, 255);
-        result = get_value(graph, node->Inputs[2], upper_bound);
-        if (result.has_error())
-            return result;
-
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = lower_bound;
-        node->Inputs[2].Value = upper_bound;
+        get_value(graph, node->Inputs[2], upper_bound);
 
         try_catch_block;
         cv::Mat thresholded;

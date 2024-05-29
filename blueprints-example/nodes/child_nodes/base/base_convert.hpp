@@ -13,17 +13,11 @@ Node *SpawnBoolToIntNode(const std::function<int()> &GetNextId, const std::funct
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "整数", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         bool value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -46,17 +40,11 @@ Node *SpawnIntToBoolNode(const std::function<int()> &GetNextId, const std::funct
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "整数", PinType::Int);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         int value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -79,17 +67,11 @@ Node *SpawnIntToFloatNode(const std::function<int()> &GetNextId, const std::func
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "整数", PinType::Int);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         int value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -112,17 +94,11 @@ Node *SpawnFloatToIntNode(const std::function<int()> &GetNextId, const std::func
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "浮点数", PinType::Float, 0.0f);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "整数", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         float value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -145,17 +121,11 @@ Node *SpawnFloatToBoolNode(const std::function<int()> &GetNextId, const std::fun
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         float value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -178,17 +148,11 @@ Node *SpawnBoolToFloatNode(const std::function<int()> &GetNextId, const std::fun
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         bool value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -211,17 +175,11 @@ Node *SpawnStringToIntNode(const std::function<int()> &GetNextId, const std::fun
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "文本", PinType::String);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "整数", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         std::string value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -244,17 +202,11 @@ Node *SpawnStringToFloatNode(const std::function<int()> &GetNextId, const std::f
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "文本", PinType::String);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         std::string value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -277,17 +229,11 @@ Node *SpawnStringToBoolNode(const std::function<int()> &GetNextId, const std::fu
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "文本", PinType::String);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         std::string value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -310,17 +256,11 @@ Node *SpawnIntToStringNode(const std::function<int()> &GetNextId, const std::fun
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "整数", PinType::Int);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "文本", PinType::String);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         int value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -343,17 +283,11 @@ Node *SpawnFloatToStringNode(const std::function<int()> &GetNextId, const std::f
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "浮点数", PinType::Float);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "文本", PinType::String);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         float value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -376,17 +310,11 @@ Node *SpawnBoolToStringNode(const std::function<int()> &GetNextId, const std::fu
     node.Type = NodeType::BaseConvert;
     m_Nodes.back().Inputs.emplace_back(GetNextId(), "布尔值", PinType::Bool);
     m_Nodes.back().Outputs.emplace_back(GetNextId(), "文本", PinType::String);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         bool value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 

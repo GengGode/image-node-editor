@@ -148,13 +148,6 @@ Node *Spawn_Win32_SoftInput_MouseClick(const std::function<int()> &GetNextId, co
         int wait_ms;
         get_value(graph, node->Inputs[4], wait_ms);
 
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = point;
-        node->Inputs[2].Value = key;
-        node->Inputs[3].Value = action;
-        node->Inputs[4].Value = wait_ms;
-
         try_catch_block
         {
             auto key_name = key.first[key.second];
@@ -246,12 +239,6 @@ Node *Spawn_Win32_SoftInput_MouseMove(const std::function<int()> &GetNextId, con
         int wait_ms;
         get_value(graph, node->Inputs[3], wait_ms);
 
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = point;
-        node->Inputs[2].Value = relative;
-        node->Inputs[3].Value = wait_ms;
-
         try_catch_block
         {
             WindowsInput::InputSimulator simulator;
@@ -298,12 +285,6 @@ Node *Spawn_Win32_SoftInput_MouseWheel(const std::function<int()> &GetNextId, co
         bool horizontal;
         get_value(graph, node->Inputs[3], horizontal);
 
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = delta;
-        node->Inputs[2].Value = wait_ms;
-        node->Inputs[3].Value = horizontal;
-
         try_catch_block
         {
             WindowsInput::InputSimulator simulator;
@@ -349,14 +330,6 @@ Node *Spawn_Win32_SoftInput_KeyClick(const std::function<int()> &GetNextId, cons
         get_value(graph, node->Inputs[4], control2);
         int wait_ms;
         get_value(graph, node->Inputs[5], wait_ms);
-
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = key;
-        node->Inputs[2].Value = action;
-        node->Inputs[3].Value = control1;
-        node->Inputs[4].Value = control2;
-        node->Inputs[5].Value = wait_ms;
 
         try_catch_block
         {
@@ -446,13 +419,6 @@ Node *Spawn_Win32_PostMessage_MouseClick(const std::function<int()> &GetNextId, 
         get_value(graph, node->Inputs[3], action);
         int wait_ms;
         get_value(graph, node->Inputs[4], wait_ms);
-
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = point;
-        node->Inputs[2].Value = key;
-        node->Inputs[3].Value = action;
-        node->Inputs[4].Value = wait_ms;
 
         try_catch_block
         {
@@ -552,12 +518,6 @@ Node *Spawn_Win32_PostMessage_MouseMove(const std::function<int()> &GetNextId, c
         int wait_ms;
         get_value(graph, node->Inputs[3], wait_ms);
 
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = point;
-        node->Inputs[2].Value = relative;
-        node->Inputs[3].Value = wait_ms;
-
         try_catch_block
         {
             WindowsInput::InputSimulator *simulator = NULL;
@@ -610,12 +570,6 @@ Node *Spawn_Win32_PostMessage_MouseWheel(const std::function<int()> &GetNextId, 
         get_value(graph, node->Inputs[2], wait_ms);
         bool horizontal;
         get_value(graph, node->Inputs[3], horizontal);
-
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = delta;
-        node->Inputs[2].Value = wait_ms;
-        node->Inputs[3].Value = horizontal;
 
         try_catch_block
         {
@@ -670,14 +624,6 @@ Node *Spawn_Win32_PostMessage_KeyClick(const std::function<int()> &GetNextId, co
         get_value(graph, node->Inputs[4], control2);
         int wait_ms;
         get_value(graph, node->Inputs[5], wait_ms);
-
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = key;
-        node->Inputs[2].Value = action;
-        node->Inputs[3].Value = control1;
-        node->Inputs[4].Value = control2;
-        node->Inputs[5].Value = wait_ms;
 
         try_catch_block
         {

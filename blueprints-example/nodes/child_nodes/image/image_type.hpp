@@ -10,23 +10,13 @@ Node *Spawn_ImageOperator_IntToPoint(const std::function<int()> &GetNextId, cons
     node.Inputs.emplace_back(GetNextId(), "Y", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Point", PinType::Point);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         int x = 0;
-        auto result = get_value(graph, node->Inputs[0], x);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], x);
 
         int y = 0;
-        result = get_value(graph, node->Inputs[1], y);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = x;
-        node->Inputs[1].Value = y;
+        get_value(graph, node->Inputs[1], y);
 
         try_catch_block
         {
@@ -49,23 +39,13 @@ Node *Spawn_ImageOperator_IntToSize(const std::function<int()> &GetNextId, const
     node.Inputs.emplace_back(GetNextId(), "Height", PinType::Int, 1024);
     node.Outputs.emplace_back(GetNextId(), "Size", PinType::Size);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         int width = 1024;
-        auto result = get_value(graph, node->Inputs[0], width);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], width);
 
         int height = 1024;
-        result = get_value(graph, node->Inputs[1], height);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = width;
-        node->Inputs[1].Value = height;
+        get_value(graph, node->Inputs[1], height);
 
         try_catch_block
         {
@@ -90,35 +70,19 @@ Node *Spawn_ImageOperator_IntToRect(const std::function<int()> &GetNextId, const
     node.Inputs.emplace_back(GetNextId(), "Height", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Rect", PinType::Rect);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         int x = 0;
-        auto result = get_value(graph, node->Inputs[0], x);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], x);
 
         int y = 0;
-        result = get_value(graph, node->Inputs[1], y);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], y);
 
         int width = 0;
-        result = get_value(graph, node->Inputs[2], width);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[2], width);
 
         int height = 0;
-        result = get_value(graph, node->Inputs[3], height);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = x;
-        node->Inputs[1].Value = y;
-        node->Inputs[2].Value = width;
-        node->Inputs[3].Value = height;
+        get_value(graph, node->Inputs[3], height);
 
         try_catch_block
         {
@@ -141,18 +105,12 @@ Node *Spawn_ImageOperator_PointToInt(const std::function<int()> &GetNextId, cons
     node.Outputs.emplace_back(GetNextId(), "X", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Y", PinType::Int);
 
-    node.Outputs[0].app = app;
     node.Outputs[1].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Point point;
-        auto result = get_value(graph, node->Inputs[0], point);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = point;
+        get_value(graph, node->Inputs[0], point);
 
         try_catch_block
         {
@@ -174,17 +132,10 @@ Node *Spawn_ImageOperator_PointToSize(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), "Point", PinType::Point);
     node.Outputs.emplace_back(GetNextId(), "Size", PinType::Size);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Point point;
-        auto result = get_value(graph, node->Inputs[0], point);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = point;
+        get_value(graph, node->Inputs[0], point);
 
         try_catch_block
         {
@@ -207,18 +158,12 @@ Node *Spawn_ImageOperator_SizeToInt(const std::function<int()> &GetNextId, const
     node.Outputs.emplace_back(GetNextId(), "Width", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Height", PinType::Int);
 
-    node.Outputs[0].app = app;
     node.Outputs[1].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Size size;
-        auto result = get_value(graph, node->Inputs[0], size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = size;
+        get_value(graph, node->Inputs[0], size);
 
         try_catch_block
         {
@@ -240,17 +185,10 @@ Node *Spawn_ImageOperator_SizeToPoint(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), "Size", PinType::Size);
     node.Outputs.emplace_back(GetNextId(), "Point", PinType::Point);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Size size;
-        auto result = get_value(graph, node->Inputs[0], size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = size;
+        get_value(graph, node->Inputs[0], size);
 
         try_catch_block
         {
@@ -275,7 +213,6 @@ Node *Spawn_ImageOperator_RectToInt(const std::function<int()> &GetNextId, const
     node.Outputs.emplace_back(GetNextId(), "Width", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Height", PinType::Int);
 
-    node.Outputs[0].app = app;
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
     node.Outputs[3].app = app;
@@ -283,12 +220,7 @@ Node *Spawn_ImageOperator_RectToInt(const std::function<int()> &GetNextId, const
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Rect rect;
-        auto result = get_value(graph, node->Inputs[0], rect);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = rect;
+        get_value(graph, node->Inputs[0], rect);
 
         try_catch_block
         {
@@ -313,18 +245,12 @@ Node *Spawn_ImageOperator_RectToPointAndSize(const std::function<int()> &GetNext
     node.Outputs.emplace_back(GetNextId(), "Point", PinType::Point);
     node.Outputs.emplace_back(GetNextId(), "Size", PinType::Size);
 
-    node.Outputs[0].app = app;
     node.Outputs[1].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Rect rect;
-        auto result = get_value(graph, node->Inputs[0], rect);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = rect;
+        get_value(graph, node->Inputs[0], rect);
 
         try_catch_block
         {
@@ -349,23 +275,13 @@ Node *Spawn_ImageOperator_PointAndSizeToRect(const std::function<int()> &GetNext
     node.Inputs.emplace_back(GetNextId(), "Size", PinType::Size);
     node.Outputs.emplace_back(GetNextId(), "Rect", PinType::Rect);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Point point;
-        auto result = get_value(graph, node->Inputs[0], point);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], point);
 
         cv::Size size;
-        result = get_value(graph, node->Inputs[1], size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = point;
-        node->Inputs[1].Value = size;
+        get_value(graph, node->Inputs[1], size);
 
         try_catch_block
         {
@@ -387,12 +303,8 @@ Node *Spawn_ImageOperator_RandomColor(const std::function<int()> &GetNextId, con
     node.Type = NodeType::ImageType;
     node.Outputs.emplace_back(GetNextId(), "颜色", PinType::Color);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
-        // Display image
-
         try_catch_block
         {
             cv::Scalar color = cv::Scalar::all(-1);
@@ -417,35 +329,19 @@ Node *Spawn_ImageOperator_IntToColor(const std::function<int()> &GetNextId, cons
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 255);
     node.Outputs.emplace_back(GetNextId(), "颜色", PinType::Color);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         int r = 0;
-        auto result = get_value(graph, node->Inputs[0], r);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], r);
 
         int g = 0;
-        result = get_value(graph, node->Inputs[1], g);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], g);
 
         int b = 0;
-        result = get_value(graph, node->Inputs[2], b);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[2], b);
 
         int a = 255;
-        result = get_value(graph, node->Inputs[3], a);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = r;
-        node->Inputs[1].Value = g;
-        node->Inputs[2].Value = b;
-        node->Inputs[3].Value = a;
+        get_value(graph, node->Inputs[3], a);
 
         try_catch_block
         {
@@ -471,8 +367,6 @@ Node *Spawn_ImageOperator_CreateImage(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), "颜色", PinType::Color, cv::Scalar(0, 0, 0, 0));
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         int rows = 1024;
@@ -486,12 +380,6 @@ Node *Spawn_ImageOperator_CreateImage(const std::function<int()> &GetNextId, con
 
         cv::Scalar scalar(0, 0, 0, 0);
         get_value(graph, node->Inputs[3], scalar);
-
-        // Display image
-        node->Inputs[0].Value = rows;
-        node->Inputs[1].Value = cols;
-        node->Inputs[2].Value = channels;
-        node->Inputs[3].Value = scalar;
 
         try_catch_block
         {

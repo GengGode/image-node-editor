@@ -23,35 +23,23 @@ Node *Spawn_ImageFeature_GenerateSIFTFeature(const std::function<int()> &GetNext
 
     node.Outputs.emplace_back(GetNextId(), "特征数据", PinType::Feature);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-        int nfeatures = 0;
-        result = get_value(graph, node->Inputs[1], nfeatures);
-        int nOctaveLayers = 3;
-        result = get_value(graph, node->Inputs[2], nOctaveLayers);
-        float contrastThreshold = 0.04f;
-        result = get_value(graph, node->Inputs[3], contrastThreshold);
-        float edgeThreshold = 10;
-        result = get_value(graph, node->Inputs[4], edgeThreshold);
-        float sigma = 1.6f;
-        result = get_value(graph, node->Inputs[5], sigma);
-        bool enable_precise_upscale = false;
-        result = get_value(graph, node->Inputs[6], enable_precise_upscale);
+        get_value(graph, node->Inputs[0], image);
 
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = nfeatures;
-        node->Inputs[2].Value = nOctaveLayers;
-        node->Inputs[3].Value = contrastThreshold;
-        node->Inputs[4].Value = edgeThreshold;
-        node->Inputs[5].Value = sigma;
-        node->Inputs[6].Value = enable_precise_upscale;
+        int nfeatures = 0;
+        get_value(graph, node->Inputs[1], nfeatures);
+        int nOctaveLayers = 3;
+        get_value(graph, node->Inputs[2], nOctaveLayers);
+        float contrastThreshold = 0.04f;
+        get_value(graph, node->Inputs[3], contrastThreshold);
+        float edgeThreshold = 10;
+        get_value(graph, node->Inputs[4], edgeThreshold);
+        float sigma = 1.6f;
+        get_value(graph, node->Inputs[5], sigma);
+        bool enable_precise_upscale = false;
+        get_value(graph, node->Inputs[6], enable_precise_upscale);
 
         try_catch_block
         {
@@ -92,32 +80,21 @@ Node *Spawn_ImageFeature_GenerateSURFFeature(const std::function<int()> &GetNext
 
     node.Outputs.emplace_back(GetNextId(), "特征数据", PinType::Feature);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-        float hessianThreshold = 100;
-        result = get_value(graph, node->Inputs[1], hessianThreshold);
-        int nOctaves = 4;
-        result = get_value(graph, node->Inputs[2], nOctaves);
-        int nOctaveLayers = 3;
-        result = get_value(graph, node->Inputs[3], nOctaveLayers);
-        bool extended = false;
-        result = get_value(graph, node->Inputs[4], extended);
-        bool upright = false;
-        result = get_value(graph, node->Inputs[5], upright);
+        get_value(graph, node->Inputs[0], image);
 
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = hessianThreshold;
-        node->Inputs[2].Value = nOctaves;
-        node->Inputs[3].Value = nOctaveLayers;
-        node->Inputs[4].Value = extended;
-        node->Inputs[5].Value = upright;
+        float hessianThreshold = 100;
+        get_value(graph, node->Inputs[1], hessianThreshold);
+        int nOctaves = 4;
+        get_value(graph, node->Inputs[2], nOctaves);
+        int nOctaveLayers = 3;
+        get_value(graph, node->Inputs[3], nOctaveLayers);
+        bool extended = false;
+        get_value(graph, node->Inputs[4], extended);
+        bool upright = false;
+        get_value(graph, node->Inputs[5], upright);
 
         try_catch_block
         {
@@ -162,62 +139,37 @@ Node *Spawn_ImageFeature_GenerateORBFeature(const std::function<int()> &GetNextI
 
     node.Outputs.emplace_back(GetNextId(), "特征数据", PinType::Feature);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-        int nfeatures = 500;
-        result = get_value(graph, node->Inputs[1], nfeatures);
-        if (result.has_error())
-            return result;
-        float scaleFactor = 1.2f;
-        result = get_value(graph, node->Inputs[2], scaleFactor);
-        if (result.has_error())
-            return result;
-        int nlevels = 8;
-        result = get_value(graph, node->Inputs[3], nlevels);
-        if (result.has_error())
-            return result;
-        int edgeThreshold = 31;
-        result = get_value(graph, node->Inputs[4], edgeThreshold);
-        if (result.has_error())
-            return result;
-        int firstLevel = 0;
-        result = get_value(graph, node->Inputs[5], firstLevel);
-        if (result.has_error())
-            return result;
-        int WTA_K = 2;
-        result = get_value(graph, node->Inputs[6], WTA_K);
-        if (result.has_error())
-            return result;
-        int scoreType = cv::ORB::HARRIS_SCORE;
-        result = get_value(graph, node->Inputs[7], scoreType);
-        if (result.has_error())
-            return result;
-        int patchSize = 31;
-        result = get_value(graph, node->Inputs[8], patchSize);
-        if (result.has_error())
-            return result;
-        int fastThreshold = 20;
-        result = get_value(graph, node->Inputs[9], fastThreshold);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = nfeatures;
-        node->Inputs[2].Value = scaleFactor;
-        node->Inputs[3].Value = nlevels;
-        node->Inputs[4].Value = edgeThreshold;
-        node->Inputs[5].Value = firstLevel;
-        node->Inputs[6].Value = WTA_K;
-        node->Inputs[7].Value = scoreType;
-        node->Inputs[8].Value = patchSize;
-        node->Inputs[9].Value = fastThreshold;
+        int nfeatures = 500;
+        get_value(graph, node->Inputs[1], nfeatures);
+
+        float scaleFactor = 1.2f;
+        get_value(graph, node->Inputs[2], scaleFactor);
+
+        int nlevels = 8;
+        get_value(graph, node->Inputs[3], nlevels);
+
+        int edgeThreshold = 31;
+        get_value(graph, node->Inputs[4], edgeThreshold);
+
+        int firstLevel = 0;
+        get_value(graph, node->Inputs[5], firstLevel);
+
+        int WTA_K = 2;
+        get_value(graph, node->Inputs[6], WTA_K);
+
+        int scoreType = cv::ORB::HARRIS_SCORE;
+        get_value(graph, node->Inputs[7], scoreType);
+
+        int patchSize = 31;
+        get_value(graph, node->Inputs[8], patchSize);
+
+        int fastThreshold = 20;
+        get_value(graph, node->Inputs[9], fastThreshold);
 
         try_catch_block
         {
@@ -254,32 +206,19 @@ Node *Spawn_ImageFeature_DrawFeaturePoints(const std::function<int()> &GetNextId
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-        Feature feature;
-        result = get_value(graph, node->Inputs[1], feature);
-        if (result.has_error())
-            return result;
-        cv::Scalar color;
-        result = get_value(graph, node->Inputs[2], color);
-        if (result.has_error())
-            return result;
-        int radius = 2;
-        result = get_value(graph, node->Inputs[3], radius);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = feature;
-        node->Inputs[2].Value = color;
-        node->Inputs[3].Value = radius;
+        Feature feature;
+        get_value(graph, node->Inputs[1], feature);
+
+        cv::Scalar color;
+        get_value(graph, node->Inputs[2], color);
+
+        int radius = 2;
+        get_value(graph, node->Inputs[3], radius);
 
         try_catch_block
         {
@@ -307,26 +246,15 @@ Node *Spawn_ImageFeature_MatchFeaturePoints(const std::function<int()> &GetNextI
 
     node.Outputs.emplace_back(GetNextId(), "匹配数据", PinType::Matches);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         Feature feature1, feature2;
-        auto result = get_value(graph, node->Inputs[0], feature1);
-        if (result.has_error())
-            return result;
-        result = get_value(graph, node->Inputs[1], feature2);
-        if (result.has_error())
-            return result;
-        float threshold = 0.7f;
-        result = get_value(graph, node->Inputs[2], threshold);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], feature1);
 
-        // Display image
-        node->Inputs[0].Value = feature1;
-        node->Inputs[1].Value = feature2;
-        node->Inputs[2].Value = threshold;
+        get_value(graph, node->Inputs[1], feature2);
+
+        float threshold = 0.7f;
+        get_value(graph, node->Inputs[2], threshold);
 
         try_catch_block
         {
@@ -368,35 +296,20 @@ Node *Spawn_ImageFeature_DrawMatchedFeaturePoints(const std::function<int()> &Ge
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image1, image2;
-        auto result = get_value(graph, node->Inputs[0], image1);
-        if (result.has_error())
-            return result;
-        result = get_value(graph, node->Inputs[1], image2);
-        if (result.has_error())
-            return result;
-        Feature feature1, feature2;
-        result = get_value(graph, node->Inputs[2], feature1);
-        if (result.has_error())
-            return result;
-        result = get_value(graph, node->Inputs[3], feature2);
-        if (result.has_error())
-            return result;
-        std::vector<cv::DMatch> matches;
-        result = get_value(graph, node->Inputs[4], matches);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image1);
 
-        // Display image
-        node->Inputs[0].Value = image1;
-        node->Inputs[1].Value = image2;
-        node->Inputs[2].Value = feature1;
-        node->Inputs[3].Value = feature2;
-        node->Inputs[4].Value = matches;
+        get_value(graph, node->Inputs[1], image2);
+
+        Feature feature1, feature2;
+        get_value(graph, node->Inputs[2], feature1);
+
+        get_value(graph, node->Inputs[3], feature2);
+
+        std::vector<cv::DMatch> matches;
+        get_value(graph, node->Inputs[4], matches);
 
         try_catch_block
         {

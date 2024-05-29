@@ -47,10 +47,6 @@ Node *Spawn_Maa_StartupTask(const std::function<int()> &GetNextId, const std::fu
         int next_task_count;
         get_value(graph, node->Inputs[1], next_task_count);
 
-        // Display image
-        node->Inputs[0].Value = task_name;
-        node->Inputs[1].Value = next_task_count;
-
         try_catch_block
         {
             if (node->state_value == nullptr)
@@ -144,16 +140,6 @@ Node *Spawn_Maa_DirectHitTask(const std::function<int()> &GetNextId, const std::
         int next_task_count;
         get_value(graph, node->Inputs[10], next_task_count);
 
-        // Display image
-        node->Inputs[1].Value = task_name;
-        node->Inputs[2].Value = roi;
-        node->Inputs[3].Value = expect_result;
-        node->Inputs[4].Value = replace;
-        node->Inputs[5].Value = sort_way;
-        node->Inputs[6].Value = hit_index;
-        node->Inputs[7].Value = only_recognize;
-        node->Inputs[8].Value = model_folder_path;
-        node->Inputs[9].Value = action;
         node->Inputs[10].Value = next_task_count;
 
         try_catch_block
@@ -221,16 +207,6 @@ Node *Spawn_Maa_TemplateMatchTask(const std::function<int()> &GetNextId, const s
         int next_task_count;
         get_value(graph, node->Inputs[10], next_task_count);
 
-        // Display image
-        node->Inputs[1].Value = task_name;
-        node->Inputs[2].Value = roi;
-        node->Inputs[3].Value = expect_result;
-        node->Inputs[4].Value = replace;
-        node->Inputs[5].Value = sort_way;
-        node->Inputs[6].Value = hit_index;
-        node->Inputs[7].Value = only_recognize;
-        node->Inputs[8].Value = model_folder_path;
-        node->Inputs[9].Value = action;
         node->Inputs[10].Value = next_task_count;
 
         try_catch_block
@@ -298,16 +274,6 @@ Node *Spawn_Maa_FeatureMatchTask(const std::function<int()> &GetNextId, const st
         int next_task_count;
         get_value(graph, node->Inputs[10], next_task_count);
 
-        // Display image
-        node->Inputs[1].Value = task_name;
-        node->Inputs[2].Value = roi;
-        node->Inputs[3].Value = expect_result;
-        node->Inputs[4].Value = replace;
-        node->Inputs[5].Value = sort_way;
-        node->Inputs[6].Value = hit_index;
-        node->Inputs[7].Value = only_recognize;
-        node->Inputs[8].Value = model_folder_path;
-        node->Inputs[9].Value = action;
         node->Inputs[10].Value = next_task_count;
 
         try_catch_block
@@ -375,16 +341,6 @@ Node *Spawn_Maa_ColorMatchTask(const std::function<int()> &GetNextId, const std:
         int next_task_count;
         get_value(graph, node->Inputs[10], next_task_count);
 
-        // Display image
-        node->Inputs[1].Value = task_name;
-        node->Inputs[2].Value = roi;
-        node->Inputs[3].Value = expect_result;
-        node->Inputs[4].Value = replace;
-        node->Inputs[5].Value = sort_way;
-        node->Inputs[6].Value = hit_index;
-        node->Inputs[7].Value = only_recognize;
-        node->Inputs[8].Value = model_folder_path;
-        node->Inputs[9].Value = action;
         node->Inputs[10].Value = next_task_count;
 
         try_catch_block
@@ -452,16 +408,6 @@ Node *Spawn_Maa_OcrTask(const std::function<int()> &GetNextId, const std::functi
         int next_task_count;
         get_value(graph, node->Inputs[10], next_task_count);
 
-        // Display image
-        node->Inputs[1].Value = task_name;
-        node->Inputs[2].Value = roi;
-        node->Inputs[3].Value = expect_result;
-        node->Inputs[4].Value = replace;
-        node->Inputs[5].Value = sort_way;
-        node->Inputs[6].Value = hit_index;
-        node->Inputs[7].Value = only_recognize;
-        node->Inputs[8].Value = model_folder_path;
-        node->Inputs[9].Value = action;
         node->Inputs[10].Value = next_task_count;
 
         try_catch_block
@@ -530,16 +476,6 @@ Node *Spawn_Maa_NeuralNetworkClassifyTask(const std::function<int()> &GetNextId,
         int next_task_count;
         get_value(graph, node->Inputs[10], next_task_count);
 
-        // Display image
-        node->Inputs[1].Value = task_name;
-        node->Inputs[2].Value = roi;
-        node->Inputs[3].Value = expect_result;
-        node->Inputs[4].Value = replace;
-        node->Inputs[5].Value = sort_way;
-        node->Inputs[6].Value = hit_index;
-        node->Inputs[7].Value = only_recognize;
-        node->Inputs[8].Value = model_folder_path;
-        node->Inputs[9].Value = action;
         node->Inputs[10].Value = next_task_count;
 
         try_catch_block
@@ -607,16 +543,6 @@ Node *Spawn_Maa_NeuralNetworkDetectTask(const std::function<int()> &GetNextId, c
         int next_task_count;
         get_value(graph, node->Inputs[10], next_task_count);
 
-        // Display image
-        node->Inputs[1].Value = task_name;
-        node->Inputs[2].Value = roi;
-        node->Inputs[3].Value = expect_result;
-        node->Inputs[4].Value = replace;
-        node->Inputs[5].Value = sort_way;
-        node->Inputs[6].Value = hit_index;
-        node->Inputs[7].Value = only_recognize;
-        node->Inputs[8].Value = model_folder_path;
-        node->Inputs[9].Value = action;
         node->Inputs[10].Value = next_task_count;
 
         try_catch_block
@@ -684,16 +610,6 @@ Node *Spawn_Maa_CustomTask(const std::function<int()> &GetNextId, const std::fun
         int next_task_count;
         get_value(graph, node->Inputs[10], next_task_count);
 
-        // Display image
-        node->Inputs[1].Value = task_name;
-        node->Inputs[2].Value = roi;
-        node->Inputs[3].Value = expect_result;
-        node->Inputs[4].Value = replace;
-        node->Inputs[5].Value = sort_way;
-        node->Inputs[6].Value = hit_index;
-        node->Inputs[7].Value = only_recognize;
-        node->Inputs[8].Value = model_folder_path;
-        node->Inputs[9].Value = action;
         node->Inputs[10].Value = next_task_count;
 
         try_catch_block

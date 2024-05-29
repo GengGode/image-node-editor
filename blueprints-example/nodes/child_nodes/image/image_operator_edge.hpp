@@ -13,14 +13,11 @@ Node *Spawn_ImageOperator_Canny(const std::function<int()> &GetNextId, const std
     node.Inputs.emplace_back(GetNextId(), "Threshold 2", PinType::Float, 150.0f);
     node.Inputs.emplace_back(GetNextId(), "Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         float threshold_1 = 50;
         get_value(graph, node->Inputs[1], threshold_1);
@@ -55,17 +52,10 @@ Node *Spawn_ImageOperator_SobelEdgeDetection(const std::function<int()> &GetNext
 
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -102,15 +92,11 @@ Node *Spawn_ImageOperator_LaplacianEdgeDetection(const std::function<int()> &Get
 
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-        
+        get_value(graph, node->Inputs[0], image);
+
         int ddepth = CV_16S;
         get_value(graph, node->Inputs[1], ddepth);
         int ksize = 3;
@@ -122,19 +108,11 @@ Node *Spawn_ImageOperator_LaplacianEdgeDetection(const std::function<int()> &Get
         int borderType = cv::BORDER_DEFAULT;
         get_value(graph, node->Inputs[5], borderType);
 
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = ddepth;
-        node->Inputs[2].Value = ksize;
-        node->Inputs[3].Value = scale;
-        node->Inputs[4].Value = delta;
-        node->Inputs[5].Value = borderType;
-        
         try_catch_block
         {
             cv::Mat result;
             cv::Laplacian(image, result, ddepth, ksize, scale, delta, borderType);
-            //cv::convertScaleAbs(result, result);
+            // cv::convertScaleAbs(result, result);
 
             node->Outputs[0].SetValue(result);
         }
@@ -160,14 +138,10 @@ Node *Spawn_ImageOperator_LaplacianEdgeEnhancement(const std::function<int()> &G
     node.Inputs.emplace_back(GetNextId(), PinType::Float, "增强系数", 1.0f);
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int ddepth = CV_16S;
         get_value(graph, node->Inputs[1], ddepth);
@@ -181,15 +155,6 @@ Node *Spawn_ImageOperator_LaplacianEdgeEnhancement(const std::function<int()> &G
         get_value(graph, node->Inputs[5], borderType);
         float alpha = 1.0f;
         get_value(graph, node->Inputs[6], alpha);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = ddepth;
-        node->Inputs[2].Value = ksize;
-        node->Inputs[3].Value = scale;
-        node->Inputs[4].Value = delta;
-        node->Inputs[5].Value = borderType;
-        node->Inputs[6].Value = alpha;
 
         try_catch_block
         {
@@ -217,17 +182,10 @@ Node *Spawn_ImageOperator_ScharrEdgeDetection(const std::function<int()> &GetNex
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -258,17 +216,10 @@ Node *Spawn_ImageOperator_FindContours(const std::function<int()> &GetNextId, co
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "轮廓数组", PinType::Contours);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -298,14 +249,10 @@ Node *Spawn_ImageOperator_DrawContours(const std::function<int()> &GetNextId, co
     node.Inputs.emplace_back(GetNextId(), "线宽", PinType::Int, 2);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         std::vector<std::vector<cv::Point>> contours;
         auto result2 = get_value(graph, node->Inputs[1], contours);
@@ -319,13 +266,6 @@ Node *Spawn_ImageOperator_DrawContours(const std::function<int()> &GetNextId, co
 
         int thickness = 2;
         get_value(graph, node->Inputs[4], thickness);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = contours;
-        node->Inputs[2].Value = color;
-        node->Inputs[3].Value = random_color;
-        node->Inputs[4].Value = thickness;
 
         try_catch_block
         {
@@ -360,17 +300,10 @@ Node *Spawn_ImageOperator_SortContoursByArea(const std::function<int()> &GetNext
     node.Inputs.emplace_back(GetNextId(), "轮廓数组", PinType::Contours);
     node.Outputs.emplace_back(GetNextId(), "轮廓数组", PinType::Contours);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         std::vector<std::vector<cv::Point>> contours;
-        auto result = get_value(graph, node->Inputs[0], contours);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = contours;
+        get_value(graph, node->Inputs[0], contours);
 
         try_catch_block
         {
@@ -397,14 +330,10 @@ Node *Spawn_ImageOperator_FilterContoursByAreaRange(const std::function<int()> &
     node.Inputs.emplace_back(GetNextId(), "Max Area", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Contours", PinType::Contours);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         std::vector<std::vector<cv::Point>> contours;
-        auto result = get_value(graph, node->Inputs[0], contours);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], contours);
 
         int min_area = 0;
         auto result2 = get_value(graph, node->Inputs[1], min_area);
@@ -415,11 +344,6 @@ Node *Spawn_ImageOperator_FilterContoursByAreaRange(const std::function<int()> &
         auto result3 = get_value(graph, node->Inputs[2], max_area);
         if (result3.has_error())
             return result3;
-
-        // Display image
-        node->Inputs[0].Value = contours;
-        node->Inputs[1].Value = min_area;
-        node->Inputs[2].Value = max_area;
 
         try_catch_block
         {
@@ -449,23 +373,15 @@ Node *Spawn_ImageOperator_SelectContourByIndex(const std::function<int()> &GetNe
     node.Inputs.emplace_back(GetNextId(), "Index", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "Contour", PinType::Contours);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         std::vector<std::vector<cv::Point>> contours;
-        auto result = get_value(graph, node->Inputs[0], contours);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], contours);
 
         int index = 0;
         auto result2 = get_value(graph, node->Inputs[1], index);
         if (result2.has_error())
             return result2;
-
-        // Display image
-        node->Inputs[0].Value = contours;
-        node->Inputs[1].Value = index;
 
         try_catch_block
         {
@@ -499,14 +415,11 @@ Node *Spawn_ImageOperator_HoughCircleDetection(const std::function<int()> &GetNe
     node.Inputs.emplace_back(GetNextId(), "maxRadius", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Circles", PinType::Circles);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
+
         int method = cv::HOUGH_GRADIENT;
         get_value(graph, node->Inputs[1], method);
         float dp = 0;
@@ -521,16 +434,6 @@ Node *Spawn_ImageOperator_HoughCircleDetection(const std::function<int()> &GetNe
         get_value(graph, node->Inputs[6], minRadius);
         int maxRadius = 0;
         get_value(graph, node->Inputs[7], maxRadius);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = method;
-        node->Inputs[2].Value = dp;
-        node->Inputs[3].Value = minDist;
-        node->Inputs[4].Value = param1;
-        node->Inputs[5].Value = param2;
-        node->Inputs[6].Value = minRadius;
-        node->Inputs[7].Value = maxRadius;
 
         try_catch_block
         {
@@ -558,14 +461,10 @@ Node *Spawn_ImageOperator_DrawHoughCircles(const std::function<int()> &GetNextId
     node.Inputs.emplace_back(GetNextId(), "线宽", PinType::Int, 2);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         std::vector<cv::Vec3f> circles;
         auto result2 = get_value(graph, node->Inputs[1], circles);
@@ -577,12 +476,6 @@ Node *Spawn_ImageOperator_DrawHoughCircles(const std::function<int()> &GetNextId
 
         int thickness = 2;
         get_value(graph, node->Inputs[3], thickness);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = circles;
-        node->Inputs[2].Value = color;
-        node->Inputs[3].Value = thickness;
 
         try_catch_block
         {

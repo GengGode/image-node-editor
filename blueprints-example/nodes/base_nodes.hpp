@@ -1046,18 +1046,6 @@ inline bool Graph::deserialize(const std::string &json_buff)
     node->ExecuteTime = *node->EndExecuteTime - *node->BeginExecuteTime; \
     return ExecuteResult::Success();
 
-static ExecuteResult get_image(Graph *graph, Pin input, cv::Mat &image)
-{
-    auto link = graph->FindPinLink(input.ID);
-    if (!link)
-        return ExecuteResult::ErrorPin(input.ID, "Not Find Pin Link");
-    auto start_pin = graph->FindPin(link->StartPinID);
-    if (!start_pin && start_pin->Kind != PinKind::Output)
-        return ExecuteResult::ErrorLink(link->ID, "Not Find Link Start Pin");
-    if (!start_pin->GetValue(image))
-        return ExecuteResult::ErrorLink(link->ID, "Not Get Value");
-    return ExecuteResult::Success();
-}
 template <typename T>
 static ExecuteResult get_value(Graph *graph, Pin input, T &value)
 {
@@ -1073,6 +1061,8 @@ static ExecuteResult get_value(Graph *graph, Pin input, T &value)
         return ExecuteResult::ErrorLink(link->ID, "Not Find Link Start Pin");
     if (!start_pin->GetValue(value))
         return ExecuteResult::ErrorLink(link->ID, "Not Get Value");
+    // 从连接的端口获取值并赋值给当前端口
+    input.Value = value;
     return ExecuteResult::Success();
 }
 

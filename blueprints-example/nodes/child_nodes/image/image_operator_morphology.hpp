@@ -10,23 +10,14 @@ Node *Spawn_ImageOperator_Dilate(const std::function<int()> &GetNextId, const st
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Kernel Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
-        result = get_value(graph, node->Inputs[1], kernel_size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
+        get_value(graph, node->Inputs[1], kernel_size);
 
         try_catch_block
         {
@@ -52,23 +43,14 @@ Node *Spawn_ImageOperator_Erode(const std::function<int()> &GetNextId, const std
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Kernel Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
-        result = get_value(graph, node->Inputs[1], kernel_size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
+        get_value(graph, node->Inputs[1], kernel_size);
 
         try_catch_block
         {
@@ -94,23 +76,14 @@ Node *Spawn_ImageOperator_MorphologyOpen(const std::function<int()> &GetNextId, 
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Kernel Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
-        result = get_value(graph, node->Inputs[1], kernel_size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
+        get_value(graph, node->Inputs[1], kernel_size);
 
         try_catch_block
         {
@@ -136,23 +109,14 @@ Node *Spawn_ImageOperator_MorphologyClose(const std::function<int()> &GetNextId,
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Kernel Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
-        result = get_value(graph, node->Inputs[1], kernel_size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
+        get_value(graph, node->Inputs[1], kernel_size);
 
         try_catch_block
         {
@@ -178,23 +142,14 @@ Node *Spawn_ImageOperator_MorphologyGradient(const std::function<int()> &GetNext
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Kernel Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
-        result = get_value(graph, node->Inputs[1], kernel_size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
+        get_value(graph, node->Inputs[1], kernel_size);
 
         try_catch_block
         {
@@ -220,23 +175,14 @@ Node *Spawn_ImageOperator_MorphologyTopHat(const std::function<int()> &GetNextId
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Kernel Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
-        result = get_value(graph, node->Inputs[1], kernel_size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
+        get_value(graph, node->Inputs[1], kernel_size);
 
         try_catch_block
         {
@@ -262,23 +208,14 @@ Node *Spawn_ImageOperator_MorphologyBlackHat(const std::function<int()> &GetNext
     node.Inputs.emplace_back(GetNextId(), "Image", PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Kernel Size", PinType::Int, 3);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int kernel_size = 3;
-        result = get_value(graph, node->Inputs[1], kernel_size);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = kernel_size;
+        get_value(graph, node->Inputs[1], kernel_size);
 
         try_catch_block
         {

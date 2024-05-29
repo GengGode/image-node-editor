@@ -52,9 +52,7 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block;
 
@@ -84,9 +82,7 @@ Node *Spawn_ImageWriteLocalFile(const std::function<int()> &GetNextId, const std
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         std::string path;
         get_value(graph, node->Inputs[1], path);
@@ -96,10 +92,6 @@ Node *Spawn_ImageWriteLocalFile(const std::function<int()> &GetNextId, const std
 
         int compress_param;
         get_value(graph, node->Inputs[3], compress_param);
-
-        node->Inputs[1].Value = path;
-        node->Inputs[2].Value = compress;
-        node->Inputs[3].Value = compress_param;
 
         try_catch_block;
 
@@ -149,9 +141,7 @@ Node *Spawn_ImageWriteRawFile(const std::function<int()> &GetNextId, const std::
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         std::string path;
         get_value(graph, node->Inputs[1], path);
@@ -164,11 +154,6 @@ Node *Spawn_ImageWriteRawFile(const std::function<int()> &GetNextId, const std::
 
         std::string header;
         get_value(graph, node->Inputs[4], header);
-
-        node->Inputs[1].Value = path;
-        node->Inputs[2].Value = depth;
-        node->Inputs[3].Value = little_endian;
-        node->Inputs[4].Value = header;
 
         try_catch_block;
 
@@ -273,19 +258,13 @@ Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, co
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "宽度");
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "高度");
 
-    node.Outputs[0].app = app;
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -313,7 +292,6 @@ Node *Spawn_ImageOperator_ImageGetRect(const std::function<int()> &GetNextId, co
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "宽度");
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "高度");
 
-    node.Outputs[0].app = app;
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
     node.Outputs[3].app = app;
@@ -322,12 +300,7 @@ Node *Spawn_ImageOperator_ImageGetRect(const std::function<int()> &GetNextId, co
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -354,17 +327,10 @@ Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId
     node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "通道数");
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -386,17 +352,10 @@ Node *Spawn_ImageOperator_ImageGetDepth(const std::function<int()> &GetNextId, c
     node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "深度");
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -421,7 +380,6 @@ Node *Spawn_ImageOperator_ImageGetAllInfo(const std::function<int()> &GetNextId,
     node.Outputs.emplace_back(GetNextId(), "通道数", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "位深", PinType::Int);
 
-    node.Outputs[0].app = app;
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
     node.Outputs[3].app = app;
@@ -429,12 +387,7 @@ Node *Spawn_ImageOperator_ImageGetAllInfo(const std::function<int()> &GetNextId,
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -459,21 +412,14 @@ Node *Spawn_ImageOperator_ImageGetRectImage(const std::function<int()> &GetNextI
     node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Inputs.emplace_back(GetNextId(), PinType::Rect);
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Rect rect;
         get_value(graph, node->Inputs[1], rect);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = rect;
 
         try_catch_block
         {
@@ -498,27 +444,17 @@ Node *Spawn_ImageOperator_RectImageToImage(const std::function<int()> &GetNextId
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "覆盖图像");
 
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Rect rect;
         get_value(graph, node->Inputs[1], rect);
 
         cv::Mat overlay;
-        result = get_image(graph, node->Inputs[2], overlay);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = rect;
-        node->Inputs[2].Value = overlay;
+        get_value(graph, node->Inputs[2], overlay);
 
         try_catch_block
         {
@@ -553,29 +489,17 @@ Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), PinType::Int, "宽度", 640);
     node.Inputs.emplace_back(GetNextId(), PinType::Int, "高度", 480);
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int width = 640;
-        result = get_value(graph, node->Inputs[1], width);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], width);
 
         int height = 480;
-        result = get_value(graph, node->Inputs[2], height);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = width;
-        node->Inputs[2].Value = height;
+        get_value(graph, node->Inputs[2], height);
 
         try_catch_block
         {
@@ -599,23 +523,14 @@ Node *Spawn_ImageOperator_MaskImage(const std::function<int()> &GetNextId, const
     node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Inputs.emplace_back(GetNextId(), "Mask", PinType::Image);
     node.Outputs.emplace_back(GetNextId(), "Image", PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Mat mask;
-        result = get_image(graph, node->Inputs[1], mask);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = mask;
+        get_value(graph, node->Inputs[1], mask);
 
         try_catch_block
         {
@@ -642,7 +557,7 @@ Node *Spawn_ImageOperator_ImageChannelSplit(const std::function<int()> &GetNextI
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 2");
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 3");
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 4");
-    node.Outputs[0].app = app;
+
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
     node.Outputs[3].app = app;
@@ -650,12 +565,7 @@ Node *Spawn_ImageOperator_ImageChannelSplit(const std::function<int()> &GetNextI
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -691,36 +601,22 @@ Node *Spawn_ImageOperator_ImageChannelMerge(const std::function<int()> &GetNextI
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "通道 3");
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "通道 4");
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat channel0;
-        auto result = get_image(graph, node->Inputs[0], channel0);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], channel0);
 
         cv::Mat channel1;
-        result = get_image(graph, node->Inputs[1], channel1);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], channel1);
 
         cv::Mat channel2;
-        result = get_image(graph, node->Inputs[2], channel2);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[2], channel2);
 
         cv::Mat channel3;
-        result = get_image(graph, node->Inputs[3], channel3);
+        get_value(graph, node->Inputs[3], channel3);
         // note: channel3 is optional
-        // if (result.has_error())
-        //    return result;
-
-        // Display image
-        node->Inputs[0].Value = channel0;
-        node->Inputs[1].Value = channel1;
-        node->Inputs[2].Value = channel2;
-        node->Inputs[3].Value = channel3;
+        //
 
         try_catch_block
         {
@@ -750,23 +646,14 @@ Node *Spawn_ImageOperator_ImageAndMaskCopy(const std::function<int()> &GetNextId
     node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "遮罩");
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Mat mask;
-        result = get_image(graph, node->Inputs[1], mask);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = mask;
+        get_value(graph, node->Inputs[1], mask);
 
         try_catch_block
         {
@@ -790,17 +677,11 @@ Node *Spawn_ImageOperator_OcrText(const std::function<int()> &GetNextId, const s
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), PinType::Image);
     node.Outputs.emplace_back(GetNextId(), PinType::String);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = image;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block
         {
@@ -840,23 +721,14 @@ Node *Spawn_ImageOperator_HConcatenateImages(const std::function<int()> &GetNext
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "左侧图像");
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "右侧图像");
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat left_image;
-        auto result = get_image(graph, node->Inputs[0], left_image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], left_image);
 
         cv::Mat right_image;
-        result = get_image(graph, node->Inputs[1], right_image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = left_image;
-        node->Inputs[1].Value = right_image;
+        get_value(graph, node->Inputs[1], right_image);
 
         try_catch_block
         {
@@ -881,23 +753,14 @@ Node *Spawn_ImageOperator_VConcatenateImages(const std::function<int()> &GetNext
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "上方图像");
     node.Inputs.emplace_back(GetNextId(), PinType::Image, "下方图像");
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat top_image;
-        auto result = get_image(graph, node->Inputs[0], top_image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], top_image);
 
         cv::Mat bottom_image;
-        result = get_image(graph, node->Inputs[1], bottom_image);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = top_image;
-        node->Inputs[1].Value = bottom_image;
+        get_value(graph, node->Inputs[1], bottom_image);
 
         try_catch_block
         {
@@ -948,20 +811,13 @@ Node *Spawn_ImageOperator_GridSplitImages(const std::function<int()> &GetNextId,
         };
 
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         int rows = 2;
         get_value(graph, node->Inputs[1], rows);
 
         int cols = 2;
         get_value(graph, node->Inputs[2], cols);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = rows;
-        node->Inputs[2].Value = cols;
 
         try_catch_block
         {

@@ -28,10 +28,6 @@ Node *Spawn_Win32_Window(const std::function<int()> &GetNextId, const std::funct
         std::string class_name;
         get_value(graph, node->Inputs[1], class_name);
 
-        // Display image
-        node->Inputs[0].Value = window_name;
-        node->Inputs[1].Value = class_name;
-
         try_catch_block
         {
 
@@ -176,10 +172,6 @@ Node *Spawn_Win32_MoveWindow(const std::function<int()> &GetNextId, const std::f
         cv::Point point;
         get_value(graph, node->Inputs[1], point);
 
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = point;
-
         try_catch_block
         {
             if (handle == NULL)
@@ -225,10 +217,6 @@ Node *Spawn_Win32_ResizeWindow(const std::function<int()> &GetNextId, const std:
 
         cv::Size size;
         get_value(graph, node->Inputs[1], size);
-
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = size;
 
         try_catch_block
         {
@@ -276,10 +264,6 @@ Node *Spawn_Win32_ToggleWindow(const std::function<int()> &GetNextId, const std:
         bool is_show;
         get_value(graph, node->Inputs[1], is_show);
 
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = is_show;
-
         try_catch_block
         {
             if (handle == NULL)
@@ -314,9 +298,6 @@ Node *Spawn_Win32_CloseWindow(const std::function<int()> &GetNextId, const std::
     {
         HWND handle;
         get_value(graph, node->Inputs[0], handle);
-
-        // Display image
-        node->Inputs[0].Value = handle;
 
         try_catch_block
         {
@@ -353,9 +334,6 @@ Node *Spawn_Win32_GetWindowText(const std::function<int()> &GetNextId, const std
     {
         HWND handle;
         get_value(graph, node->Inputs[0], handle);
-
-        // Display image
-        node->Inputs[0].Value = handle;
 
         try_catch_block
         {
@@ -401,10 +379,6 @@ Node *Spawn_Win32_SetWindowText(const std::function<int()> &GetNextId, const std
         std::string text;
         get_value(graph, node->Inputs[1], text);
 
-        // Display image
-        node->Inputs[0].Value = handle;
-        node->Inputs[1].Value = text;
-
         try_catch_block
         {
             if (handle == NULL)
@@ -435,8 +409,6 @@ Node *Spawn_Win32_GetTopWindow(const std::function<int()> &GetNextId, const std:
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        // Display image
-
         try_catch_block
         {
             HWND handle = GetForegroundWindow();
@@ -471,9 +443,6 @@ Node *Spawn_Win32_GetWindowRect(const std::function<int()> &GetNextId, const std
     {
         HWND handle;
         get_value(graph, node->Inputs[0], handle);
-
-        // Display image
-        node->Inputs[0].Value = handle;
 
         try_catch_block
         {
@@ -513,9 +482,6 @@ Node *Spawn_Win32_GetClientRect(const std::function<int()> &GetNextId, const std
         HWND handle;
         get_value(graph, node->Inputs[0], handle);
 
-        // Display image
-        node->Inputs[0].Value = handle;
-
         try_catch_block
         {
             if (handle == NULL)
@@ -549,8 +515,6 @@ Node *Spawn_Win32_GetActiveWindow(const std::function<int()> &GetNextId, const s
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
-        // Display image
-
         try_catch_block
         {
             HWND handle = GetActiveWindow();
@@ -583,9 +547,6 @@ Node *Spawn_Win32_SetActiveWindow(const std::function<int()> &GetNextId, const s
     {
         HWND handle;
         get_value(graph, node->Inputs[0], handle);
-
-        // Display image
-        node->Inputs[0].Value = handle;
 
         try_catch_block
         {

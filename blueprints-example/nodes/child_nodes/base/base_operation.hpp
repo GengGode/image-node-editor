@@ -15,17 +15,11 @@ Node *SpawnBoolNotNode(const std::function<int()> &GetNextId, const std::functio
     node.Type = NodeType::BaseOperation;
     node.Inputs.emplace_back(GetNextId(), "In", PinType::Bool, false);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Bool);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         bool value;
-        auto result = get_value(graph, node->Inputs[0], value);
-        if (result.has_error())
-            return result;
-
-        // Display image
-        node->Inputs[0].Value = value;
+        get_value(graph, node->Inputs[0], value);
 
         try_catch_block;
 
@@ -48,7 +42,6 @@ Node *SpawnBoolAndNode(const std::function<int()> &GetNextId, const std::functio
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Bool, false);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Bool, false);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Bool);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -60,10 +53,6 @@ Node *SpawnBoolAndNode(const std::function<int()> &GetNextId, const std::functio
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -86,7 +75,6 @@ Node *SpawnBoolOrNode(const std::function<int()> &GetNextId, const std::function
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Bool, false);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Bool, false);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Bool);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -98,10 +86,6 @@ Node *SpawnBoolOrNode(const std::function<int()> &GetNextId, const std::function
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -124,7 +108,6 @@ Node *SpawnBoolXorNode(const std::function<int()> &GetNextId, const std::functio
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Bool, false);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Bool, false);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Bool);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -136,10 +119,6 @@ Node *SpawnBoolXorNode(const std::function<int()> &GetNextId, const std::functio
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -168,19 +147,15 @@ Node *SpawnBytesToIntNode(const std::function<int()> &GetNextId, const std::func
     node.Inputs.emplace_back(GetNextId(), "Byte 6", PinType::Bool, 0);
     node.Inputs.emplace_back(GetNextId(), "Byte 7", PinType::Bool, 0);
     node.Outputs.emplace_back(GetNextId(), "Int", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         std::array<bool, 8> bytes;
         for (int i = 0; i < 8; i++)
         {
-            auto result = get_value(graph, node->Inputs[i], bytes[i]);
-            if (result.has_error())
-                return result;
+            get_value(graph, node->Inputs[i], bytes[i]);
         }
 
-        // Display image
         for (int i = 0; i < 8; i++)
         {
             node->Inputs[i].Value = bytes[i];
@@ -214,7 +189,6 @@ Node *SpawnIntAddNode(const std::function<int()> &GetNextId, const std::function
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -226,10 +200,6 @@ Node *SpawnIntAddNode(const std::function<int()> &GetNextId, const std::function
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -252,7 +222,6 @@ Node *SpawnIntSubtractNode(const std::function<int()> &GetNextId, const std::fun
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -264,10 +233,6 @@ Node *SpawnIntSubtractNode(const std::function<int()> &GetNextId, const std::fun
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -290,7 +255,6 @@ Node *SpawnIntMultiplyNode(const std::function<int()> &GetNextId, const std::fun
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -302,10 +266,6 @@ Node *SpawnIntMultiplyNode(const std::function<int()> &GetNextId, const std::fun
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -328,7 +288,6 @@ Node *SpawnIntDivideNode(const std::function<int()> &GetNextId, const std::funct
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -340,10 +299,6 @@ Node *SpawnIntDivideNode(const std::function<int()> &GetNextId, const std::funct
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -371,7 +326,6 @@ Node *SpawnIntModuloNode(const std::function<int()> &GetNextId, const std::funct
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -383,10 +337,6 @@ Node *SpawnIntModuloNode(const std::function<int()> &GetNextId, const std::funct
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -419,7 +369,7 @@ Node *SpawnIntCompareNode(const std::function<int()> &GetNextId, const std::func
     node.Outputs.emplace_back(GetNextId(), "小于等于", PinType::Bool);
     node.Outputs.emplace_back(GetNextId(), "大于", PinType::Bool);
     node.Outputs.emplace_back(GetNextId(), "大于等于", PinType::Bool);
-    node.Outputs[0].app = app;
+
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
     node.Outputs[3].app = app;
@@ -436,10 +386,6 @@ Node *SpawnIntCompareNode(const std::function<int()> &GetNextId, const std::func
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -472,7 +418,6 @@ Node *SpawnIntPowerNode(const std::function<int()> &GetNextId, const std::functi
     node.Inputs.emplace_back(GetNextId(), "Base", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "Exponent", PinType::Int, 0);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Int);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -484,10 +429,6 @@ Node *SpawnIntPowerNode(const std::function<int()> &GetNextId, const std::functi
         auto result_exponent = get_value(graph, node->Inputs[1], exponent);
         if (result_exponent.has_error())
             return result_exponent;
-
-        // Display image
-        node->Inputs[0].Value = base;
-        node->Inputs[1].Value = exponent;
 
         try_catch_block;
 
@@ -514,7 +455,6 @@ Node *SpawnIntMultiplyFloatNode(const std::function<int()> &GetNextId, const std
     node.Inputs.emplace_back(GetNextId(), "Int", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "Float", PinType::Float, 0.0f);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -527,10 +467,6 @@ Node *SpawnIntMultiplyFloatNode(const std::function<int()> &GetNextId, const std
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -553,7 +489,6 @@ Node *SpawnIntDivideFloatNode(const std::function<int()> &GetNextId, const std::
     node.Inputs.emplace_back(GetNextId(), "Int", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "Float", PinType::Float, 0.0f);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -566,10 +501,6 @@ Node *SpawnIntDivideFloatNode(const std::function<int()> &GetNextId, const std::
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -600,7 +531,6 @@ Node *SpawnFloatAddNode(const std::function<int()> &GetNextId, const std::functi
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Float, 0.0f);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -612,10 +542,6 @@ Node *SpawnFloatAddNode(const std::function<int()> &GetNextId, const std::functi
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -638,7 +564,6 @@ Node *SpawnFloatSubtractNode(const std::function<int()> &GetNextId, const std::f
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Float, 0.0f);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -650,10 +575,6 @@ Node *SpawnFloatSubtractNode(const std::function<int()> &GetNextId, const std::f
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -676,7 +597,6 @@ Node *SpawnFloatMultiplyNode(const std::function<int()> &GetNextId, const std::f
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Float, 0.0f);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -688,10 +608,6 @@ Node *SpawnFloatMultiplyNode(const std::function<int()> &GetNextId, const std::f
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -714,7 +630,6 @@ Node *SpawnFloatDivideNode(const std::function<int()> &GetNextId, const std::fun
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Float, 0.0f);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -726,10 +641,6 @@ Node *SpawnFloatDivideNode(const std::function<int()> &GetNextId, const std::fun
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -757,7 +668,6 @@ Node *SpawnFloatModuloNode(const std::function<int()> &GetNextId, const std::fun
     node.Inputs.emplace_back(GetNextId(), "A", PinType::Float, 0.0f);
     node.Inputs.emplace_back(GetNextId(), "B", PinType::Float, 0.0f);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -769,10 +679,6 @@ Node *SpawnFloatModuloNode(const std::function<int()> &GetNextId, const std::fun
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -805,7 +711,7 @@ Node *SpawnFloatCompareNode(const std::function<int()> &GetNextId, const std::fu
     node.Outputs.emplace_back(GetNextId(), "小于等于", PinType::Bool);
     node.Outputs.emplace_back(GetNextId(), "大于", PinType::Bool);
     node.Outputs.emplace_back(GetNextId(), "大于等于", PinType::Bool);
-    node.Outputs[0].app = app;
+
     node.Outputs[1].app = app;
     node.Outputs[2].app = app;
     node.Outputs[3].app = app;
@@ -822,10 +728,6 @@ Node *SpawnFloatCompareNode(const std::function<int()> &GetNextId, const std::fu
         auto result_b = get_value(graph, node->Inputs[1], b);
         if (result_b.has_error())
             return result_b;
-
-        // Display image
-        node->Inputs[0].Value = a;
-        node->Inputs[1].Value = b;
 
         try_catch_block;
 
@@ -858,7 +760,6 @@ Node *SpawnFloatPowerNode(const std::function<int()> &GetNextId, const std::func
     node.Inputs.emplace_back(GetNextId(), "Base", PinType::Float, 0.0f);
     node.Inputs.emplace_back(GetNextId(), "Exponent", PinType::Float, 0.0f);
     node.Outputs.emplace_back(GetNextId(), "Out", PinType::Float);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -870,10 +771,6 @@ Node *SpawnFloatPowerNode(const std::function<int()> &GetNextId, const std::func
         auto result_exponent = get_value(graph, node->Inputs[1], exponent);
         if (result_exponent.has_error())
             return result_exponent;
-
-        // Display image
-        node->Inputs[0].Value = base;
-        node->Inputs[1].Value = exponent;
 
         try_catch_block;
 

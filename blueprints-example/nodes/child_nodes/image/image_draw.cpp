@@ -16,14 +16,10 @@ Node *Spawn_ImageOperator_DrawLine(const std::function<int()> &GetNextId, const 
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Point start(0, 0);
         get_value(graph, node->Inputs[1], start);
@@ -42,15 +38,6 @@ Node *Spawn_ImageOperator_DrawLine(const std::function<int()> &GetNextId, const 
 
         int shift = 0;
         get_value(graph, node->Inputs[6], shift);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = start;
-        node->Inputs[2].Value = end;
-        node->Inputs[3].Value = color;
-        node->Inputs[4].Value = thickness;
-        node->Inputs[5].Value = lineType;
-        node->Inputs[6].Value = shift;
 
         try_catch_block
         {
@@ -79,14 +66,10 @@ Node *Spawn_ImageOperator_DrawRectangle(const std::function<int()> &GetNextId, c
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Rect rect(0, 0, 1024, 1024);
         get_value(graph, node->Inputs[1], rect);
@@ -102,12 +85,6 @@ Node *Spawn_ImageOperator_DrawRectangle(const std::function<int()> &GetNextId, c
 
         int shift = 0;
         get_value(graph, node->Inputs[5], shift);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = rect;
-        node->Inputs[2].Value = color;
-        node->Inputs[3].Value = thickness;
 
         try_catch_block
         {
@@ -138,14 +115,10 @@ Node *Spawn_ImageOperator_DrawCircle(const std::function<int()> &GetNextId, cons
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Point center(512, 512);
         get_value(graph, node->Inputs[1], center);
@@ -164,13 +137,6 @@ Node *Spawn_ImageOperator_DrawCircle(const std::function<int()> &GetNextId, cons
 
         int shift = 0;
         get_value(graph, node->Inputs[6], shift);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = center;
-        node->Inputs[2].Value = radius;
-        node->Inputs[3].Value = color;
-        node->Inputs[4].Value = thickness;
 
         try_catch_block
         {
@@ -204,14 +170,10 @@ Node *Spawn_ImageOperator_DrawEllipse(const std::function<int()> &GetNextId, con
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Point center(512, 512);
         get_value(graph, node->Inputs[1], center);
@@ -239,18 +201,6 @@ Node *Spawn_ImageOperator_DrawEllipse(const std::function<int()> &GetNextId, con
 
         int shift = 0;
         get_value(graph, node->Inputs[9], shift);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = center;
-        node->Inputs[2].Value = axes;
-        node->Inputs[3].Value = angle;
-        node->Inputs[4].Value = startAngle;
-        node->Inputs[5].Value = endAngle;
-        node->Inputs[6].Value = color;
-        node->Inputs[7].Value = thickness;
-        node->Inputs[8].Value = lineType;
-        node->Inputs[9].Value = shift;
 
         try_catch_block
         {
@@ -283,14 +233,10 @@ Node *Spawn_ImageOperator_DrawText(const std::function<int()> &GetNextId, const 
 
     node.Outputs.emplace_back(GetNextId(), "图像", PinType::Image);
 
-    node.Outputs[0].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
-        auto result = get_value(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         std::string text = "Hello, World!";
         get_value(graph, node->Inputs[1], text);
@@ -315,17 +261,6 @@ Node *Spawn_ImageOperator_DrawText(const std::function<int()> &GetNextId, const 
 
         bool bottomLeftOrigin = false;
         get_value(graph, node->Inputs[8], bottomLeftOrigin);
-
-        // Display image
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = text;
-        node->Inputs[2].Value = org;
-        node->Inputs[3].Value = fontFace;
-        node->Inputs[4].Value = fontScale;
-        node->Inputs[5].Value = color;
-        node->Inputs[6].Value = thickness;
-        node->Inputs[7].Value = lineType;
-        node->Inputs[8].Value = bottomLeftOrigin;
 
         try_catch_block
         {

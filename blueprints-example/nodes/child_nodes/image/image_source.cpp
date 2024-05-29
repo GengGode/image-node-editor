@@ -93,7 +93,6 @@ Node *Spawn_ImageWindowBitbltCapture(const std::function<int()> &GetNextId, cons
     node.Inputs.emplace_back(GetNextId(), "窗口名称", PinType::String, std::string());
     node.Inputs.emplace_back(GetNextId(), "窗口类名", PinType::String, std::string());
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -101,9 +100,6 @@ Node *Spawn_ImageWindowBitbltCapture(const std::function<int()> &GetNextId, cons
         get_value(graph, node->Inputs[0], window);
         std::string class_name;
         get_value(graph, node->Inputs[1], class_name);
-
-        node->Inputs[0].Value = window;
-        node->Inputs[1].Value = class_name;
 
         try_catch_block;
 
@@ -166,7 +162,6 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
     node.Inputs.emplace_back(GetNextId(), "窗口名称", PinType::String, std::string());
     node.Inputs.emplace_back(GetNextId(), "窗口类名", PinType::String, std::string());
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -174,9 +169,6 @@ Node *Spawn_ImageWindowGraphicCapture(const std::function<int()> &GetNextId, con
         get_value(graph, node->Inputs[0], window);
         std::string class_name;
         get_value(graph, node->Inputs[1], class_name);
-
-        node->Inputs[0].Value = window;
-        node->Inputs[1].Value = class_name;
 
         try_catch_block;
 
@@ -240,11 +232,6 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
         std::string suffixes_str;
         get_value(graph, node->Inputs[3], suffixes_str);
 
-        node->Inputs[0].Value = dir;
-        node->Inputs[1].Value = index;
-        node->Inputs[2].Value = lock;
-        node->Inputs[3].Value = suffixes_str;
-
         try_catch_block;
 
         std::filesystem::path images_dir(dir);
@@ -298,14 +285,11 @@ Node *Spawn_ImageFileSource(const std::function<int()> &GetNextId, const std::fu
     node.Type = NodeType::ImageFlow;
     node.Inputs.emplace_back(GetNextId(), PinType::String, "图像路径", std::string("resources/texture.png"));
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         std::string path;
-        auto result = get_value(graph, node->Inputs[0], path);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], path);
 
         std::filesystem::path p(path);
         if (!std::filesystem::exists(p))
@@ -339,14 +323,11 @@ Node *Spawn_ImageRawFileSource(const std::function<int()> &GetNextId, const std:
     node.Inputs.emplace_back(GetNextId(), PinType::Bool, "小端序", false);
 
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
         std::string path;
-        auto result = get_value(graph, node->Inputs[0], path);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], path);
 
         int width;
         get_value(graph, node->Inputs[1], width);
@@ -365,14 +346,6 @@ Node *Spawn_ImageRawFileSource(const std::function<int()> &GetNextId, const std:
 
         bool little_endian;
         get_value(graph, node->Inputs[6], little_endian);
-
-        node->Inputs[0].Value = path;
-        node->Inputs[1].Value = width;
-        node->Inputs[2].Value = height;
-        node->Inputs[3].Value = channels;
-        node->Inputs[4].Value = depth;
-        node->Inputs[5].Value = offset;
-        node->Inputs[6].Value = little_endian;
 
         try_catch_block;
 

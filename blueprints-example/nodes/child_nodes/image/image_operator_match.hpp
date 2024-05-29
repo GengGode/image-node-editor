@@ -42,21 +42,13 @@ Node *Spawn_ImageOperator_TemplateMatching(const std::function<int()> &GetNextId
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         cv::Mat templ;
-        result = get_image(graph, node->Inputs[1], templ);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[1], templ);
 
         EnumValue method;
-        result = get_value(graph, node->Inputs[2], method);
-
-        node->Inputs[0].Value = image;
-        node->Inputs[1].Value = templ;
-        node->Inputs[2].Value = method;
+        get_value(graph, node->Inputs[2], method);
 
         try_catch_block;
         cv::Mat result_image;
@@ -85,9 +77,7 @@ Node *Spawn_ImageOperator_MinMaxLoc(const std::function<int()> &GetNextId, const
     node.OnExecute = [](Graph *graph, Node *node)
     {
         cv::Mat image;
-        auto result = get_image(graph, node->Inputs[0], image);
-        if (result.has_error())
-            return result;
+        get_value(graph, node->Inputs[0], image);
 
         try_catch_block;
         double min_val, max_val;
