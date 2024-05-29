@@ -215,11 +215,13 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageSource;
     node.Inputs.emplace_back(GetNextId(), "目录", PinType::String, std::string("."));
-    node.Inputs.emplace_back(GetNextId(), "下次输出索引", PinType::Int, 0);
+    node.Inputs.emplace_back(GetNextId(), "上次输出索引", PinType::Int, 0);
     node.Inputs.emplace_back(GetNextId(), "是否锁定图片", PinType::Bool, false);
     node.Inputs.emplace_back(GetNextId(), "筛选后缀名", PinType::String, std::string(".jpg;.png;.tiff;.tif;.bmp;.jpeg"));
     node.Outputs.emplace_back(GetNextId(), PinType::Image);
-    node.Outputs[0].app = app;
+    node.Outputs.emplace_back(GetNextId(), PinType::Int, "索引");
+    node.Outputs.emplace_back(GetNextId(), PinType::String, "文件名");
+    node.Outputs.emplace_back(GetNextId(), PinType::String, "文件目录");
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -257,6 +259,8 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
             images.push_back(entry.path());
         }
 
+        // index = index + (int)(lock ? 1 : 0);
+
         if (images.size() > 0)
         {
             index = index % images.size();
@@ -268,8 +272,12 @@ Node *Spawn_ImageLocalImagesFromDir(const std::function<int()> &GetNextId, const
 
         int next_index = index + (int)(lock ? 0 : 1);
 
-        node->Outputs[0].SetValue(result);
         node->Inputs[1].Value = next_index;
+
+        node->Outputs[0].SetValue(result);
+        node->Outputs[1].SetValue(index);
+        node->Outputs[2].SetValue(images[index].filename().string());
+        node->Outputs[3].SetValue(images[index].parent_path().string());
         catch_block_and_return;
     };
 
