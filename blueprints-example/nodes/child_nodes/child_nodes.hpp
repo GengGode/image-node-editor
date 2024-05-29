@@ -9,6 +9,7 @@
 #include "win32/win32_softinput.hpp"
 
 #include "base/base_type.hpp"
+#include "base/base_string.hpp"
 #include "base/base_convert.hpp"
 #include "base/base_operation.hpp"
 #include "image/image_source.hpp"

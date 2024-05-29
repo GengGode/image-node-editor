@@ -1077,6 +1077,8 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
         {NodeType::Win32, Win32WindowNodes},
         {NodeType::Win32Input, Win32SoftInputNodes},
         {NodeType::BaseType, BaseTypeNodes},
+        {NodeType::BaseString, BaseStringNodes},
+
         {NodeType::BaseConvert, BaseConvertNodes},
         {NodeType::BaseOperation, BaseOperationNodes},
         {NodeType::ImageFlow, {
