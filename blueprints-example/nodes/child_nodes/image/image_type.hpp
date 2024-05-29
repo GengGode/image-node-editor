@@ -408,7 +408,7 @@ Node *Spawn_ImageOperator_RandomColor(const std::function<int()> &GetNextId, con
 // cv::Scalar(r, g, b, a) int to color
 Node *Spawn_ImageOperator_IntToColor(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)
 {
-    m_Nodes.emplace_back(GetNextId(), "Int to Color");
+    m_Nodes.emplace_back(GetNextId(), "创建颜色");
     auto &node = m_Nodes.back();
     node.Type = NodeType::ImageType;
     node.Inputs.emplace_back(GetNextId(), "R", PinType::Int, 0);
