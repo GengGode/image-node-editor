@@ -309,6 +309,11 @@ struct Example : public Application
                 ed::Flow(link.ID);
         }
         ImGui::Spring();
+        if (ImGui::Button("导出代码"))
+        {
+            m_Graph.gen_ast_code();
+        }
+        ImGui::Spring();
         if (ImGui::Button("Edit Style"))
             showStyleEditor = true;
         ImGui::EndHorizontal();

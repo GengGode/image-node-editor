@@ -322,6 +322,30 @@ struct node_state_value
 {
 };
 
+struct node_ast
+{
+    std::string name;
+    std::string code;
+    std::string global_define;
+    std::map<std::string, std::string> inputs;
+    std::map<int, std::string> input_ids;
+    std::map<std::string, std::string> outputs;
+    std::map<int, std::string> output_ids;
+
+    void add_input(int rex_id, const std::string &name)
+    {
+        auto id_str = "$" + std::to_string(rex_id);
+        input_ids.insert({rex_id, id_str});
+        inputs.insert({id_str, name});
+    }
+    void add_output(int rex_id, const std::string &name)
+    {
+        auto id_str = "$" + std::to_string(rex_id);
+        output_ids.insert({rex_id, id_str});
+        outputs.insert({id_str, name});
+    }
+};
+
 struct Node
 {
     ed::NodeId ID;
@@ -364,6 +388,7 @@ struct Node
 
     node_ui ui;
     std::shared_ptr<node_state_value> state_value;
+    node_ast ast;
 
     Node(int id, const char *name, ImColor color = ImColor(255, 255, 255)) : ID(id), Name(name), Color(color), Type(NodeType::Blueprint), Size(0, 0)
     {
@@ -389,6 +414,8 @@ struct Node
         IsRunning.store(node.IsRunning.load());
         RunningThreadId.store(node.RunningThreadId.load());
         ui = node.ui;
+        state_value = node.state_value;
+        ast = node.ast;
     }
     Node &operator=(const Node &node)
     {
@@ -412,6 +439,8 @@ struct Node
             IsRunning.store(node.IsRunning.load());
             RunningThreadId.store(node.RunningThreadId.load());
             ui = node.ui;
+            state_value = node.state_value;
+            ast = node.ast;
         }
         return *this;
     }
@@ -435,6 +464,8 @@ struct Node
         IsRunning.store(node.IsRunning.load());
         RunningThreadId.store(node.RunningThreadId.load());
         ui = node.ui;
+        state_value = node.state_value;
+        ast = node.ast;
     }
     Node &operator=(Node &&node)
     {
@@ -458,6 +489,8 @@ struct Node
             IsRunning.store(node.IsRunning.load());
             RunningThreadId.store(node.RunningThreadId.load());
             ui = node.ui;
+            state_value = node.state_value;
+            ast = node.ast;
         }
         return *this;
     }
@@ -623,6 +656,8 @@ struct Graph
         Graph *graph;
         Application *app;
 
+        std::map<int, Node *> sorted_nodes;
+
         void ExecuteNode(Node *node)
         {
             if (node->has_execute_mothod())
@@ -749,7 +784,9 @@ struct Graph
                 // 并行执行节点
                 std::vector<std::future<void>> futures;
                 for (auto &node : can_run_nodes)
-                { // 添加到运行节点列表
+                {
+                    sorted_nodes.insert({(int)sorted_nodes.size(), node});
+                    // 添加到运行节点列表
                     futures.push_back(std::async(std::launch::async, [this, node]
                                                  { ExecuteNode(node); }));
                 }
@@ -916,6 +953,8 @@ struct Graph
 
     void auto_arrange();
 
+    void gen_ast_code();
+
     bool serialize(std::string &json_buff);
     bool deserialize(const std::string &json_buff);
 };
@@ -978,6 +1017,7 @@ inline bool Graph::deserialize(const std::string &json_buff)
                                                  g.Nodes, this->env.app);
                     n.OnExecute = tmp_node->OnExecute;
                     n.state_value = tmp_node->state_value;
+                    n.ast = tmp_node->ast;
                     for (auto &input : n.Inputs)
                     {
                         input.app = this->env.app;

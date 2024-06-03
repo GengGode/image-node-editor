@@ -370,6 +370,32 @@ void Graph::auto_arrange()
     }
 }
 
+void Graph::gen_ast_code()
+{
+    std::map<std::string, std::string> global_codes;
+    for (auto &node : Nodes)
+    {
+        if (global_codes.find(node.Name) != global_codes.end())
+            continue;
+        if (node.ast.global_define.empty())
+            continue;
+        global_codes.insert({node.Name, node.ast.global_define});
+    }
+    std::string global_defines;
+    for (auto &[_, code] : global_codes)
+        global_defines += code + "\n";
+    std::cout << global_defines << "\n";
+
+    std::string ast_code;
+    for (auto &[_, node] : env.sorted_nodes)
+    {
+        if (node == nullptr)
+            continue;
+        ast_code += node->ast.code + "\n";
+    }
+    std::cout << ast_code << "\n";
+}
+
 void node_ui::draw_input_pin(Pin &input)
 {
 
