@@ -1,8 +1,8 @@
 #ifndef BASE_NODE_HPP
 #define BASE_NODE_HPP
 
-#include <imgui.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
+#include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui_node_editor.h>
 #include <application.h>
