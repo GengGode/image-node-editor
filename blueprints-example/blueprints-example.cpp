@@ -633,8 +633,29 @@ struct Example : public Application
                                         auto convert_node_size = ed::GetNodeSize(convert_node->ID);
                                         ed::SetNodePosition(convert_node->ID, end_node_pos - ImVec2(convert_node_size.x + 200, 0));
 
-                                        m_Graph.Links.emplace_back(Link(m_Graph.get_next_id(), startPinId, convert_node->Inputs[0].ID));
-                                        m_Graph.Links.emplace_back(Link(m_Graph.get_next_id(), convert_node->Outputs[0].ID, endPinId));
+                                        auto input_pin_type = startPin->Type;
+                                        auto output_pin_type = endPin->Type;
+                                        int input_type_index_for_convert_node = 0;
+                                        int output_type_index_for_convert_node = 0;
+                                        for (int i = 0; i < convert_node->Inputs.size(); i++)
+                                        {
+                                            if (convert_node->Inputs[i].Type == input_pin_type)
+                                            {
+                                                input_type_index_for_convert_node = i;
+                                                break;
+                                            }
+                                        }
+                                        for (int i = 0; i < convert_node->Outputs.size(); i++)
+                                        {
+                                            if (convert_node->Outputs[i].Type == output_pin_type)
+                                            {
+                                                output_type_index_for_convert_node = i;
+                                                break;
+                                            }
+                                        }
+                                        // TODO: 存在问题，会导致崩溃
+                                        m_Graph.Links.emplace_back(Link(m_Graph.get_next_id(), startPinId, convert_node->Inputs[input_type_index_for_convert_node].ID));
+                                        m_Graph.Links.emplace_back(Link(m_Graph.get_next_id(), convert_node->Outputs[output_type_index_for_convert_node].ID, endPinId));
                                         m_Graph.Links.back().Color = ui::GetIconColor(startPin->Type);
                                         m_Graph.Links.back().Color = ui::GetIconColor(endPin->Type);
                                     }

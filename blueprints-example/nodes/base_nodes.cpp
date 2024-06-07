@@ -1167,4 +1167,18 @@ std::map<std::pair<PinType, PinType>, NodeWorldGlobal::NodeFactory_t> NodeWorldG
     {{PinType::String, PinType::Float}, SpawnStringToFloatNode},
     {{PinType::Size, PinType::Point}, Spawn_ImageOperator_SizeToPoint},
     {{PinType::Point, PinType::Size}, Spawn_ImageOperator_PointToSize},
+
+    {{PinType::Int, PinType::Point}, Spawn_ImageOperator_IntToPoint},
+    {{PinType::Int, PinType::Size}, Spawn_ImageOperator_IntToSize},
+    {{PinType::Int, PinType::Rect}, Spawn_ImageOperator_IntToRect},
+
+    {{PinType::Point, PinType::Int}, Spawn_ImageOperator_PointToInt},
+    {{PinType::Size, PinType::Int}, Spawn_ImageOperator_SizeToInt},
+    {{PinType::Rect, PinType::Int}, Spawn_ImageOperator_RectToInt},
+
+    {{PinType::Point, PinType::Rect}, Spawn_ImageOperator_PointAndSizeToRect},
+    {{PinType::Size, PinType::Rect}, Spawn_ImageOperator_PointAndSizeToRect},
+
+    {{PinType::Rect, PinType::Point}, Spawn_ImageOperator_RectToPointAndSize},
+    {{PinType::Rect, PinType::Size}, Spawn_ImageOperator_RectToPointAndSize},
 };
