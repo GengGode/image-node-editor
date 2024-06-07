@@ -63,8 +63,10 @@ Node *Spawn_ImageViewer(const std::function<int()> &GetNextId, const std::functi
         catch_block_and_return;
     };
 
-    BuildNode(&node);
+    node.ast.code = "cv::imshow(\"Image\", $0);";
+    node.ast.add_params({"image"});
 
+    BuildNode(&node);
     return &node;
 }
 
@@ -121,8 +123,10 @@ Node *Spawn_ImageWriteLocalFile(const std::function<int()> &GetNextId, const std
         catch_block_and_return;
     };
 
-    BuildNode(&node);
+    node.ast.code = "cv::imwrite($1, $0);";
+    node.ast.add_params({"image", "path"});
 
+    BuildNode(&node);
     return &node;
 }
 
@@ -243,6 +247,13 @@ Node *Spawn_ImageWriteRawFile(const std::function<int()> &GetNextId, const std::
 
         catch_block_and_return;
     };
+
+    node.ast.code = "std::ofstream file($1, std::ios::binary);"
+                    "if (!file.is_open()) return;"
+                    "file.write($4.c_str(), $4.size());"
+                    "file.write(reinterpret_cast<char*>($0.data), $0.cols * $0.rows * $0.channels() * static_cast<int>($0.elemSize1()));";
+    node.ast.add_params({"image", "path", "depth", "little_endian", "header"});
+
     BuildNode(&node);
     return &node;
 }
@@ -258,9 +269,6 @@ Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, co
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "宽度");
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "高度");
 
-    node.Outputs[1].app = app;
-    node.Outputs[2].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
@@ -274,6 +282,11 @@ Node *Spawn_ImageOperator_ImageGetSize(const std::function<int()> &GetNextId, co
         }
         catch_block_and_return;
     };
+
+    node.ast.code = "cv::Size $1 = $0.size();"
+                    "int $2 = $0.cols;"
+                    "int $3 = $0.rows;";
+    node.ast.add_params({"image", "size", "width", "height"});
 
     BuildNode(&node);
     return &node;
@@ -292,11 +305,6 @@ Node *Spawn_ImageOperator_ImageGetRect(const std::function<int()> &GetNextId, co
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "宽度");
     node.Outputs.emplace_back(GetNextId(), PinType::Int, "高度");
 
-    node.Outputs[1].app = app;
-    node.Outputs[2].app = app;
-    node.Outputs[3].app = app;
-    node.Outputs[4].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
@@ -313,6 +321,13 @@ Node *Spawn_ImageOperator_ImageGetRect(const std::function<int()> &GetNextId, co
         }
         catch_block_and_return;
     };
+
+    node.ast.code = "cv::Rect $1(0, 0, $0.cols, $0.rows);"
+                    "int $2 = $1.x;"
+                    "int $3 = $1.y;"
+                    "int $4 = $1.width;"
+                    "int $5 = $1.height;";
+    node.ast.add_params({"image", "rect", "x", "y", "width", "height"});
 
     BuildNode(&node);
     return &node;
@@ -339,6 +354,9 @@ Node *Spawn_ImageOperator_ImageGetChannels(const std::function<int()> &GetNextId
         catch_block_and_return;
     };
 
+    node.ast.code = "int $1 = $0.channels();";
+    node.ast.add_params({"image", "channels"});
+
     BuildNode(&node);
     return &node;
 }
@@ -364,6 +382,9 @@ Node *Spawn_ImageOperator_ImageGetDepth(const std::function<int()> &GetNextId, c
         catch_block_and_return;
     };
 
+    node.ast.code = "int $1 = $0.depth();";
+    node.ast.add_params({"image", "depth"});
+
     BuildNode(&node);
     return &node;
 }
@@ -380,10 +401,6 @@ Node *Spawn_ImageOperator_ImageGetAllInfo(const std::function<int()> &GetNextId,
     node.Outputs.emplace_back(GetNextId(), "通道数", PinType::Int);
     node.Outputs.emplace_back(GetNextId(), "位深", PinType::Int);
 
-    node.Outputs[1].app = app;
-    node.Outputs[2].app = app;
-    node.Outputs[3].app = app;
-
     node.OnExecute = [](Graph *graph, Node *node) -> ExecuteResult
     {
         cv::Mat image;
@@ -398,6 +415,12 @@ Node *Spawn_ImageOperator_ImageGetAllInfo(const std::function<int()> &GetNextId,
         }
         catch_block_and_return;
     };
+
+    node.ast.code = "cv::Size $1 = $0.size();"
+                    "cv::Point $2($0.cols / 2, $0.rows / 2);"
+                    "int $3 = $0.channels();"
+                    "int $4 = $0.depth();";
+    node.ast.add_params({"image", "size", "center", "channels", "depth"});
 
     BuildNode(&node);
     return &node;
@@ -428,6 +451,9 @@ Node *Spawn_ImageOperator_ImageGetRectImage(const std::function<int()> &GetNextI
         }
         catch_block_and_return;
     };
+
+    node.ast.code = "cv::Mat $2 = $0($1);";
+    node.ast.add_params({"image", "rect", "rect_image"});
 
     BuildNode(&node);
     return &node;
@@ -474,6 +500,10 @@ Node *Spawn_ImageOperator_RectImageToImage(const std::function<int()> &GetNextId
         catch_block_and_return;
     };
 
+    node.ast.code = "cv::Mat $3 = $0.clone();"
+                    "$2.copyTo($3($1));";
+    node.ast.add_params({"image", "rect", "overlay", "result_image"});
+
     BuildNode(&node);
     return &node;
 }
@@ -510,6 +540,9 @@ Node *Spawn_ImageOperator_ImageReSize(const std::function<int()> &GetNextId, con
         catch_block_and_return;
     };
 
+    node.ast.code = "cv::resize($0, $3, cv::Size($1, $2));";
+    node.ast.add_params({"image", "width", "height", "resize"});
+
     BuildNode(&node);
     return &node;
 }
@@ -541,8 +574,10 @@ Node *Spawn_ImageOperator_MaskImage(const std::function<int()> &GetNextId, const
         catch_block_and_return;
     };
 
-    BuildNode(&node);
+    node.ast.code = "cv::bitwise_and($0, $1, $2);";
+    node.ast.add_params({"image", "mask", "masked_image"});
 
+    BuildNode(&node);
     return &node;
 }
 
@@ -557,10 +592,6 @@ Node *Spawn_ImageOperator_ImageChannelSplit(const std::function<int()> &GetNextI
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 2");
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 3");
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "通道 4");
-
-    node.Outputs[1].app = app;
-    node.Outputs[2].app = app;
-    node.Outputs[3].app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -585,8 +616,16 @@ Node *Spawn_ImageOperator_ImageChannelSplit(const std::function<int()> &GetNextI
         catch_block_and_return;
     };
 
-    BuildNode(&node);
+    node.ast.code = "std::vector<cv::Mat> $1;"
+                    "cv::Mat $2, $3, $4, $5;"
+                    "cv::split($0, $1);"
+                    "if ($1.size() > 0) $2 = $1[0];"
+                    "if ($1.size() > 1) $3 = $1[1];"
+                    "if ($1.size() > 2) $4 = $1[2];"
+                    "if ($1.size() > 3) $5 = $1[3];";
+    node.ast.add_params({"image", "channels", "channel0", "channel1", "channel2", "channel3"});
 
+    BuildNode(&node);
     return &node;
 }
 
@@ -633,6 +672,15 @@ Node *Spawn_ImageOperator_ImageChannelMerge(const std::function<int()> &GetNextI
         catch_block_and_return;
     };
 
+    node.ast.code = "std::vector<cv::Mat> $1;"
+                    "cv::Mat $2;"
+                    "$1.push_back($3);"
+                    "$1.push_back($4);"
+                    "$1.push_back($5);"
+                    "if (!$6.empty()) $1.push_back($6);"
+                    "cv::merge($1, $2);";
+    node.ast.add_params({"_", "channels", "image", "channel0", "channel1", "channel2", "channel3"});
+
     BuildNode(&node);
     return &node;
 }
@@ -664,8 +712,10 @@ Node *Spawn_ImageOperator_ImageAndMaskCopy(const std::function<int()> &GetNextId
         catch_block_and_return;
     };
 
-    BuildNode(&node);
+    node.ast.code = "$0.copyTo($2, $1);";
+    node.ast.add_params({"image", "mask", "result"});
 
+    BuildNode(&node);
     return &node;
 }
 
@@ -707,8 +757,19 @@ Node *Spawn_ImageOperator_OcrText(const std::function<int()> &GetNextId, const s
         catch_block_and_return;
     };
 
-    BuildNode(&node);
+    node.ast.code = "cv::Mat $1 = $0;"
+                    "if ($0.channels() == 1) cv::cvtColor($0, $1, cv::COLOR_GRAY2BGR);"
+                    "if ($1.channels() == 4) cv::cvtColor($1, $1, cv::COLOR_BGRA2BGR);"
+                    "auto $2 = $1.data;"
+                    "auto $3 = $1.channels() * $1.cols * $1.rows;"
+                    "char $4[1024] = {0};"
+                    "auto $5 = ocr_image_data($1.cols, $1.rows, (const char*)$2, $3, $4, 1024);"
+                    "if ($5 != 0) return;"
+                    "std::string $6 = std::string($4);";
+    node.ast.add_params({"image", "roi", "data", "data_size", "result", "error_code", "text"});
+    node.ast.global_define = "#include <libocr.h>";
 
+    BuildNode(&node);
     return &node;
 }
 
@@ -739,8 +800,11 @@ Node *Spawn_ImageOperator_HConcatenateImages(const std::function<int()> &GetNext
         catch_block_and_return;
     };
 
-    BuildNode(&node);
+    node.ast.code = "cv::Mat $2;"
+                    "cv::hconcat($0, $1, $2);";
+    node.ast.add_params({"left_image", "right_image", "result"});
 
+    BuildNode(&node);
     return &node;
 }
 
@@ -771,8 +835,11 @@ Node *Spawn_ImageOperator_VConcatenateImages(const std::function<int()> &GetNext
         catch_block_and_return;
     };
 
-    BuildNode(&node);
+    node.ast.code = "cv::Mat $2;"
+                    "cv::vconcat($0, $1, $2);";
+    node.ast.add_params({"top_image", "bottom_image", "result"});
 
+    BuildNode(&node);
     return &node;
 }
 
@@ -790,9 +857,6 @@ Node *Spawn_ImageOperator_GridSplitImages(const std::function<int()> &GetNextId,
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "Image 0, 1");
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "Image 1, 0");
     node.Outputs.emplace_back(GetNextId(), PinType::Image, "Image 1, 1");
-
-    for (auto &output : node.Outputs)
-        output.app = app;
 
     node.OnExecute = [](Graph *graph, Node *node)
     {
@@ -855,7 +919,6 @@ Node *Spawn_ImageOperator_GridSplitImages(const std::function<int()> &GetNextId,
     };
 
     BuildNode(&node);
-
     return &node;
 }
 

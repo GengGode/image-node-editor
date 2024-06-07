@@ -327,22 +327,19 @@ struct node_ast
     std::string name;
     std::string code;
     std::string global_define;
-    std::map<std::string, std::string> inputs;
-    std::map<int, std::string> input_ids;
-    std::map<std::string, std::string> outputs;
-    std::map<int, std::string> output_ids;
+    std::map<std::string, std::string> params;
+    std::map<int, std::string> param_ids;
 
-    void add_input(int rex_id, const std::string &name)
+    void add_param(int rex_id, const std::string &name)
     {
         auto id_str = "$" + std::to_string(rex_id);
-        input_ids.insert({rex_id, id_str});
-        inputs.insert({id_str, name});
+        param_ids.insert({rex_id, id_str});
+        params.insert({id_str, name});
     }
-    void add_output(int rex_id, const std::string &name)
+    void add_params(const std::vector<std::string> &params)
     {
-        auto id_str = "$" + std::to_string(rex_id);
-        output_ids.insert({rex_id, id_str});
-        outputs.insert({id_str, name});
+        for (int i = 0; i < params.size(); i++)
+            add_param(i, params[i]);
     }
 };
 
