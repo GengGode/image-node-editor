@@ -590,6 +590,15 @@ struct GraphUi
     void draw_links();
     void draw_virtual_links();
 };
+struct graph_algorithm
+{
+    using cycle = std::vector<Node *>;
+
+    Graph *graph;
+
+    void dfs(Node *node, std::map<Node *, int> &indegree, std::vector<Node *> &stack, std::map<Node *, bool> &visited, std::vector<cycle> &cycles);
+    std::vector<cycle> find_all_cycles();
+};
 
 struct Graph
 {
