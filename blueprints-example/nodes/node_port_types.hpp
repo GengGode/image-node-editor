@@ -171,6 +171,31 @@ static const std::map<PinType, std::string> typeLabelNames = {
     {PinType::ArrayElement, "数组元素"},
     {PinType::Object, "任意对象"},
 };
+static const std::map<PinType, bool> typeHasContainerMap = {
+    {PinType::Int, false},
+    {PinType::Float, false},
+    {PinType::Bool, false},
+    {PinType::String, false},
+    {PinType::Image, false},
+    {PinType::Rect, false},
+    {PinType::Size, false},
+    {PinType::Point, false},
+    {PinType::Color, false},
+    {PinType::Contour, true},
+    {PinType::Contours, true},
+    {PinType::KeyPoint, true},
+    {PinType::KeyPoints, true},
+    {PinType::Feature, true},
+    {PinType::Match, true},
+    {PinType::Matches, true},
+    {PinType::Circles, true},
+    {PinType::EnumClass, false},
+    {PinType::Enum, false},
+    {PinType::Win32Handle, false},
+    {PinType::Array, true},
+    {PinType::ArrayElement, false},
+    {PinType::Object, false},
+};
 
 template <typename T>
 static bool is_equal(const T &lft, const T &rht)
