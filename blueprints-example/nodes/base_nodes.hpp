@@ -567,6 +567,11 @@ struct Link
     Link(ed::LinkId id, ed::PinId startPinId, ed::PinId endPinId) : ID(id), StartPinID(startPinId), EndPinID(endPinId), Color(255, 255, 255)
     {
     }
+
+    bool is_self_link()
+    {
+        return StartPinID == EndPinID;
+    }
 };
 
 struct GraphUi
@@ -696,6 +701,8 @@ struct Graph
                         auto links = graph->FindPinLinks(input.ID);
                         for (auto &link : links)
                         {
+                            if (link->is_self_link())
+                                continue;
                             auto beginpin = graph->FindPin(link->StartPinID);
                             if (beginpin == nullptr)
                                 continue;
@@ -718,6 +725,9 @@ struct Graph
                         auto links = graph->FindPinLinks(output.ID);
                         for (auto &link : links)
                         {
+                            // FIX: 自连接会导致运行不到
+                            if (link->is_self_link())
+                                continue;
                             auto endpin = graph->FindPin(link->EndPinID);
                             if (endpin == nullptr)
                                 continue;
