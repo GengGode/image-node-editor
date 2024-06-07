@@ -1,4 +1,4 @@
-﻿/******************************************************************************************
+/******************************************************************************************
 *                                                                                         *
 *    Notifier                                                                             *
 *                                                                                         *
@@ -85,6 +85,7 @@ void Notifier::DrawNotifications()
         const auto rightCorner = ImVec2(ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x, ImGui::GetMainViewport()->Pos.y + ImGui::GetMainViewport()->Size.y);
         ImGui::SetNextWindowPos(ImVec2(rightCorner.x - xPadding, rightCorner.y - yPadding - height), ImGuiCond_Always, ImVec2(1.0f, 1.0f));
         ImGui::Begin(notifName.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoFocusOnAppearing);
+        ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
         ImGui::PushTextWrapPos(ImGui::GetMainViewport()->Size.x * wrapRatio);
         const auto icon = notif->GetIcon();
         auto iconColor = notif->GetColor();
