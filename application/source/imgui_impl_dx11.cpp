@@ -622,7 +622,7 @@ static bool ImGui_UploadTexture(TEXTURE* texture)
     desc.Height             = texture->Height;
     desc.MipLevels          = 1;
     desc.ArraySize          = 1;
-    desc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.Format             = DXGI_FORMAT_B8G8R8A8_UNORM;
     desc.SampleDesc.Count   = 1;
     desc.Usage              = D3D11_USAGE_DEFAULT;
     desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE;
@@ -641,7 +641,7 @@ static bool ImGui_UploadTexture(TEXTURE* texture)
 
     // Create texture view
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.Format                    = DXGI_FORMAT_B8G8R8A8_UNORM;
     srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels       = desc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
