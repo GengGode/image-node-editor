@@ -543,6 +543,7 @@ struct Example : public Application
 
         ImGui::SameLine(0.0f, 12.0f);
 
+        ImGui::Begin("Context");
         ed::Begin("Node editor");
         {
             auto cursorTopLeft = ImGui::GetCursorScreenPos();
@@ -883,6 +884,7 @@ struct Example : public Application
 #endif
 
         ed::End();
+        ImGui::End();
 
         Node *output_node = nullptr;
         for (auto &node : m_Graph.Nodes)
