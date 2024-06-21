@@ -30,8 +30,10 @@
 
 #include <climits>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
-namespace ImGuiWidgetFlameGraph {
-    IMGUI_API void PlotFlame(const char* label, void (*values_getter)(float* start, float* end, ImU8* level, const char** caption, const void* data, int idx), const void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0));
+namespace ImGuiWidgetFlameGraph
+{
+    IMGUI_API void PlotFlame(const char *label, void (*values_getter)(float *start, float *end, ImU8 *level, const char **caption, const void *data, int idx), const void *data, int values_count, int values_offset = 0, const char *overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0));
 }

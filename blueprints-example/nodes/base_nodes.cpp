@@ -411,7 +411,7 @@ void node_ui::draw_input_pin(Pin &input)
             input.SetValue(value, [this]()
                            { this->graph->env.need_execute(); });
         }
-        ImGui::Spring(0);
+        ImGui::Spacing();
     }
     if (input.Type == PinType::Int)
     {
@@ -428,7 +428,7 @@ void node_ui::draw_input_pin(Pin &input)
             input.SetValue(value, [this]()
                            { this->graph->env.need_execute(); });
         }
-        ImGui::Spring(0);
+        ImGui::Spacing();
     }
     if (input.Type == PinType::Float)
     {
@@ -445,7 +445,7 @@ void node_ui::draw_input_pin(Pin &input)
             input.SetValue(value, [this]()
                            { this->graph->env.need_execute(); });
         }
-        ImGui::Spring(0);
+        ImGui::Spacing();
     }
     if (input.Type == PinType::String)
     {
@@ -465,7 +465,7 @@ void node_ui::draw_input_pin(Pin &input)
                            { this->graph->env.need_execute(); });
         }
 
-        ImGui::Spring(0);
+        ImGui::Spacing();
     }
     if (input.Type == PinType::Enum)
     {
@@ -484,7 +484,7 @@ void node_ui::draw_input_pin(Pin &input)
             input.SetValue(enum_value, [this]()
                            { this->graph->env.need_execute(); });
         }
-        ImGui::Spring(0);
+        ImGui::Spacing();
     }
 }
 
@@ -508,7 +508,7 @@ void node_ui::draw_output_pin(Pin &output)
                 output.SetValue(std::string(buffer), [this]()
                                 { this->graph->env.need_execute(); });
             }
-            ImGui::Spring(0);
+            ImGui::Spacing();
         }
     }
     if (output.Type == PinType::KeyPoints)
@@ -523,7 +523,7 @@ void node_ui::draw_output_pin(Pin &output)
             ImGui::Text("数量: %d", size);
             ImGui::PopItemWidth();
 
-            ImGui::Spring(0);
+            ImGui::Spacing();
         }
     }
     if (output.Type == PinType::Feature)
@@ -538,7 +538,7 @@ void node_ui::draw_output_pin(Pin &output)
             ImGui::Text("数量: %d", size);
             ImGui::PopItemWidth();
 
-            ImGui::Spring(0);
+            ImGui::Spacing();
         }
     }
     if (output.Type == PinType::Matches)
@@ -553,7 +553,7 @@ void node_ui::draw_output_pin(Pin &output)
             ImGui::Text("数量: %d", size);
             ImGui::PopItemWidth();
 
-            ImGui::Spring(0);
+            ImGui::Spacing();
         }
     }
     if (output.Type == PinType::Circles)
@@ -568,7 +568,7 @@ void node_ui::draw_output_pin(Pin &output)
             ImGui::Text("数量: %d", size);
             ImGui::PopItemWidth();
 
-            ImGui::Spring(0);
+            ImGui::Spacing();
         }
     }
     if (output.Type == PinType::Enum)
@@ -591,10 +591,10 @@ void node_ui::draw_output_pin(Pin &output)
         }
         ImGui::PushItemWidth(max_text_width + 20.0f);
         // 直接绘制一个列表
-        ImGui::BeginVertical("##combo_show");
+        ImGui::BeginChild("##combo_show");
         for (int i = 0; i < enums.size(); i++)
         {
-            ImGui::BeginHorizontal(std::string("##combo_show_" + std::to_string(i)).c_str());
+            ImGui::BeginChild(std::string("##combo_show_" + std::to_string(i)).c_str());
             // ImGui::BeginChild("##combo_show_child", ImVec2(100, 20));
             ImGui::LabelText("##combo_show_label", "%s", enums[i].c_str());
             bool is_selected = (value == i);
@@ -602,9 +602,9 @@ void node_ui::draw_output_pin(Pin &output)
             if (is_selected)
                 value = i;
             // ImGui::EndChild();
-            ImGui::EndHorizontal();
+            ImGui::EndChild();
         }
-        ImGui::EndVertical();
+        ImGui::EndChild();
 
         ImGui::PopItemWidth();
         if (value != last_index)
@@ -612,7 +612,7 @@ void node_ui::draw_output_pin(Pin &output)
             output.SetValue(enum_value, [this]()
                             { this->graph->env.need_execute(); });
         }
-        ImGui::Spring(0);
+        ImGui::Spacing();
     }
 
     if (output.Type == PinType::Image)
@@ -620,7 +620,7 @@ void node_ui::draw_output_pin(Pin &output)
         if (output.HasImage())
         {
             ImGui::Image((void *)(intptr_t)output.ImageTexture, ImVec2(100, 100));
-            ImGui::Spring(0);
+            ImGui::Spacing();
         }
     }
 }
@@ -705,14 +705,14 @@ void node_ui::draw_comment_node(Node *node)
     ed::PushStyleColor(ed::StyleColor_NodeBorder, ImColor(255, 255, 255, 64));
     ed::BeginNode(node->ID);
     ImGui::PushID(node->ID.AsPointer());
-    ImGui::BeginVertical("content");
-    ImGui::BeginHorizontal("horizontal");
-    ImGui::Spring(1);
+    ImGui::BeginChild("content");
+    ImGui::BeginChild("horizontal");
+    ImGui::Spacing();
     ImGui::TextUnformatted(node->Name.c_str());
-    ImGui::Spring(1);
-    ImGui::EndHorizontal();
+    ImGui::Spacing();
+    ImGui::EndChild();
     ed::Group(node->Size);
-    ImGui::EndVertical();
+    ImGui::EndChild();
     ImGui::PopID();
     ed::EndNode();
     ed::PopStyleColor(2);
@@ -790,7 +790,7 @@ void node_ui::draw_image_node(Node *node)
         }
         else
             node->graph->ui.builder->Header(node->Color);
-        ImGui::Spring(0);
+        ImGui::Spacing();
         ImGui::TextUnformatted(node->Name.c_str());
         if (node->graph->ui.has_error && ImGui::IsItemHovered())
         {
@@ -798,12 +798,12 @@ void node_ui::draw_image_node(Node *node)
             if (std::holds_alternative<ed::NodeId>(error_source))
                 node->graph->ui.has_error_and_hovered_on_node = true;
         }
-        ImGui::Spring(1);
+        ImGui::Spacing();
         ImGui::Dummy(ImVec2(0, 28));
         if (hasOutputDelegates)
         {
-            ImGui::BeginVertical("delegates", ImVec2(0, 28));
-            ImGui::Spring(1, 0);
+            ImGui::BeginChild("delegates", ImVec2(0, 28));
+            ImGui::Spacing();
             for (auto &output : node->Outputs)
             {
                 if (output.Type != PinType::Delegate)
@@ -816,27 +816,27 @@ void node_ui::draw_image_node(Node *node)
                 ed::BeginPin(output.ID, ed::PinKind::Output);
                 ed::PinPivotAlignment(ImVec2(1.0f, 0.5f));
                 ed::PinPivotSize(ImVec2(0, 0));
-                ImGui::BeginHorizontal(output.ID.AsPointer());
+                ImGui::BeginChild(std::to_string((int)output.ID.AsPointer()).c_str());
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
                 if (!output.Name.empty())
                 {
                     ImGui::TextUnformatted(output.Name.c_str());
-                    ImGui::Spring(0);
+                    ImGui::Spacing();
                 }
                 ui::DrawPinIcon(output, graph->IsPinLinked(output.ID), (int)(alpha * 255));
-                ImGui::Spring(0, ImGui::GetStyle().ItemSpacing.x / 2);
-                ImGui::EndHorizontal();
+                ImGui::Spacing();
+                ImGui::EndChild();
                 ImGui::PopStyleVar();
                 ed::EndPin();
 
                 DrawItemRect(ImColor(255, 0, 0));
             }
-            ImGui::Spring(1, 0);
-            ImGui::EndVertical();
-            ImGui::Spring(0, ImGui::GetStyle().ItemSpacing.x / 2);
+            ImGui::Spacing();
+            ImGui::EndChild();
+            ImGui::Spacing();
         }
         else
-            ImGui::Spring(0);
+            ImGui::Spacing();
         node->graph->ui.builder->EndHeader();
     }
 
@@ -887,7 +887,7 @@ void node_ui::draw_image_node(Node *node)
     if (!isSimple)
     {
         // builder->Footer();
-        ImGui::Spring(1);
+        ImGui::Spacing();
         std::string footer = "耗时：" + node->get_last_execute_time();
         ImGui::TextUnformatted(footer.c_str());
         if (node->is_running())
@@ -958,7 +958,7 @@ void node_ui::draw_flow_node(Node *node)
         }
         else
             node->graph->ui.builder->Header(node->Color);
-        ImGui::Spring(0);
+        ImGui::Spacing();
         ImGui::TextUnformatted(node->Name.c_str());
         if (node->graph->ui.has_error && ImGui::IsItemHovered())
         {
@@ -966,12 +966,12 @@ void node_ui::draw_flow_node(Node *node)
             if (std::holds_alternative<ed::NodeId>(error_source))
                 node->graph->ui.has_error_and_hovered_on_node = true;
         }
-        ImGui::Spring(1);
+        ImGui::Spacing();
         ImGui::Dummy(ImVec2(0, 28));
         if (hasOutputDelegates)
         {
-            ImGui::BeginVertical("delegates", ImVec2(0, 28));
-            ImGui::Spring(1, 0);
+            ImGui::BeginChild("delegates", ImVec2(0, 28));
+            ImGui::Spacing();
             for (auto &output : node->Outputs)
             {
                 if (output.Type != PinType::Delegate)
@@ -984,27 +984,27 @@ void node_ui::draw_flow_node(Node *node)
                 ed::BeginPin(output.ID, ed::PinKind::Output);
                 ed::PinPivotAlignment(ImVec2(1.0f, 0.5f));
                 ed::PinPivotSize(ImVec2(0, 0));
-                ImGui::BeginHorizontal(output.ID.AsPointer());
+                ImGui::BeginChild(std::to_string((int)output.ID.AsPointer()).c_str());
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
                 if (!output.Name.empty())
                 {
                     ImGui::TextUnformatted(output.Name.c_str());
-                    ImGui::Spring(0);
+                    ImGui::Spacing();
                 }
                 ui::DrawPinIcon(output, graph->IsPinLinked(output.ID), (int)(alpha * 255));
-                ImGui::Spring(0, ImGui::GetStyle().ItemSpacing.x / 2);
-                ImGui::EndHorizontal();
+                ImGui::Spacing();
+                ImGui::EndChild();
                 ImGui::PopStyleVar();
                 ed::EndPin();
 
                 DrawItemRect(ImColor(255, 0, 0));
             }
-            ImGui::Spring(1, 0);
-            ImGui::EndVertical();
-            ImGui::Spring(0, ImGui::GetStyle().ItemSpacing.x / 2);
+            ImGui::Spacing();
+            ImGui::EndChild();
+            ImGui::Spacing();
         }
         else
-            ImGui::Spring(0);
+            ImGui::Spacing();
         node->graph->ui.builder->EndHeader();
     }
 
@@ -1055,7 +1055,7 @@ void node_ui::draw_flow_node(Node *node)
     if (!isSimple)
     {
         // builder->Footer();
-        ImGui::Spring(1);
+        ImGui::Spacing();
         std::string footer = "耗时：" + node->get_last_execute_time();
         ImGui::TextUnformatted(footer.c_str());
         if (node->is_running())

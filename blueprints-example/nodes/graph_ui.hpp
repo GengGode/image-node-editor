@@ -48,11 +48,11 @@ inline void GraphUi::draw_node_input_pins(Node *node)
 
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
         ui::DrawPinIcon(input, graph->IsPinLinked(input.ID), (int)(alpha * 255));
-        ImGui::Spring(0);
+        ImGui::Spacing();
         if (!input.Name.empty())
         {
             ImGui::TextUnformatted(input.Name.c_str());
-            ImGui::Spring(0);
+            ImGui::Spacing();
         }
         if (node->Name == "图像查看器")
         {
@@ -62,7 +62,7 @@ inline void GraphUi::draw_node_input_pins(Node *node)
                 {
                     std::string name = "output " + std::to_string((int)(size_t)node->ID);
                     auto window = ImGui::FindWindowByName(name.c_str());
-                    ImGui::FocusWindow(window);
+                    // TODO: show window
                 }
             }
         }
@@ -75,7 +75,7 @@ inline void GraphUi::draw_node_input_pins(Node *node)
         if (this_input_has_error)
             ed::PopStyleColor();
 
-        if (has_error && ImGui::IsItemHovered())
+        if (this_input_has_error && ImGui::IsItemHovered())
         {
             auto &error_source = context_error_opt.value().Source;
             if (std::holds_alternative<ed::PinId>(error_source))
@@ -101,11 +101,11 @@ inline void GraphUi::draw_node_output_pins(Node *node)
 
         if (!output.Name.empty())
         {
-            ImGui::Spring(0);
+            ImGui::Spacing();
             ImGui::TextUnformatted(output.Name.c_str());
         }
 
-        ImGui::Spring(0);
+        ImGui::Spacing();
         ui::DrawPinIcon(output, graph->IsPinLinked(output.ID), (int)(alpha * 255));
         ImGui::PopStyleVar();
 

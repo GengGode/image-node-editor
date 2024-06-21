@@ -22,18 +22,18 @@
 
 #include "imgui_widget_flamegraph.h"
 
-#include "imgui.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui.h"
 #include "imgui_internal.h"
 
-void ImGuiWidgetFlameGraph::PlotFlame(const char* label, void (*values_getter)(float* start, float* end, ImU8* level, const char** caption, const void* data, int idx), const void* data, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size)
+void ImGuiWidgetFlameGraph::PlotFlame(const char *label, void (*values_getter)(float *start, float *end, ImU8 *level, const char **caption, const void *data, int idx), const void *data, int values_count, int values_offset, const char *overlay_text, float scale_min, float scale_max, ImVec2 graph_size)
 {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindow *window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return;
 
-    ImGuiContext& g = *GImGui;
-    const ImGuiStyle& style = g.Style;
+    ImGuiContext &g = *GImGui;
+    const ImGuiStyle &style = g.Style;
 
     // Find the maximum depth
     ImU8 maxDepth = 0;
@@ -92,7 +92,7 @@ void ImGuiWidgetFlameGraph::PlotFlame(const char* label, void (*values_getter)(f
         {
             float stageStart, stageEnd;
             ImU8 depth;
-            const char* caption;
+            const char *caption;
 
             values_getter(&stageStart, &stageEnd, &depth, &caption, data, i);
 
@@ -136,7 +136,7 @@ void ImGuiWidgetFlameGraph::PlotFlame(const char* label, void (*values_getter)(f
 
         // Text overlay
         if (overlay_text)
-            ImGui::RenderTextClipped(ImVec2(frame_bb.Min.x, frame_bb.Min.y + style.FramePadding.y), frame_bb.Max, overlay_text, NULL, NULL, ImVec2(0.5f,0.0f));
+            ImGui::RenderTextClipped(ImVec2(frame_bb.Min.x, frame_bb.Min.y + style.FramePadding.y), frame_bb.Max, overlay_text, NULL, NULL, ImVec2(0.5f, 0.0f));
 
         if (label_size.x > 0.0f)
             ImGui::RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, inner_bb.Min.y), label);

@@ -418,7 +418,7 @@ struct Example : public Application
             auto drawList = ImGui::GetWindowDrawList();
             ImGui::SetCursorScreenPos(iconPanelPos);
 
-            ImGui::SetItemAllowOverlap();
+            //ImGui::SetItemAllowOverlap();
             if (node.SavedState.empty())
             {
                 if (ImGui::InvisibleButton("save", ImVec2((float)saveIconWidth, (float)saveIconHeight)))
@@ -439,7 +439,7 @@ struct Example : public Application
 
             ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
-            ImGui::SetItemAllowOverlap();
+            // ImGui::SetItemAllowOverlap();
             if (!node.SavedState.empty())
             {
                 if (ImGui::InvisibleButton("restore", ImVec2((float)restoreIconWidth, (float)restoreIconHeight)))
@@ -464,7 +464,7 @@ struct Example : public Application
 
             ImGui::SameLine(0, 0);
 
-            ImGui::SetItemAllowOverlap();
+            // ImGui::SetItemAllowOverlap();
             ImGui::Dummy(ImVec2(0, (float)restoreIconHeight));
 
             ImGui::PopID();
