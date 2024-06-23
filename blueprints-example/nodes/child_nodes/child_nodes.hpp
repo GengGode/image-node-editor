@@ -921,5 +921,51 @@ Node *Spawn_ImageOperator_GridSplitImages(const std::function<int()> &GetNextId,
     BuildNode(&node);
     return &node;
 }
+static NodeWorldGlobal::FactoryGroupFunc_t ImageBaseNodes = {{"图像查看器", Spawn_ImageViewer},
+                                                             {"写入本地文件", Spawn_ImageWriteLocalFile},
+                                                             {"写入Raw文件", Spawn_ImageWriteRawFile},
+                                                             {"获取图像大小", Spawn_ImageOperator_ImageGetSize},
+                                                             {"获取图像范围", Spawn_ImageOperator_ImageGetRect},
+                                                             {"获取图像通道数", Spawn_ImageOperator_ImageGetChannels},
+                                                             {"获取图像深度", Spawn_ImageOperator_ImageGetDepth},
+                                                             {"获取图像信息", Spawn_ImageOperator_ImageGetAllInfo},};
+static NodeWorldGlobal::FactoryGroupFunc_t ImageOperationNodes = {
+    {"OCR 文本", Spawn_ImageOperator_OcrText},
+    {"Mask Image", Spawn_ImageOperator_MaskImage},
+    {"图像通道拆分", Spawn_ImageOperator_ImageChannelSplit},
+    {"图像通道合并", Spawn_ImageOperator_ImageChannelMerge},
+    {"获取遮罩图像", Spawn_ImageOperator_ImageAndMaskCopy},
+    {"调整图像大小", Spawn_ImageOperator_ImageReSize},
+    {"获取范围图像", Spawn_ImageOperator_ImageGetRectImage},
+    {"范围图像覆盖图像", Spawn_ImageOperator_RectImageToImage},
+    {"水平拼接图像", Spawn_ImageOperator_HConcatenateImages},
+    {"垂直拼接图像", Spawn_ImageOperator_VConcatenateImages},
+    {"网格拆分图像", Spawn_ImageOperator_GridSplitImages},
+};
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageBaseNodesFactorys = {
+    {"图像/图像查看器", Spawn_ImageViewer},
+    {"图像/写入/本地文件", Spawn_ImageWriteLocalFile},
+    {"图像/写入/Raw文件", Spawn_ImageWriteRawFile},
+    {"图像/获取/图像大小", Spawn_ImageOperator_ImageGetSize},
+    {"图像/获取/图像范围", Spawn_ImageOperator_ImageGetRect},
+    {"图像/获取/图像通道数", Spawn_ImageOperator_ImageGetChannels},
+    {"图像/获取/图像深度", Spawn_ImageOperator_ImageGetDepth},
+    {"图像/获取/图像信息", Spawn_ImageOperator_ImageGetAllInfo},
+};
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageOperationNodesFactorys = {
+    {"图像/操作/OCR 文本", Spawn_ImageOperator_OcrText},
+    {"图像/操作/Mask Image", Spawn_ImageOperator_MaskImage},
+    {"图像/操作/图像通道拆分", Spawn_ImageOperator_ImageChannelSplit},
+    {"图像/操作/图像通道合并", Spawn_ImageOperator_ImageChannelMerge},
+    {"图像/操作/获取遮罩图像", Spawn_ImageOperator_ImageAndMaskCopy},
+    {"图像/操作/调整图像大小", Spawn_ImageOperator_ImageReSize},
+    {"图像/操作/获取范围图像", Spawn_ImageOperator_ImageGetRectImage},
+    {"图像/操作/范围图像覆盖图像", Spawn_ImageOperator_RectImageToImage},
+    {"图像/操作/水平拼接图像", Spawn_ImageOperator_HConcatenateImages},
+    {"图像/操作/垂直拼接图像", Spawn_ImageOperator_VConcatenateImages},
+    {"图像/操作/网格拆分图像", Spawn_ImageOperator_GridSplitImages},
+};
 
 #endif // CHILD_NODES_HPP

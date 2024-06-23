@@ -642,3 +642,16 @@ static NodeWorldGlobal::FactoryGroupFunc_t MaaTaskFlowNodes = {
     {"maa 神经网络检测任务", Spawn_Maa_NeuralNetworkDetectTask},
     {"maa 自定义任务", Spawn_Maa_CustomTask},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> MaaTaskFlowNodesFactorys = {
+    {"MAA/入口任务", Spawn_Maa_StartupTask},
+    {"MAA/任务流动作枚举", Spawn_EnumOutputNode},
+    {"MAA/直接命中任务", Spawn_Maa_DirectHitTask},
+    {"MAA/模板匹配任务", Spawn_Maa_TemplateMatchTask},
+    {"MAA/特征匹配任务", Spawn_Maa_FeatureMatchTask},
+    {"MAA/颜色匹配任务", Spawn_Maa_ColorMatchTask},
+    {"MAA/OCR 任务", Spawn_Maa_OcrTask},
+    {"MAA/神经网络分类任务", Spawn_Maa_NeuralNetworkClassifyTask},
+    {"MAA/神经网络检测任务", Spawn_Maa_NeuralNetworkDetectTask},
+    {"MAA/自定义任务", Spawn_Maa_CustomTask},
+};

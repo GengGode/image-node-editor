@@ -100,3 +100,8 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorMatchNodes = {
     {"模板匹配", Spawn_ImageOperator_TemplateMatching},
     {"获取最值位置", Spawn_ImageOperator_MinMaxLoc},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageOperatorMatchNodesFactorys = {
+    {"图像/匹配/模板匹配", Spawn_ImageOperator_TemplateMatching},
+    {"图像/匹配/获取最值位置", Spawn_ImageOperator_MinMaxLoc},
+};

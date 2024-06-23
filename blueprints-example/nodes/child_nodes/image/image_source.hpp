@@ -19,3 +19,11 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageSourceNodes = {
     {"图像文件源", Spawn_ImageFileSource},
     {"图像Raw数据源", Spawn_ImageRawFileSource},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageSourceNodesFactorys = {
+    {"图像/源/窗口原生截图", Spawn_ImageWindowBitbltCapture},
+    {"图像/源/窗口图形截图", Spawn_ImageWindowGraphicCapture},
+    {"图像/源/本地图片列表", Spawn_ImageLocalImagesFromDir},
+    {"图像/源/图像文件源", Spawn_ImageFileSource},
+    {"图像/源/图像Raw数据源", Spawn_ImageRawFileSource},
+};

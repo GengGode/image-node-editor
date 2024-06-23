@@ -191,3 +191,12 @@ static NodeWorldGlobal::FactoryGroupFunc_t BaseStringNodes = {
     {"字符串查找", Spawn_StringOperator_Find},
     {"字符串截取", Spawn_StringOperator_Substring},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> BaseStringNodesFactorys = {
+    {"字符串/字符串长度", Spawn_StringOperator_Length},
+    {"字符串/字符串连接", Spawn_StringOperator_Concatenate},
+    {"字符串/字符串分割", Spawn_StringOperator_Split},
+    {"字符串/字符串替换", Spawn_StringOperator_Replace},
+    {"字符串/字符串查找", Spawn_StringOperator_Find},
+    {"字符串/字符串截取", Spawn_StringOperator_Substring},
+};

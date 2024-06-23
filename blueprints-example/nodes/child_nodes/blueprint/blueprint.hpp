@@ -157,4 +157,14 @@ static NodeWorldGlobal::FactoryGroupFunc_t BlueprintNodes = {{"InputAction", Spa
                                                              {"Less", SpawnLessNode},
                                                              {"Weird", SpawnWeirdNode},
                                                              {"Trace by Channel", SpawnTraceByChannelNode}};
+static std::vector<std::pair<std::string, factory_func_t>> BlueprintNodesFactorys = {{"蓝图/InputAction", SpawnInputActionNode},
+                                                                                     {"蓝图/Branch", SpawnBranchNode},
+                                                                                     {"蓝图/Do N", SpawnDoNNode},
+                                                                                     {"蓝图/OutputAction", SpawnOutputActionNode},
+                                                                                     {"蓝图/Print String", SpawnPrintStringNode},
+                                                                                     {"蓝图/Message", SpawnMessageNode},
+                                                                                     {"蓝图/Set Timer", SpawnSetTimerNode},
+                                                                                     {"蓝图/Less", SpawnLessNode},
+                                                                                     {"蓝图/Weird", SpawnWeirdNode},
+                                                                                     {"蓝图/Trace by Channel", SpawnTraceByChannelNode}};
 #endif // BLUEPRINT_HPP

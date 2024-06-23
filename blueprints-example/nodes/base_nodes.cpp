@@ -1095,6 +1095,35 @@ void node_ui::draw_flow_node(Node *node)
         ed::Resume();
     }
 }
+
+void factory_group_init()
+{
+    auto groups = node_factorys::get_instance().get_root_groups("");
+    node_factorys::get_instance().register_group_from_factorys(groups, BlueprintNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, FlowSourceNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, MaaTaskFlowNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, Win32WindowNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, Win32SoftInputNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, BaseTypeNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, BaseStringNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, BaseConvertNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, BaseOperationNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageBaseNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageTypeNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageMathNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageDrawNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageSourceNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageOperationNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageOperatorThresholdNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageOperatorMorphologyNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageOperatorFilterNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageOperatorEdgeNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageOperatorMatchNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageFeatureNodesFactorys);
+    node_factorys::get_instance().register_group_from_factorys(groups, ImageColorConvertNodesFactorys);
+
+}
+
 std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFactories =
     {
         {NodeType::Blueprint, BlueprintNodes},
@@ -1107,33 +1136,12 @@ std::map<NodeType, NodeWorldGlobal::FactoryGroupFunc_t> NodeWorldGlobal::nodeFac
 
         {NodeType::BaseConvert, BaseConvertNodes},
         {NodeType::BaseOperation, BaseOperationNodes},
-        {NodeType::ImageFlow, {
-                                  {"图像查看器", Spawn_ImageViewer},
-                                  {"写入本地文件", Spawn_ImageWriteLocalFile},
-                                  {"写入Raw文件", Spawn_ImageWriteRawFile},
-                                  {"获取图像大小", Spawn_ImageOperator_ImageGetSize},
-                                  {"获取图像范围", Spawn_ImageOperator_ImageGetRect},
-                                  {"获取图像通道数", Spawn_ImageOperator_ImageGetChannels},
-                                  {"获取图像深度", Spawn_ImageOperator_ImageGetDepth},
-                                  {"获取图像信息", Spawn_ImageOperator_ImageGetAllInfo},
-                              }},
+        {NodeType::ImageFlow, ImageBaseNodes},
         {NodeType::ImageType, ImageTypeNodes},
         {NodeType::ImageValue, ImageMathNodes},
         {NodeType::ImageDraw, ImageDrawNodes},
         {NodeType::ImageSource, ImageSourceNodes},
-        {NodeType::ImageOperation, {
-                                       {"OCR 文本", Spawn_ImageOperator_OcrText},
-                                       {"Mask Image", Spawn_ImageOperator_MaskImage},
-                                       {"图像通道拆分", Spawn_ImageOperator_ImageChannelSplit},
-                                       {"图像通道合并", Spawn_ImageOperator_ImageChannelMerge},
-                                       {"获取遮罩图像", Spawn_ImageOperator_ImageAndMaskCopy},
-                                       {"调整图像大小", Spawn_ImageOperator_ImageReSize},
-                                       {"获取范围图像", Spawn_ImageOperator_ImageGetRectImage},
-                                       {"范围图像覆盖图像", Spawn_ImageOperator_RectImageToImage},
-                                       {"水平拼接图像", Spawn_ImageOperator_HConcatenateImages},
-                                       {"垂直拼接图像", Spawn_ImageOperator_VConcatenateImages},
-                                       {"网格拆分图像", Spawn_ImageOperator_GridSplitImages},
-                                   }},
+        {NodeType::ImageOperation, ImageOperationNodes},
         {NodeType::ImageOperation_Threshold, ImageOperatorThresholdNodes},
         {NodeType::ImageOperation_Morphology, ImageOperatorMorphologyNodes},
         {NodeType::ImageOperation_Filter, ImageOperatorFilterNodes},

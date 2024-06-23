@@ -227,3 +227,11 @@ static NodeWorldGlobal::FactoryGroupFunc_t FlowSourceNodes = {
     {"控制流 遍历循环", Spawn_Flow_ForEach},
     {"控制流 遍历循环(带中断)", Spawn_Flow_ForEachBreak},
 };
+static std::vector<std::pair<std::string, factory_func_t>> FlowSourceNodesFactorys = {
+    {"控制流/源/入口", Spawn_Flow_Startup},
+    {"控制流/源/屏障", Spawn_Flow_Shutdown},
+    {"控制流/源/条件分支", Spawn_Flow_If},
+    {"控制流/源/条件循环", Spawn_Flow_While},
+    {"控制流/源/遍历循环", Spawn_Flow_ForEach},
+    {"控制流/源/遍历循环(带中断)", Spawn_Flow_ForEachBreak},
+};

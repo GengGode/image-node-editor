@@ -581,3 +581,24 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageColorConvertNodes = {
     {"RGB 转 YCrCb", Spawn_ImageOperator_RGBToYCrCb},
     {"YCrCb 转 RGB", Spawn_ImageOperator_YCrCbToRGB},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageColorConvertNodesFactorys = {
+    {"图像/转换/图像归一化", Spawn_ImageNormalize},
+    {"图像/转换/图像转换类型", Spawn_ImageConvertToType},
+    {"图像/转换/图像转换缩放", Spawn_ImageConvertScaleAbs},
+    {"图像/转换/图像转换到Fp16", Spawn_ImageConvertToFp16},
+    {"图像/转换/RGB/转 BGR", Spawn_ImageOperator_RgbToBgr},
+    {"图像/转换/RGBA/转 RGB", Spawn_ImageOperator_RgbaToRgb},
+    {"图像/转换/BGR/转 RGB", Spawn_ImageOperator_BgrToRgb},
+    {"图像/转换/灰度/转 RGB", Spawn_ImageOperator_GrayToRGB},
+    {"图像/转换/图像/转 灰度", Spawn_ImageOperator_ImageToGray},
+    {"图像/转换/RGB/转 HSV", Spawn_ImageOperator_RGBToHSV},
+    {"图像/转换/HSV/转 RGB", Spawn_ImageOperator_HSVToRGB},
+    {"图像/转换/RGB/转 LAB", Spawn_ImageOperator_RGBToLAB},
+    {"图像/转换/LAB/转 RGB", Spawn_ImageOperator_LABToRGB},
+    {"图像/转换/RGB/转 YUV", Spawn_ImageOperator_RGBToYUV},
+    {"图像/转换/YUV/转 RGB", Spawn_ImageOperator_YUVToRGB},
+    {"图像/转换/RGB/转 YCrCb", Spawn_ImageOperator_RGBToYCrCb},
+    {"图像/转换/YCrCb/转 RGB", Spawn_ImageOperator_YCrCbToRGB},
+};
+

@@ -329,7 +329,7 @@ Node *SpawnBoolToStringNode(const std::function<int()> &GetNextId, const std::fu
     return &node;
 }
 
-static std::vector<std::pair<std::string, std::function<Node *(const std::function<int()> &GetNextId, const std::function<void(Node *)> &BuildNode, std::vector<Node> &m_Nodes, Application *app)>>> BaseConvertNodes = {
+static NodeWorldGlobal::FactoryGroupFunc_t BaseConvertNodes = {
     {"布尔值 转 整数", SpawnBoolToIntNode},
     {"整数 转 布尔值", SpawnIntToBoolNode},
     {"整数 转 浮点数", SpawnIntToFloatNode},
@@ -342,6 +342,21 @@ static std::vector<std::pair<std::string, std::function<Node *(const std::functi
     {"整数 转 文本", SpawnIntToStringNode},
     {"浮点数 转 文本", SpawnFloatToStringNode},
     {"布尔值 转 文本", SpawnBoolToStringNode},
+};
+
+static std::vector<std::pair<std::string, factory_func_t>> BaseConvertNodesFactorys = {
+    {"基础类型转换/布尔值/转 整数", SpawnBoolToIntNode},
+    {"基础类型转换/整数/转 布尔值", SpawnIntToBoolNode},
+    {"基础类型转换/整数/转 浮点数", SpawnIntToFloatNode},
+    {"基础类型转换/浮点数/转 整数", SpawnFloatToIntNode},
+    {"基础类型转换/浮点数/转 布尔值", SpawnFloatToBoolNode},
+    {"基础类型转换/布尔值/转 浮点数", SpawnBoolToFloatNode},
+    {"基础类型转换/文本/转 整数", SpawnStringToIntNode},
+    {"基础类型转换/文本/转 浮点数", SpawnStringToFloatNode},
+    {"基础类型转换/文本/转 布尔值", SpawnStringToBoolNode},
+    {"基础类型转换/整数/转 文本", SpawnIntToStringNode},
+    {"基础类型转换/浮点数/转 文本", SpawnFloatToStringNode},
+    {"基础类型转换/布尔值/转 文本", SpawnBoolToStringNode},
 };
 
 #endif // BASE_TYPE_HPP

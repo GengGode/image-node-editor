@@ -241,3 +241,13 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorMorphologyNodes = {
     {"Morphology Top Hat", Spawn_ImageOperator_MorphologyTopHat},
     {"Morphology Black Hat", Spawn_ImageOperator_MorphologyBlackHat},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageOperatorMorphologyNodesFactorys = {
+    {"图像/形态学/Dilate", Spawn_ImageOperator_Dilate},
+    {"图像/形态学/Erode", Spawn_ImageOperator_Erode},
+    {"图像/形态学/Morphology Open", Spawn_ImageOperator_MorphologyOpen},
+    {"图像/形态学/Morphology Close", Spawn_ImageOperator_MorphologyClose},
+    {"图像/形态学/Morphology Gradient", Spawn_ImageOperator_MorphologyGradient},
+    {"图像/形态学/Morphology Top Hat", Spawn_ImageOperator_MorphologyTopHat},
+    {"图像/形态学/Morphology Black Hat", Spawn_ImageOperator_MorphologyBlackHat},
+};

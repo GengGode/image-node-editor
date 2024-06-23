@@ -408,3 +408,19 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageTypeNodes = {
     {"创建颜色", Spawn_ImageOperator_IntToColor},
     {"创建图片", Spawn_ImageOperator_CreateImage},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageTypeNodesFactorys = {
+    {"图像/数据/Int/to Point", Spawn_ImageOperator_IntToPoint},
+    {"图像/数据/Int/to Size", Spawn_ImageOperator_IntToSize},
+    {"图像/数据/Int/to Rect", Spawn_ImageOperator_IntToRect},
+    {"图像/数据/Point/to Int", Spawn_ImageOperator_PointToInt},
+    {"图像/数据/Point/to Size", Spawn_ImageOperator_PointToSize},
+    {"图像/数据/Size/to Int", Spawn_ImageOperator_SizeToInt},
+    {"图像/数据/Size/to Point", Spawn_ImageOperator_SizeToPoint},
+    {"图像/数据/Rect/to Int", Spawn_ImageOperator_RectToInt},
+    {"图像/数据/Rect/to Point and Size", Spawn_ImageOperator_RectToPointAndSize},
+    {"图像/数据/Point and Size/to Rect", Spawn_ImageOperator_PointAndSizeToRect},
+    {"图像/创建/随机颜色", Spawn_ImageOperator_RandomColor},
+    {"图像/创建/颜色", Spawn_ImageOperator_IntToColor},
+    {"图像/创建/图片", Spawn_ImageOperator_CreateImage},
+};

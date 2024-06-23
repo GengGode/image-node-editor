@@ -18,3 +18,11 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageDrawNodes = {
     {"画椭圆", Spawn_ImageOperator_DrawEllipse},
     {"画文本", Spawn_ImageOperator_DrawText},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>>  ImageDrawNodesFactorys = {
+    {"图像/绘制/画线", Spawn_ImageOperator_DrawLine},
+    {"图像/绘制/画矩形", Spawn_ImageOperator_DrawRectangle},
+    {"图像/绘制/画圆", Spawn_ImageOperator_DrawCircle},
+    {"图像/绘制/画椭圆", Spawn_ImageOperator_DrawEllipse},
+    {"图像/绘制/画文本", Spawn_ImageOperator_DrawText},
+};

@@ -203,3 +203,10 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorThresholdNodes = {
     {"多通道图像阈值", Spawn_ImageOperator_ChannelThresholding},
     {"彩图二值化", Spawn_ImageOperator_InRange},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageOperatorThresholdNodesFactorys = {
+    {"图像/阈值/阈值", Spawn_ImageOperator_Threshold},
+    {"图像/阈值/高级阈值", Spawn_ImageOperator_AdaptiveThreshold},
+    {"图像/阈值/多通道图像阈值", Spawn_ImageOperator_ChannelThresholding},
+    {"图像/阈值/彩图二值化", Spawn_ImageOperator_InRange},
+};

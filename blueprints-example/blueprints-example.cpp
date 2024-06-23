@@ -116,6 +116,7 @@ struct Example : public Application
         ed::NavigateToContent();
 
         m_Graph.build_nodes();
+        factory_group_init();
 
         m_HeaderBackground = LoadTexture("data/BlueprintBackground.png");
         m_SaveIcon = LoadTexture("data/ic_save_white_24dp.png");
@@ -828,24 +829,36 @@ struct Example : public Application
         if (ImGui::BeginPopup("Create New Node"))
         {
             Node *node = nullptr;
-            for (auto &[type_name, type] : nodeTypes)
-            {
-                if (ImGui::BeginMenu(type_name.c_str()))
-                {
-                    for (auto &[name, func] : NodeWorldGlobal::nodeFactories[type])
+            auto root_groups = node_factorys::get_instance().get_root_groups("");
+            node_factorys::get_instance().for_each_group(root_groups, [&](std::vector<std::string> stack, node_factorys::stack_status status, bool menu_status, std::shared_ptr<factory_group<factory_func_t>> groups)
+                                                       {
+                    if (menu_status == false)
+                        return false;
+                    if (status == node_factorys::stack_status::begin)
+                        return ImGui::BeginMenu(stack.back().c_str());
+                    else if (status == node_factorys::stack_status::content)
                     {
-                        if (ImGui::MenuItem(name.c_str()))
+                        if (ImGui::MenuItem(stack.back().c_str()))
                         {
-                            node = func([&]()
-                                        { return m_Graph.get_next_id(); },
-                                        [&](Node *node)
-                                        { m_Graph.build_node(node); },
-                                        m_Graph.Nodes, this);
+                            if(groups->factory_opt.has_value())
+                            {
+                                auto &factory = groups->factory_opt.value();
+                                node = factory([&](){ return m_Graph.get_next_id(); },
+                                                    [&](Node *node){ m_Graph.build_node(node); },
+                                                    m_Graph.Nodes, this);
+                            }
+                            else{
+                                Notifier::Add(Notif(Notif::Type::WARNING, "创建节点失败", "未找到节点工厂"));
+                            }
+                        }
+                        if(ImGui::IsItemHovered())
+                        {
+                            ImGui::SetTooltip("创建节点: %s", stack.back().c_str());
                         }
                     }
-                    ImGui::EndMenu();
-                }
-            }
+					else if(status == node_factorys::stack_status::end)
+						ImGui::EndMenu();
+                    return false; });
 
             if (node)
             {

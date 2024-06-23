@@ -509,3 +509,19 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorEdgeNodes = {
     {"霍夫圆查找", Spawn_ImageOperator_HoughCircleDetection},
     {"绘制霍夫圆", Spawn_ImageOperator_DrawHoughCircles},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageOperatorEdgeNodesFactorys = 
+{
+    {"图像/边缘检测/Canny轮廓检测", Spawn_ImageOperator_Canny},
+    {"图像/边缘检测/Sobel轮廓检测", Spawn_ImageOperator_SobelEdgeDetection},
+    {"图像/边缘检测/Laplacian轮廓检测", Spawn_ImageOperator_LaplacianEdgeDetection},
+    {"图像/边缘检测/Laplacian边缘增强", Spawn_ImageOperator_LaplacianEdgeEnhancement},
+    {"图像/边缘检测/Scharr轮廓检测", Spawn_ImageOperator_ScharrEdgeDetection},
+    {"图像/边缘检测/查找轮廓", Spawn_ImageOperator_FindContours},
+    {"图像/边缘检测/绘制轮廓", Spawn_ImageOperator_DrawContours},
+    {"图像/边缘检测/排序轮廓-基于面积", Spawn_ImageOperator_SortContoursByArea},
+    {"图像/边缘检测/过滤轮廓-基于面积", Spawn_ImageOperator_FilterContoursByAreaRange},
+    {"图像/边缘检测/选择轮廓-基于索引", Spawn_ImageOperator_SelectContourByIndex},
+    {"图像/边缘检测/霍夫圆查找", Spawn_ImageOperator_HoughCircleDetection},
+    {"图像/边缘检测/绘制霍夫圆", Spawn_ImageOperator_DrawHoughCircles},
+};

@@ -975,6 +975,10 @@ struct Graph
     bool deserialize(const std::string &json_buff);
 };
 
+#include "factory_group.hpp"
+
+void factory_group_init();
+
 #include "node_serialize.hpp"
 
 inline bool Graph::serialize(std::string &json_buff)

@@ -408,3 +408,15 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageOperatorFilterNodes = {
     {"非局部均值滤波", Spawn_ImageOperator_NonLocalMeansFilter},
     {"自适应均值滤波", Spawn_ImageOperator_AdaptiveMeanFilter},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageOperatorFilterNodesFactorys = {
+    {"图像/滤波/低通滤波", Spawn_ImageOperator_LowPassFilter},
+    {"图像/滤波/高通滤波", Spawn_ImageOperator_HighPassFilter},
+    {"图像/滤波/方框滤波", Spawn_ImageOperator_BoxFilter},
+    {"图像/滤波/均值滤波", Spawn_ImageOperator_BlurFilter},
+    {"图像/滤波/高斯滤波", Spawn_ImageOperator_GaussianFilter},
+    {"图像/滤波/中值滤波", Spawn_ImageOperator_MedianFilter},
+    {"图像/滤波/双边滤波", Spawn_ImageOperator_BilateralFilter},
+    {"图像/滤波/非局部均值滤波", Spawn_ImageOperator_NonLocalMeansFilter},
+    {"图像/滤波/自适应均值滤波", Spawn_ImageOperator_AdaptiveMeanFilter},
+};

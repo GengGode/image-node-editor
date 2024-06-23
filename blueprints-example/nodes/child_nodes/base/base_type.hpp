@@ -59,4 +59,12 @@ static NodeWorldGlobal::FactoryGroupFunc_t BaseTypeNodes = {
     {"浮点数", SpawnFloatNode},
     {"文本", SpawnStringNode},
 };
+
+static std::vector<std::pair<std::string, factory_func_t>> BaseTypeNodesFactorys = {
+    {"基础类型/布尔值", SpawnBoolNode},
+    {"基础类型/整数", SpawnIntNode},
+    {"基础类型/浮点数", SpawnFloatNode},
+    {"基础类型/文本", SpawnStringNode},
+};
+
 #endif // BASE_TYPE_HPP

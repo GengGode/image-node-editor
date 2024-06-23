@@ -810,17 +810,30 @@ static NodeWorldGlobal::FactoryGroupFunc_t BaseOperationNodes = {
     {"浮点数 取余", SpawnFloatModuloNode},
     {"浮点数 比较", SpawnFloatCompareNode},
     {"浮点数 乘方", SpawnFloatPowerNode},
+};
 
-    //{"String Concatenate", SpawnStringConcatenateNode},
-    //{"String Length", SpawnStringLengthNode},
-    //{"String Substring", SpawnStringSubstringNode},
-    //{"String Find", SpawnStringFindNode},
-    //{"String Replace", SpawnStringReplaceNode},
-    //{"String Remove", SpawnStringRemoveNode},
-    //{"String To Upper", SpawnStringToUpperNode},
-    //{"String To Lower", SpawnStringToLowerNode},
-    //{"String Trim", SpawnStringTrimNode},
-    //{"String Split", SpawnStringSplitNode}
+static std::vector<std::pair<std::string, factory_func_t>> BaseOperationNodesFactorys ={
+    {"基础类型/计算/布尔值/非", SpawnBoolNotNode},
+    {"基础类型/计算/布尔值/与", SpawnBoolAndNode},
+    {"基础类型/计算/布尔值/或", SpawnBoolOrNode},
+    {"基础类型/计算/布尔值/异或", SpawnBoolXorNode},
+    {"基础类型/计算/比特数组/转 整数", SpawnBytesToIntNode},
+    {"基础类型/计算/整数/加", SpawnIntAddNode},
+    {"基础类型/计算/整数/减", SpawnIntSubtractNode},
+    {"基础类型/计算/整数/乘", SpawnIntMultiplyNode},
+    {"基础类型/计算/整数/除", SpawnIntDivideNode},
+    {"基础类型/计算/整数/取余", SpawnIntModuloNode},
+    {"基础类型/计算/整数/比较", SpawnIntCompareNode},
+    {"基础类型/计算/整数/乘方", SpawnIntPowerNode},
+    {"基础类型/计算/整数/乘 浮点数", SpawnIntMultiplyFloatNode},
+    {"基础类型/计算/整数/除 浮点数", SpawnIntDivideFloatNode},
+    {"基础类型/计算/浮点数/加", SpawnFloatAddNode},
+    {"基础类型/计算/浮点数/减", SpawnFloatSubtractNode},
+    {"基础类型/计算/浮点数/乘", SpawnFloatMultiplyNode},
+    {"基础类型/计算/浮点数/除", SpawnFloatDivideNode},
+    {"基础类型/计算/浮点数/取余", SpawnFloatModuloNode},
+    {"基础类型/计算/浮点数/比较", SpawnFloatCompareNode},
+    {"基础类型/计算/浮点数/乘方", SpawnFloatPowerNode},
 };
 
 #endif // BASE_OPERATION_NODES_H

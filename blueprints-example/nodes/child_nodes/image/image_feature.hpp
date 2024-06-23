@@ -334,3 +334,13 @@ static NodeWorldGlobal::FactoryGroupFunc_t ImageFeatureNodes = {
     {"匹配特征点", Spawn_ImageFeature_MatchFeaturePoints},
     {"绘制匹配特征点", Spawn_ImageFeature_DrawMatchedFeaturePoints},
 };
+
+
+static std::vector<std::pair<std::string, factory_func_t>> ImageFeatureNodesFactorys = {
+    {"图像/特征点/SURF特征点提取", Spawn_ImageFeature_GenerateSURFFeature},
+    {"图像/特征点/SIFT特征点提取", Spawn_ImageFeature_GenerateSIFTFeature},
+    {"图像/特征点/ORB特征点提取", Spawn_ImageFeature_GenerateORBFeature},
+    {"图像/特征点/绘制特征点", Spawn_ImageFeature_DrawFeaturePoints},
+    {"图像/特征点/匹配特征点", Spawn_ImageFeature_MatchFeaturePoints},
+    {"图像/特征点/绘制匹配特征点", Spawn_ImageFeature_DrawMatchedFeaturePoints},
+};
